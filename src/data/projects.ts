@@ -14,6 +14,19 @@ export type Block =
   | { kind: 'list'; title?: string; items: string[] }
   | { kind: 'quote'; body: string; source?: string }
   | { kind: 'split'; title: string; items: { label: string; body: string }[] }
+  /** A funnel: each rung loses some of the one above it. */
+  | { kind: 'ladder'; title?: string; steps: { stage: string; note: string; value: string }[] }
+  /** What exists today, and the gap each one leaves. */
+  | { kind: 'compare'; title?: string; items: { name: string; good: string; gap: string }[] }
+  /** A moment told in beats, timestamped. */
+  | { kind: 'beats'; title: string; lede?: string; tone: 'without' | 'with'; beats: { at: string; said: string; note: string }[]; close?: string }
+  /** Rows against columns — a journey map or a measures table. */
+  | { kind: 'table'; title?: string; columns: string[]; rows: string[][] }
+  /** Numbered principles, stated flat. */
+  | { kind: 'principles'; title?: string; items: { no: string; name: string; body: string }[] }
+  /** An image from the Figma file. Falls back to a tinted panel until the
+   *  export is dropped into public/img/, so nothing ever renders broken. */
+  | { kind: 'figure'; src: string; caption?: string; ratio?: string }
 
 export type Section = { id: string; label: string; heading: string; blocks: Block[] }
 
@@ -35,6 +48,8 @@ export type Project = {
   accent: string
 }
 
+import { HARMONEY_SECTIONS } from './harmoney'
+
 export const PROJECTS: Project[] = [
   // ── Harmoney ───────────────────────────────────────────────────────────
   {
@@ -50,133 +65,8 @@ export const PROJECTS: Project[] = [
     client: 'Anthem Nation — Tyi Moncrieffe',
     kind: 'project',
     accent: '#1f6f4a',
-    sections: [
-      {
-        id: 'what',
-        label: 'The product',
-        heading: 'A physical card that carries your business',
-        blocks: [
-          {
-            kind: 'text',
-            body: [
-              'Tap it to any phone and your Harmoney profile opens in the browser, ready to take a payment. Nothing to install, nothing to spell out, nothing to remember later.',
-            ],
-          },
-        ],
-      },
-      {
-        id: 'opportunity',
-        label: 'The opportunity',
-        heading: 'Intent is strongest the moment someone says yes',
-        blocks: [
-          {
-            kind: 'text',
-            body: [
-              'When someone says yes in person, the intent to pay is at its strongest. Today that intent has to travel through several steps before money moves. Every step it survives is value kept, and that is where Harmoney does its work.',
-              'Harmoney does not remove the payment step. The payer still opens their phone and authorises, and that step should take a deliberate action. What changes is everything that happens before it.',
-            ],
-          },
-          {
-            kind: 'split',
-            title: 'The same ninety seconds, twice',
-            items: [
-              {
-                label: 'Without Harmoney · four days, no booking',
-                body: 'Nothing went wrong. Nobody was rude. The booking quietly evaporated between “I will DM you” and Thursday.',
-              },
-              {
-                label: 'With Harmoney · under a minute, deposit taken',
-                body: 'It collapses discovery, identity and payment into a single physical gesture, performed at the moment intent is highest.',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'goals',
-        label: 'Goals',
-        heading: 'Agreed before design started',
-        blocks: [
-          {
-            kind: 'text',
-            body: [
-              'Project goals were agreed with the founder before design started, and used to settle every scope argument after.',
-            ],
-          },
-          {
-            kind: 'list',
-            title: 'Who it is for',
-            items: [
-              'Three earner types, plus the person nobody designs for.',
-              'Built from the founder’s market knowledge and the presale audience.',
-              'Labelled proto personas, because at this stage they are informed models rather than validated research.',
-            ],
-          },
-        ],
-      },
-      {
-        id: 'process',
-        label: 'Process',
-        heading: 'Journeys, stories and principles',
-        blocks: [
-          {
-            kind: 'text',
-            body: [
-              'I mapped the Service Creator’s current state against the designed state, along with all three earner types. That was the one that offered the most to design for.',
-              'User stories were written as acceptance criteria I could design against and a developer could build against, but held to a person so the requirement never got separated from its reason.',
-              'Five principles, agreed with Tyi before a single screen was drawn. They gave us a shared way to settle questions quickly later on.',
-            ],
-          },
-        ],
-      },
-      {
-        id: 'design',
-        label: 'Design',
-        heading: 'Structure first, colour last',
-        blocks: [
-          {
-            kind: 'text',
-            body: [
-              'Three structural concepts before any pixel was styled, run against the same story: take payment from a stranger in under ten seconds. The seller already believes in it; the payer is deciding in the moment, and design effort goes furthest where the decision is still open.',
-              'Structure and hierarchy were resolved in greyscale, with the reasoning annotated on the artefact so it survived review without me in the room. Layout and density were then resolved at full detail with colour deliberately withheld — if a screen does not work in grey, colour will not save it.',
-              'Colour was applied last, on structure already argued and settled. Deep green carries navigation, the card and identity. Lime is held back for the single highest intent action on any screen.',
-            ],
-          },
-          {
-            kind: 'text',
-            body: [
-              'The product came to forty six screens across two themes, covering onboarding, the money flows, links, the card, settings and every state in between.',
-              'In a payments product the quieter states are not edge cases. They are where trust is built, so every state is designed. Accessibility was considered during design rather than audited afterwards, and where it is not resolved, I have said so.',
-            ],
-          },
-        ],
-      },
-      {
-        id: 'reflection',
-        label: 'Reflection',
-        heading: 'What I took from it',
-        blocks: [
-          {
-            kind: 'split',
-            title: '',
-            items: [
-              {
-                label: 'The brief opened up into something bigger',
-                body: 'The starting point was a set of screens. Working through it with Tyi, it became clear the more useful contribution was defining what the product was for, who it served, and which moments carried the business. He gave me the room to go there.',
-              },
-              {
-                label: 'Holding colour back paid off',
-                body: 'Working in greyscale through wireframes and lo-fi meant every hierarchy question was answered with structure. Two things surfaced there that would have been easy to miss later.',
-              },
-              {
-                label: 'What I would add next',
-                body: 'Not more screens. Five conversations with working vendors would test three of the assumptions this work is built on, and I designed those parts to be easy to change for exactly that reason.',
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    duration: 'Dec 2025 — Jun 2026',
+    sections: HARMONEY_SECTIONS,
   },
 
   // ── Vesseli ────────────────────────────────────────────────────────────

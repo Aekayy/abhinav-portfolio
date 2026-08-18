@@ -27,7 +27,7 @@ const HIDDEN = 'reveal'
 const SHOWN = 'is-visible'
 
 /** Sections whose content should arrive. The hero is deliberately absent. */
-const SECTION = 'main section'
+const SECTION = 'main section, [role="dialog"] section'
 
 export function startReveal(): () => void {
   if (typeof document === 'undefined') return () => {}
@@ -40,6 +40,10 @@ export function startReveal(): () => void {
   for (const section of document.querySelectorAll<HTMLElement>(SECTION)) {
     // The hero is the first thing on screen; it has nothing to arrive from.
     if (section.dataset.noReveal !== undefined) continue
+    // Inside the dialog the section itself is the unit; on the page it is the
+    // section's children, because a whole page section arriving at once is too
+    // large a movement to read as anything but a jump.
+    if (section.matches('[role="dialog"] section')) { targets.push(section); continue }
     const shell = section.querySelector<HTMLElement>(':scope > .shell') ?? section
     for (const child of Array.from(shell.children) as HTMLElement[]) {
       if (child.dataset.noReveal !== undefined) continue
@@ -49,7 +53,7 @@ export function startReveal(): () => void {
   if (targets.length === 0) return () => {}
 
   document.documentElement.setAttribute('data-reveal', 'on')
-  for (const el of targets) el.classList.add(HIDDEN)
+  for (const el of targets) el.classList.add(el.matches('[role="dialog"] section') ? 'reveal-in' : HIDDEN)
 
   const viewportH = window.innerHeight
   const observer = new IntersectionObserver(

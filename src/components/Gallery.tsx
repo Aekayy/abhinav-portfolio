@@ -66,8 +66,7 @@ export function Gallery({ projects }: { projects: Project[] }) {
               aria-label={`Open the ${p.name} case study`}
             >
               <div
-                className="aspect-[4/3] w-full rounded-(--radius-card) border border-(--line)
-                           transition-transform duration-300 ease-(--ease-out) group-hover:-translate-y-1"
+                className="lift aspect-[4/3] w-full rounded-(--radius-card) border border-(--line)"
                 style={{ background: `linear-gradient(150deg, ${p.accent}, ${p.accent}22)` }}
                 aria-hidden="true"
               />

@@ -6,6 +6,7 @@
  * an empty array, and nothing else here reads the page. So these assertions are
  * about content being present and reachable, not about markup shape.
  */
+import { readFileSync } from 'node:fs'
 import { renderToString } from 'react-dom/server'
 import { createElement } from 'react'
 // esbuild flattens when there is a single entry point, so this is
@@ -95,6 +96,33 @@ check('uses the defensible experience figure',
 // ── an unknown route must not render a blank page
 const missing = at('/nope')
 check('unknown route shows a 404', missing.includes('does not exist'))
+
+
+// ── Harmoney, rebuilt from the Figma case study page
+const h = pages['/projects/harmoney']
+check('harmoney carries the narrative', h.includes('Danielle') && h.includes('rooftop'),
+  'the same ninety seconds, told twice')
+check('harmoney shows the intent funnel', h.includes('Intent is at its peak') && h.includes('~8%'))
+check('harmoney lists the four personas',
+  ['Maya', 'Danielle', 'Marcus', 'Alex'].every((n) => h.includes(n)))
+check('harmoney states the five principles',
+  h.includes('Protect the gesture') && h.includes('One identity, end to end'))
+check('harmoney is honest about accessibility',
+  h.includes('In review'), 'unresolved items are named rather than omitted')
+check('harmoney names its measures', h.includes('Withdrawal completion rate'))
+
+// ── motion
+const css = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8')
+check('study pops in, not from nothing', /panel-in[\s\S]{0,140}scale\(\.96\)/.test(css),
+  'scale(0.96), never scale(0)')
+const enterMs = Number(/\.panel-enter\s*\{\s*animation:\s*panel-in\s*(\d+)ms/.exec(css)?.[1])
+const leaveMs = Number(/\.panel-leave\s*\{\s*animation:\s*panel-out\s*(\d+)ms/.exec(css)?.[1])
+check('exit is quicker than entry', enterMs > leaveMs, `${enterMs}ms in, ${leaveMs}ms out`)
+check('hover motion is pointer gated',
+  /\(hover: hover\) and \(pointer: fine\)/.test(css), 'touch fires a false hover on tap')
+check('reduced motion still signals the change',
+  /prefers-reduced-motion: reduce[\s\S]{0,700}panel-enter/.test(css),
+  'fades without moving, rather than nothing at all')
 
 console.table(rows)
 if (failed) {

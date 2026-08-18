@@ -17,6 +17,8 @@ export default function Site() {
 
   // Restarted per route: each page has its own sections to reveal, and the
   // observer from the previous page has nothing left to watch.
+  // Keyed on the full route, so opening a study re-runs it over the sections
+  // that just mounted inside the dialog.
   useEffect(() => startReveal(), [route])
 
   // A study is a route that renders over the gallery rather than replacing it,

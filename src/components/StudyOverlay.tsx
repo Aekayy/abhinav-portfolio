@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Block, Project } from '@/data/projects'
 import { go } from '@/site/router'
 
@@ -17,13 +17,28 @@ import { go } from '@/site/router'
 export function StudyOverlay({ project }: { project: Project }) {
   const panel = useRef<HTMLDivElement | null>(null)
   const restoreTo = useRef<HTMLElement | null>(null)
+  const [leaving, setLeaving] = useState(false)
+
+  /**
+   * Play the exit, then change the route.
+   *
+   * Without this the panel is unmounted the instant the hash changes and there
+   * is nothing left to animate — the study simply vanishes. 180ms is the exit
+   * duration; the route change is what actually closes it, so the animation
+   * never becomes load-bearing.
+   */
+  const close = () => {
+    if (leaving) return
+    setLeaving(true)
+    window.setTimeout(() => go('/projects'), 180)
+  }
 
   useEffect(() => {
     restoreTo.current = document.activeElement as HTMLElement
     panel.current?.focus()
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { e.preventDefault(); go('/projects') }
+      if (e.key === 'Escape') { e.preventDefault(); close() }
       if (e.key !== 'Tab') return
       // Keep tabbing inside the dialog; a modal you can tab out of is a modal
       // that has lost the reader behind it.
@@ -49,8 +64,8 @@ export function StudyOverlay({ project }: { project: Project }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-black/45 px-0 py-0 sm:px-6 sm:py-10"
-      onClick={(e) => { if (e.target === e.currentTarget) go('/projects') }}
+      className={`fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-black/45 px-0 py-0 sm:px-6 sm:py-10 ${leaving ? 'overlay-leave' : 'overlay-enter'}`}
+      onClick={(e) => { if (e.target === e.currentTarget) close() }}
     >
       <div
         ref={panel}
@@ -58,8 +73,8 @@ export function StudyOverlay({ project }: { project: Project }) {
         aria-modal="true"
         aria-label={`${project.name} case study`}
         tabIndex={-1}
-        className="mx-auto w-full max-w-[900px] overflow-hidden bg-(--page) outline-none
-                   sm:rounded-(--radius-card)"
+        className={`mx-auto w-full max-w-[900px] overflow-hidden bg-(--page) outline-none
+                    sm:rounded-(--radius-card) ${leaving ? 'panel-leave' : 'panel-enter'}`}
       >
         <div className="relative">
           <div
@@ -68,7 +83,7 @@ export function StudyOverlay({ project }: { project: Project }) {
             aria-hidden="true"
           />
           <button
-            onClick={() => go('/projects')}
+            onClick={close}
             aria-label="Close case study"
             className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full
                        bg-(--page) text-(--ink) transition-transform hover:scale-105"
@@ -110,7 +125,7 @@ export function StudyOverlay({ project }: { project: Project }) {
 
               <div className="mt-12 grid gap-14">
                 {project.sections?.map((s) => (
-                  <section key={s.id} className="min-w-0">
+                  <section key={s.id} className="reveal-in min-w-0">
                     <p className="t-caption mb-3 uppercase tracking-[0.16em] text-(--ink-muted)">{s.label}</p>
                     <h3 className="t-heading-sm max-w-[26ch] text-(--ink)">{s.heading}</h3>
                     <div className="mt-6 grid gap-7">
@@ -128,50 +143,196 @@ export function StudyOverlay({ project }: { project: Project }) {
 }
 
 function BlockView({ block }: { block: Block }) {
-  if (block.kind === 'text') {
-    return (
-      <div className="grid gap-4">
-        {block.body.map((p) => <p key={p.slice(0, 24)} className="t-body-sm text-(--ink-muted)">{p}</p>)}
-      </div>
-    )
-  }
+  switch (block.kind) {
+    case 'text':
+      return (
+        <div className="grid gap-4">
+          {block.body.map((p) => <p key={p.slice(0, 24)} className="t-body-sm text-(--ink-muted)">{p}</p>)}
+        </div>
+      )
 
-  if (block.kind === 'list') {
-    return (
-      <div className="min-w-0">
-        {block.title && <h4 className="t-body mb-3 text-(--ink)">{block.title}</h4>}
-        <ul className="grid gap-2.5">
-          {block.items.map((it) => (
-            <li key={it.slice(0, 24)} className="t-body-sm flex gap-3 text-(--ink-muted)">
-              <span aria-hidden="true" className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-(--line-strong)" />
-              <span className="min-w-0">{it}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )
-  }
+    case 'list':
+      return (
+        <div className="min-w-0">
+          {block.title && <h4 className="t-body mb-3 text-(--ink)">{block.title}</h4>}
+          <ul className="grid gap-2.5">
+            {block.items.map((it) => (
+              <li key={it.slice(0, 24)} className="t-body-sm flex gap-3 text-(--ink-muted)">
+                <span aria-hidden="true" className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-(--line-strong)" />
+                <span className="min-w-0">{it}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
 
-  if (block.kind === 'quote') {
-    return (
-      <figure className="card min-w-0 p-6">
-        <blockquote className="t-body text-(--ink)">“{block.body}”</blockquote>
-        {block.source && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.source}</figcaption>}
-      </figure>
-    )
-  }
+    case 'quote':
+      return (
+        <figure className="card min-w-0 p-6">
+          <blockquote className="t-body text-(--ink)">“{block.body}”</blockquote>
+          {block.source && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.source}</figcaption>}
+        </figure>
+      )
 
-  return (
-    <div className="min-w-0">
-      {block.title && <h4 className="t-body mb-4 text-(--ink)">{block.title}</h4>}
-      <div className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
-        {block.items.map((it) => (
-          <div key={it.label} className="min-w-0 border-t border-(--line) pt-3">
-            <div className="t-body-sm font-medium text-(--ink)">{it.label}</div>
-            <p className="t-body-sm mt-1.5 text-(--ink-muted)">{it.body}</p>
+    case 'split':
+      return (
+        <div className="min-w-0">
+          {block.title && <h4 className="t-body mb-4 text-(--ink)">{block.title}</h4>}
+          <div className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+            {block.items.map((it) => (
+              <div key={it.label} className="min-w-0 border-t border-(--line) pt-3">
+                <div className="t-body-sm font-medium text-(--ink)">{it.label}</div>
+                <p className="t-body-sm mt-1.5 text-(--ink-muted)">{it.body}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </div>
-  )
+        </div>
+      )
+
+    /* A funnel reads as loss, so each rung is drawn shorter than the one above
+       it. The bar is the argument; the number only confirms it. */
+    case 'ladder':
+      return (
+        <div className="min-w-0">
+          {block.title && <h4 className="t-body mb-4 text-(--ink)">{block.title}</h4>}
+          <ol className="grid gap-2">
+            {block.steps.map((st, i) => {
+              const width = 100 - i * (60 / Math.max(1, block.steps.length - 1))
+              return (
+                <li key={st.stage} className="min-w-0">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <span className="t-body-sm font-medium text-(--ink)">{st.stage}</span>
+                    <span className="t-body-sm tabular-nums text-(--ink-muted)">{st.value}</span>
+                  </div>
+                  <div
+                    className="mt-1.5 h-2 rounded-full bg-(--surface-2) transition-[width] duration-700 ease-(--ease-out)"
+                    style={{ width: `${width}%` }}
+                    aria-hidden="true"
+                  />
+                  <p className="t-caption mt-1.5 text-(--ink-muted)">{st.note}</p>
+                </li>
+              )
+            })}
+          </ol>
+        </div>
+      )
+
+    case 'compare':
+      return (
+        <div className="min-w-0">
+          {block.title && <h4 className="t-body mb-4 text-(--ink)">{block.title}</h4>}
+          <div className="grid gap-3">
+            {block.items.map((it) => (
+              <div key={it.name} className="card min-w-0 p-5">
+                <div className="t-body-sm font-medium text-(--ink)">{it.name}</div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <p className="t-body-sm text-(--ink-muted)">{it.good}</p>
+                  <p className="t-body-sm text-(--ink-muted)">{it.gap}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+
+    /* The narrative beats. The two outcomes are deliberately the same shape, so
+       the difference the reader notices is the timeline, not the styling. */
+    case 'beats':
+      return (
+        <div className="min-w-0">
+          <h4 className="t-body mb-1 text-(--ink)">{block.title}</h4>
+          {block.lede && <p className="t-body-sm mb-4 text-(--ink-muted)">{block.lede}</p>}
+          <ol className="mt-4 grid gap-0">
+            {block.beats.map((b, i) => (
+              <li key={b.at + i} className="grid gap-1 border-l-2 py-4 pl-5"
+                  style={{ borderColor: block.tone === 'with' ? 'var(--ink)' : 'var(--line)' }}>
+                <div className="flex flex-wrap items-baseline gap-x-3">
+                  <span className="t-caption tabular-nums text-(--ink-muted)">{b.at}</span>
+                  <span className="t-body-sm font-medium text-(--ink)">{b.said}</span>
+                </div>
+                <p className="t-body-sm text-(--ink-muted)">{b.note}</p>
+              </li>
+            ))}
+          </ol>
+          {block.close && <p className="t-body-sm mt-4 text-(--ink)">{block.close}</p>}
+        </div>
+      )
+
+    /* Scrolls sideways inside its own container rather than widening the
+       dialog, which is what a wide table would otherwise do on a phone. */
+    case 'table':
+      return (
+        <div className="min-w-0">
+          {block.title && <h4 className="t-body mb-4 text-(--ink)">{block.title}</h4>}
+          <div className="overflow-x-auto rounded-(--radius-sm) border border-(--line)">
+            <table className="w-full min-w-[520px] border-collapse text-left">
+              <thead>
+                <tr>
+                  {block.columns.map((c) => (
+                    <th key={c} scope="col"
+                        className="t-caption border-b border-(--line) bg-(--surface) px-4 py-3 font-medium text-(--ink-muted)">
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {block.rows.map((row) => (
+                  <tr key={row[0]}>
+                    {row.map((cell, i) => (
+                      <td key={i}
+                          className={`t-body-sm border-b border-(--line) px-4 py-3 align-top ${
+                            i === 0 ? 'font-medium text-(--ink)' : 'text-(--ink-muted)'}`}>
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )
+
+    case 'principles':
+      return (
+        <div className="min-w-0">
+          {block.title && <h4 className="t-body mb-4 text-(--ink)">{block.title}</h4>}
+          <ol className="grid gap-0">
+            {block.items.map((it) => (
+              <li key={it.no} className="grid gap-1 border-t border-(--line) py-4 sm:grid-cols-[auto_1fr] sm:gap-6">
+                <span className="t-caption tabular-nums text-(--ink-muted)">{it.no}</span>
+                <div className="min-w-0">
+                  <div className="t-body-sm font-medium text-(--ink)">{it.name}</div>
+                  <p className="t-body-sm mt-1 text-(--ink-muted)">{it.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )
+
+    /* Degrades on purpose. Until the export is dropped into public/img the
+       image fails to load and the tinted panel underneath stays visible with
+       its caption, so a missing asset reads as "not added yet" rather than as
+       a broken page. */
+    case 'figure':
+      return (
+        <figure className="min-w-0">
+          <div
+            className="w-full overflow-hidden rounded-(--radius-card) border border-(--line) bg-(--surface)"
+            style={{ aspectRatio: block.ratio ?? '16/9' }}
+          >
+            <img
+              src={block.src}
+              alt={block.caption ?? ''}
+              loading="lazy"
+              className="h-full w-full object-cover"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+            />
+          </div>
+          {block.caption && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.caption}</figcaption>}
+        </figure>
+      )
+  }
 }
