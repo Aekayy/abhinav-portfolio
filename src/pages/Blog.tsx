@@ -1,5 +1,5 @@
 import { POSTS } from '@/data/profile'
-import { PageHead, Section } from '@/components/Bits'
+import { PageHead, Section, Link } from '@/components/Bits'
 
 export function Blog() {
   return (
@@ -14,11 +14,11 @@ export function Blog() {
       <Section>
         <div className="grid gap-6 lg:grid-cols-2">
           {POSTS.map((p) => (
-            <a key={p.slug} href={p.href} target="_blank" rel="noreferrer noopener"
-               className="card min-w-0 p-7 transition-colors hover:border-(--line-strong)">
+            <Link key={p.slug} to={`/blog/${p.slug}`}
+                  className="card lift min-w-0 p-7 transition-colors hover:border-(--line-strong)">
               <div className="t-sub text-(--ink)">{p.title} ↗</div>
               <p className="t-body-sm mt-3 text-(--ink-muted)">{p.summary}</p>
-            </a>
+            </Link>
           ))}
         </div>
       </Section>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Block, Project } from '@/data/projects'
+import type { Post } from '@/data/profile'
 import { go } from '@/site/router'
 
 /**
@@ -14,7 +15,35 @@ import { go } from '@/site/router'
  * restored on close, Escape and the backdrop both dismiss, and the page behind
  * cannot scroll while it is open.
  */
-export function StudyOverlay({ project }: { project: Project }) {
+/**
+ * A post reuses the study panel rather than getting a second one.
+ *
+ * Same shape, same motion, same dismissal, so opening either feels like the
+ * same gesture. Only the meta column and the body differ.
+ */
+export function PostOverlay({ post }: { post: Post }) {
+  const project: Project = {
+    slug: post.slug,
+    name: 'Writing',
+    title: post.title,
+    summary: post.summary,
+    year: '',
+    industry: '',
+    role: 'Author',
+    kind: 'project',
+    accent: post.accent,
+    external: { href: post.href, label: 'Read the full piece' },
+    sections: post.body.map((b, i) => ({
+      id: `s${i}`,
+      label: 'Article',
+      heading: b.heading,
+      blocks: [{ kind: 'text', body: b.paragraphs }],
+    })),
+  }
+  return <StudyOverlay project={project} backTo="/blog" />
+}
+
+export function StudyOverlay({ project, backTo = '/' }: { project: Project; backTo?: string }) {
   const panel = useRef<HTMLDivElement | null>(null)
   const restoreTo = useRef<HTMLElement | null>(null)
   const [leaving, setLeaving] = useState(false)
@@ -30,12 +59,25 @@ export function StudyOverlay({ project }: { project: Project }) {
   const close = () => {
     if (leaving) return
     setLeaving(true)
-    window.setTimeout(() => go('/projects'), 180)
+    window.setTimeout(() => go(backTo), 180)
   }
+
+  const scroller = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     restoreTo.current = document.activeElement as HTMLElement
-    panel.current?.focus()
+
+    /*
+     * preventScroll, and then reset the scroller by hand.
+     *
+     * focus() scrolls the focused element into view, and the panel is taller
+     * than the viewport, so focusing it scrolled the overlay down on open —
+     * the hero came in clipped and the close button was already off screen.
+     * The focus still has to move for the dialog to be usable by keyboard, so
+     * the fix is to move it without the scroll and start the scroller at zero.
+     */
+    panel.current?.focus({ preventScroll: true })
+    if (scroller.current) scroller.current.scrollTop = 0
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { e.preventDefault(); close() }
@@ -64,6 +106,7 @@ export function StudyOverlay({ project }: { project: Project }) {
 
   return (
     <div
+      ref={scroller}
       className={`fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-black/45 px-0 py-0 sm:px-6 sm:py-10 ${leaving ? 'overlay-leave' : 'overlay-enter'}`}
       onClick={(e) => { if (e.target === e.currentTarget) close() }}
     >
@@ -99,11 +142,11 @@ export function StudyOverlay({ project }: { project: Project }) {
             <dl className="grid h-max min-w-0 gap-5">
               {[
                 ['Role', project.role],
-                ['Client', project.client ?? '—'],
+                ['Client', project.client ?? ''],
                 ['Year', project.year],
                 ['Industry', project.industry],
                 ...(project.duration ? [['Duration', project.duration]] : []),
-              ].map(([k, v]) => (
+              ].filter(([, v]) => v).map(([k, v]) => (
                 <div key={k} className="min-w-0">
                   <dt className="t-caption text-(--ink-muted)">{k}</dt>
                   <dd className="t-body-sm mt-1 text-(--ink)">{v}</dd>

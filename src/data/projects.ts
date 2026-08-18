@@ -2,7 +2,7 @@
  * The work.
  *
  * Case study prose is Abhinav's own, carried over from the Framer site rather
- * than paraphrased — a portfolio is a writing sample as much as a design one,
+ * than paraphrased, a portfolio is a writing sample as much as a design one,
  * and rewriting it in my voice would misrepresent him.
  *
  * `sections` is a small vocabulary the renderer understands, so every study
@@ -20,7 +20,7 @@ export type Block =
   | { kind: 'compare'; title?: string; items: { name: string; good: string; gap: string }[] }
   /** A moment told in beats, timestamped. */
   | { kind: 'beats'; title: string; lede?: string; tone: 'without' | 'with'; beats: { at: string; said: string; note: string }[]; close?: string }
-  /** Rows against columns — a journey map or a measures table. */
+  /** Rows against columns, a journey map or a measures table. */
   | { kind: 'table'; title?: string; columns: string[]; rows: string[][] }
   /** Numbered principles, stated flat. */
   | { kind: 'principles'; title?: string; items: { no: string; name: string; body: string }[] }
@@ -62,10 +62,10 @@ export const PROJECTS: Project[] = [
     year: '2026',
     industry: 'Fintech · Payments',
     role: 'Product Designer',
-    client: 'Anthem Nation — Tyi Moncrieffe',
+    client: 'Anthem Nation, with Tyi Moncrieffe',
     kind: 'project',
     accent: '#1f6f4a',
-    duration: 'Dec 2025 — Jun 2026',
+    duration: 'Dec 2025, Jun 2026',
     sections: HARMONEY_SECTIONS,
   },
 
@@ -79,7 +79,7 @@ export const PROJECTS: Project[] = [
     year: '2025',
     industry: 'Maritime · B2B2C',
     role: 'Product, UX/UI Designer',
-    client: 'Vesseli, UK — Laurence McRory',
+    client: 'Vesseli, UK, with Laurence McRory',
     duration: '3 months',
     kind: 'project',
     accent: '#2b6c8f',
@@ -187,7 +187,7 @@ export const PROJECTS: Project[] = [
           {
             kind: 'quote',
             body: 'It’s useful, but I’m not always sure who to trust or how to choose the right person.',
-            source: 'Usability test — SeaPeople, a competing maritime hiring platform',
+            source: 'Usability test, SeaPeople, a competing maritime hiring platform',
           },
           {
             kind: 'text',
@@ -214,7 +214,7 @@ export const PROJECTS: Project[] = [
           },
           {
             kind: 'list',
-            title: 'Boat owner — primary persona',
+            title: 'Boat owner, primary persona',
             items: [
               'Goals: find reliable crew quickly, evaluate credibility with confidence, manage hiring without friction.',
               'Pain points: lack of trustworthy information, time-consuming communication, unclear hiring processes.',
@@ -363,12 +363,12 @@ export const PROJECTS: Project[] = [
           {
             kind: 'quote',
             body: 'I tried asking the AI about my financial goals in my own words, but it only offered a few preset questions to choose from. When I typed anything outside those options, it could not give me an answer.',
-            source: 'Usability test #1 — Erica AI, Bank of America',
+            source: 'Usability test #1, Erica AI, Bank of America',
           },
           {
             kind: 'quote',
             body: 'The AI responds in a friendly and engaging way, but it cannot give me a personalised forecast or plan based on my specific situation. It feels like I am getting generic advice instead of something tailored to me.',
-            source: 'Usability test #2 — Cleo AI',
+            source: 'Usability test #2, Cleo AI',
           },
           {
             kind: 'text',
@@ -387,7 +387,7 @@ export const PROJECTS: Project[] = [
             kind: 'list',
             title: 'Primary audience',
             items: [
-              'Young professionals (22–35) juggling irregular income.',
+              'Young professionals (22 to 35) juggling irregular income.',
               'People who don’t want strict budgets but want clarity and control.',
               'Goal-oriented individuals saving for milestones: debt repayment, travel, business, investments.',
             ],
@@ -421,7 +421,7 @@ export const PROJECTS: Project[] = [
             kind: 'text',
             body: [
               'Instead of overwhelming users with raw numbers, the design guides them toward actionable understanding. I focused more on flows, assumptions and reasoning than on visual polish, mirroring real-world product problem solving.',
-              'The build covers two onboarding directions — a clean authentic version and an illustrated one — plus authentication, dashboard, goals and transactions, profile, security and analytics, and a conversational AI layer that offers suggestions, reminders and nudges.',
+              'The build covers two onboarding directions, a clean authentic version and an illustrated one, plus authentication, dashboard, goals and transactions, profile, security and analytics, and a conversational AI layer that offers suggestions, reminders and nudges.',
             ],
           },
         ],
@@ -453,7 +453,7 @@ export const PROJECTS: Project[] = [
     industry: 'Enterprise SaaS',
     role: 'Product Designer',
     client: 'Merkle',
-    duration: 'Jul 2024 — Aug 2025',
+    duration: 'Jul 2024, Aug 2025',
     kind: 'project',
     accent: '#4a4a86',
     sections: [
@@ -488,7 +488,7 @@ export const PROJECTS: Project[] = [
     name: 'Spotify Alter',
     title: 'Change the sound, not the record',
     summary:
-      'A concept feature letting listeners change the pitch, speed and tone of a track and keep that version — settings, not a copy, so the artist keeps the stream and the royalty. Designed and built end to end, including a working audio engine.',
+      'A concept feature letting listeners change the pitch, speed and tone of a track and keep that version, settings, not a copy, so the artist keeps the stream and the royalty. Designed and built end to end, including a working audio engine.',
     year: '2026',
     industry: 'Concept · Consumer audio',
     role: 'Product Designer, and build',
@@ -543,7 +543,7 @@ export const PROJECTS: Project[] = [
             kind: 'text',
             body: [
               'A concept that claims a listener can slow a track without dropping its key has to prove it, so I built the audio engine rather than faking it with a demo video.',
-              'It uses WSOLA time-stretching with a separate resampling stage — the same decomposition BASS_FX exposes as two independent attributes. Moving one control cannot move the other, verified offline to within fourteen cents of pitch and 0.4% of duration across eight combinations.',
+              'It uses WSOLA time-stretching with a separate resampling stage, the same decomposition BASS_FX exposes as two independent attributes. Moving one control cannot move the other, verified offline to within fourteen cents of pitch and 0.4% of duration across eight combinations.',
             ],
           },
           {

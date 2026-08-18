@@ -4,10 +4,17 @@ import { applyTheme, readTheme, storeTheme, type Theme } from './theme'
 import { go } from './router'
 import { cn } from '@/lib/cn'
 
+/**
+ * Work is an anchor on the home page, not a page of its own.
+ *
+ * The gallery already lives on the home page, so sending Projects somewhere
+ * else meant two screens showing the same row. Clicking Work now takes you
+ * home and scrolls to it, which is where the case studies actually are.
+ */
 export const NAV: [string, string][] = [
   ['/', 'Home'],
+  ['/#work', 'Work'],
   ['/about', 'About'],
-  ['/projects', 'Projects'],
   ['/blog', 'Blog'],
   ['/resume', 'Resume'],
   ['/contact', 'Contact'],
@@ -59,7 +66,7 @@ export function Nav({ route }: { route: string }) {
           </a>
 
           <div className="hidden items-center gap-1 lg:flex">
-            {NAV.slice(1).map(([path, label]) => (
+            {NAV.map(([path, label]) => (
               <a
                 key={path}
                 href={`#${path}`}

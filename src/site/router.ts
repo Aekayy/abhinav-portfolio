@@ -24,4 +24,26 @@ export function useRoute(): string {
   return route
 }
 
-export const go = (path: string) => { location.hash = path }
+/**
+ * Navigate, and honour an anchor on the target.
+ *
+ * "/#work" means the home page scrolled to the work gallery. Splitting it here
+ * keeps every caller writing one string rather than juggling a route and a
+ * scroll target separately.
+ */
+export const go = (path: string) => {
+  const [route, anchor] = path.split('#')
+  const target = route || '/'
+
+  if (location.hash.replace(/^#/, '') === target && anchor) {
+    document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth' })
+    return
+  }
+
+  location.hash = target
+  if (!anchor) return
+  // Wait for the route to render before looking for the anchor.
+  window.setTimeout(() => {
+    document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth' })
+  }, 60)
+}

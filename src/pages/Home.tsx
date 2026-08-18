@@ -2,6 +2,7 @@ import { PROFILE, SERVICES, STATS, TESTIMONIALS, POSTS } from '@/data/profile'
 import { CASE_STUDIES } from '@/data/projects'
 import { Eyebrow, Section, Link } from '@/components/Bits'
 import { Gallery } from '@/components/Gallery'
+import { Avatar } from '@/components/Frame'
 
 export function Home() {
   return (
@@ -27,7 +28,7 @@ export function Home() {
         </div>
       </section>
 
-      <section className="py-14 md:py-20">
+      <section id="work" className="scroll-mt-28 py-14 md:py-20">
         <div className="shell">
           <Eyebrow>My work</Eyebrow>
           <h2 className="t-heading max-w-[24ch] text-(--ink)">Each one began with a real problem</h2>
@@ -76,8 +77,12 @@ export function Home() {
           {TESTIMONIALS.map((t) => (
             <figure key={t.name} className="card min-w-0 p-7">
               <blockquote className="t-body text-(--ink)">“{t.quote}”</blockquote>
-              <figcaption className="t-body-sm mt-5 text-(--ink-muted)">
-                {t.name} · {t.title}
+              <figcaption className="mt-5 flex items-center gap-3">
+                <Avatar src={t.avatar} name={t.name} size={40} />
+                <span className="t-body-sm min-w-0 text-(--ink-muted)">
+                  <span className="block text-(--ink)">{t.name}</span>
+                  {t.title}
+                </span>
               </figcaption>
             </figure>
           ))}
@@ -88,11 +93,11 @@ export function Home() {
         <Eyebrow>Writing</Eyebrow>
         <div className="grid gap-6 lg:grid-cols-2">
           {POSTS.map((p) => (
-            <a key={p.slug} href={p.href} target="_blank" rel="noreferrer noopener"
-               className="card min-w-0 p-7 transition-colors hover:border-(--line-strong)">
+            <Link key={p.slug} to={`/blog/${p.slug}`}
+                  className="card lift min-w-0 p-7 transition-colors hover:border-(--line-strong)">
               <div className="t-sub text-(--ink)">{p.title} ↗</div>
               <p className="t-body-sm mt-3 text-(--ink-muted)">{p.summary}</p>
-            </a>
+            </Link>
           ))}
         </div>
       </Section>

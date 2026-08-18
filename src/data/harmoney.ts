@@ -3,7 +3,7 @@ import type { Section } from './projects'
 /**
  * Harmoney, in full.
  *
- * Taken from the "06 · Case Study · Framer" page of the Harmoney by Ak Figma
+ * Taken from the "06 Case Study Framer" page of the Harmoney by Ak Figma
  * file — a single 1440 × 19129 frame — and carried over as written. The copy is
  * Abhinav's; the only editing is structural, mapping his bands onto the block
  * vocabulary the renderer understands.
@@ -129,7 +129,7 @@ export const HARMONEY_SECTIONS: Section[] = [
         kind: 'split',
         title: 'What actually changed',
         items: [
-          { label: 'Identical in both — the payment step', body: 'Open the phone, authorise, done. That step should take a deliberate action, and Harmoney leaves it alone.' },
+          { label: 'Identical in both: the payment step', body: 'Open the phone, authorise, done. That step should take a deliberate action, and Harmoney leaves it alone.' },
           { label: 'Everything ahead of it', body: 'Spelling a handle out loud. Searching, and three similar accounts. “I will send you my rates.” Typing an amount, or guessing it. Four days for someone else to answer first.' },
         ],
       },
@@ -211,10 +211,10 @@ export const HARMONEY_SECTIONS: Section[] = [
         kind: 'table',
         columns: ['Persona', 'Who they are', 'Ticket', 'In their words'],
         rows: [
-          ['The Vendor · Maya Ortiz', 'Ceramics at weekend markets. Twelve to twenty sales a day, hands full.', '$20 – $60', 'If it takes longer than handing over change, I have lost the next customer.'],
-          ['The Service Creator · Danielle Reid', 'Studio sessions and styling. Sells credibility before she sells time.', '$90 – $400', 'By the time I send the link, the excitement has gone.'],
+          ['The Vendor, Maya Ortiz', 'Ceramics at weekend markets. Twelve to twenty sales a day, hands full.', '$20 to $60', 'If it takes longer than handing over change, I have lost the next customer.'],
+          ['The Service Creator · Danielle Reid', 'Studio sessions and styling. Sells credibility before she sells time.', '$90 to $400', 'By the time I send the link, the excitement has gone.'],
           ['The Operator · Marcus Bell', 'Runs a five person event team. Answers to a bank account, not a feeling.', 'Mixed', 'I do not need a dashboard. I need to find the one payment that needs me.'],
-          ['The Payer · Alex Nguyen', 'Never heard of Harmoney. Two seconds, and a stranger holding out a card.', '—', 'I have no idea what this is. Why would I put my card details in?'],
+          ['The Payer · Alex Nguyen', 'Never heard of Harmoney. Two seconds, and a stranger holding out a card.', 'n/a', 'I have no idea what this is. Why would I put my card details in?'],
         ],
       },
     ],
@@ -391,7 +391,7 @@ export const HARMONEY_SECTIONS: Section[] = [
           'Conversion data lives on the row, because a link without performance data is unactionable.',
           'Card analytics live with the card, not in a separate insights tab. The object and its performance belong together.',
           'The public profile is seen by a stranger. It is the only screen that must convert with zero prior context.',
-          'Freeze is destructive, so it is isolated and colour coded — and it is reversible, so the copy says so.',
+          'Freeze is destructive, so it is isolated and colour coded, and it is reversible, so the copy says so.',
         ],
       },
     ],

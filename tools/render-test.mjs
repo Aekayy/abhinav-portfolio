@@ -25,7 +25,8 @@ function at(route) {
   return renderToString(createElement(Site))
 }
 
-const routes = ['/', '/about', '/projects', '/blog', '/resume', '/contact',
+const routes = ['/', '/about', '/blog', '/resume', '/contact',
+  '/blog/anthemnation', '/blog/designphilosophy',
   '/projects/harmoney', '/projects/vesseli', '/projects/forecash', '/projects/merkle',
   '/projects/spotify-alter']
 
@@ -45,8 +46,12 @@ for (const r of routes) {
 }
 
 // ── the seven pages exist in the nav, on every page
-check('nav lists every page',
-  ['About', 'Projects', 'Blog', 'Resume', 'Contact'].every((l) => pages['/'].includes(l)))
+check('nav has a Home button',
+  />Home</.test(pages['/']), 'was dropped by slice(1) before')
+check('nav lists every destination',
+  ['Home', 'Work', 'About', 'Blog', 'Resume', 'Contact'].every((l) => pages['/'].includes(l)))
+check('Work is an anchor on home, not a page',
+  pages['/'].includes('#/#work') && pages['/'].includes('id="work"'))
 check('side quests is gone', !pages['/'].includes('Side Quests'))
 
 // ── identity
@@ -63,10 +68,10 @@ check('outbound links are safe', !/target="_blank"(?![^>]*rel="noreferrer)/.test
 
 // ── the work
 check('every study is in one gallery',
-  ['Harmoney', 'Vesseli', 'ForeCash', 'Merkle', 'Spotify Alter'].every((n) => pages['/projects'].includes(n)))
+  ['Harmoney', 'Vesseli', 'ForeCash', 'Merkle', 'Spotify Alter'].every((n) => pages['/'].includes(n)))
 // The gallery is a single scrolling track, never a stacked grid.
-check('projects are a horizontal track',
-  /snap-x snap-mandatory/.test(pages['/projects']) && /overflow-x-auto/.test(pages['/projects']))
+check('work is a horizontal track',
+  /snap-x snap-mandatory/.test(pages['/']) && /overflow-x-auto/.test(pages['/']))
 check('Spotify still links to its own build',
   pages['/projects/spotify-alter'].includes('spotify-alter.vercel.app'),
   'separate repo and deployment, linked from inside the study')
@@ -80,6 +85,30 @@ for (const slug of ['harmoney', 'vesseli', 'forecash', 'spotify-alter']) {
   check(`${slug} opens over the gallery`, html.includes('role="dialog"') && html.includes('aria-modal="true"'))
   check(`${slug} can be dismissed`, html.includes('Close case study'))
 }
+// Posts open the same way studies do.
+check('a post opens in place', pages['/blog/anthemnation'].includes('role="dialog"'))
+check('a post keeps the original one click away',
+  pages['/blog/anthemnation'].includes('Read the full piece'))
+
+// Company names as Abhinav gave them.
+check('SquareResults is named', pages['/about'].includes('SquareResults'))
+check('Datamatics is named', pages['/about'].includes('Datamatics'))
+check('no placeholder employer names',
+  !pages['/about'].includes('Enterprise software') && !pages['/about'].includes('AI job matching platform'))
+
+// Portraits and logos have a slot even before the files arrive.
+check('testimonials carry a portrait', pages['/'].includes('rounded-full'))
+check('work history carries a logo per company',
+  (pages['/about'].match(/rounded-full/g) || []).length >= 6)
+check('resume shows the document itself',
+  pages['/resume'].includes('Page 1') && pages['/resume'].includes('Page 2'))
+check('about has a sticky image column', pages['/about'].includes('lg:sticky'))
+
+// No dashes anywhere in the rendered copy.
+const copy = Object.values(pages).join('\n').replace(/<[^>]*>/g, ' ')
+const dashes = (copy.match(/[\u2013\u2014]/g) || []).length
+check('no dashes in the copy', dashes === 0, `${dashes} found`)
+
 check('merkle is honest about its gap',
   pages['/projects/merkle'].includes('password protected'),
   'says why the detail is missing rather than padding it')

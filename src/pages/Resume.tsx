@@ -1,4 +1,5 @@
-import { PROFILE, EXPERIENCE, SERVICES, STATS } from '@/data/profile'
+import { PROFILE, EXPERIENCE, SERVICES, STATS, RESUME_PAGES } from '@/data/profile'
+import { Frame, Avatar } from '@/components/Frame'
 import { PageHead, Section, Eyebrow } from '@/components/Bits'
 
 export function Resume() {
@@ -16,15 +17,32 @@ export function Resume() {
         </div>
       </div>
 
+      {/* The resume itself, before the transcription of it. A recruiter who
+          wants the document should not have to read the page first. */}
       <Section>
+        <Eyebrow>The document</Eyebrow>
+        <div className="grid max-w-[760px] gap-6">
+          {RESUME_PAGES.map((pg, i) => (
+            <Frame key={pg.src} src={pg.src} alt={pg.alt} ratio="8.5/11"
+                   label={`Page ${i + 1}`} />
+          ))}
+        </div>
+      </Section>
+
+      <Section className="border-t border-(--line)">
         <Eyebrow>Experience</Eyebrow>
         <ol className="grid gap-0">
           {EXPERIENCE.map((job) => (
             <li key={job.role + job.period} className="grid gap-3 border-t border-(--line) py-7 md:grid-cols-[1fr_2fr] md:gap-10">
               <div className="min-w-0">
-                <div className="t-sub text-(--ink)">{job.role}</div>
-                <div className="t-body-sm mt-1 text-(--ink-muted)">{job.org}</div>
-                <div className="t-caption mt-2 text-(--ink-muted)">{job.period}</div>
+                <div className="flex items-center gap-3">
+                  <Avatar src={job.logo} name={job.org} size={34} />
+                  <div className="min-w-0">
+                    <div className="t-sub text-(--ink)">{job.role}</div>
+                    <div className="t-body-sm mt-0.5 text-(--ink-muted)">{job.org}</div>
+                  </div>
+                </div>
+                <div className="t-caption mt-3 text-(--ink-muted)">{job.period}</div>
               </div>
               <div className="min-w-0 grid gap-3">
                 {job.points.map((pt) => (
