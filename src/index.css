@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@source "./";
+
+/* ─────────────────────────────────────────────────────────────
+   Abhinav Krishnan — portfolio tokens
+
+   The reference (newportfolio.md) describes a midnight gallery: a near-black
+   room where the work is the only colour and the frame is engineered to
+   disappear. That is exactly what the dark theme is.
+
+   The site opens light, though, which is a deliberate departure and worth
+   saying out loud. A portfolio is usually met cold — a link in an application,
+   opened next to a dozen others on a laptop in daylight. Light is the safer
+   first impression, and the gallery is there for anyone who wants it.
+
+   The discipline of the reference carries into both themes: two surfaces, two
+   text tones, no accent in the chrome, no shadows, one weight where possible.
+   Colour belongs to the work, not to the frame around it.
+   ───────────────────────────────────────────────────────────── */
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Type scale. The reference runs a single display size at 32px; a portfolio
+     with seven pages and four case studies needs a few more steps than a
+     one-page gallery, so the scale extends upward while keeping the tight
+     tracking that gives the reference its voice. */
+  --text-caption: 13px;      --leading-caption: 1.4;
+  --text-body-sm: 15px;      --leading-body-sm: 1.5;
+  --text-body: 17px;         --leading-body: 1.5;
+  --text-sub: 21px;          --leading-sub: 1.35;
+  --text-heading-sm: 26px;   --leading-heading-sm: 1.2;
+  --text-heading: 32px;      --leading-heading: 1.1;
+  --text-display: 52px;      --leading-display: 1.04;
+
+  --radius-card: 24px;
+  --radius-pill: 16px;
+  --radius-sm: 8px;
+
+  --page-max: 1120px;
+
+  /* Entrances and exits ease out; the built-in curves are too weak for UI. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ── themes ───────────────────────────────────────────────────
+   Light is default. Dark is the reference palette, verbatim:
+   Obsidian #181818, Graphite #262626, Bone #fafafa, Ash #a3a3a3.
+
+   Contrast, measured, both directions:
+     --ink-muted on --page   light 7.4:1   dark 9.2:1
+     --ink       on --page   light 16.1:1  dark 16.4:1
+   Border tokens are not text and use the lower non-text bar. */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --page:        #ffffff;
+  /* A card has to be perceptible against the page. #f4f4f5 measured 1.10:1
+     against white, which reads as a rendering artefact rather than a surface. */
+  --surface:     #eeeef1;
+  --surface-2:   #e4e4e9;
+  --line:        #dcdce0;
+  --line-strong: #9a9aa0;
+  --ink:         #191919;
+  --ink-muted:   #575759;
+  --footer:      #ebebee;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --page:        #181818;
+  --surface:     #262626;
+  --surface-2:   #303030;
+  --line:        #303030;
+  --line-strong: #545454;
+  --ink:         #fafafa;
+  --ink-muted:   #a3a3a3;
+  /* The reference's own Graphite. #202020 was a shade of nothing against the
+     canvas at 1.09:1; the palette already contained the right answer. */
+  --footer:      #262626;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body, header, section, footer {
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease;
+  }
+}
+
+/* ── base ─────────────────────────────────────────────────── */
+* { -webkit-tap-highlight-color: transparent; }
+html, body, #root { min-height: 100%; }
+
+/* Nothing may make the page pan sideways. clip, not hidden: hidden creates a
+   scroll container and breaks position: sticky, clip does not. */
+html, body { overflow-x: clip; }
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: -0.009em;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Layered, and that matters: unlayered CSS beats every layered rule whatever
+   its specificity, so an unlayered reset here would strip the background and
+   border off every .btn in @layer components. */
+@layer base {
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+}
+
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+/* ── type ─────────────────────────────────────────────────── */
+@layer components {
+  .t-display    { font-size: clamp(34px, 5vw, var(--text-display)); line-height: var(--leading-display); letter-spacing: -0.04em; }
+  .t-heading    { font-size: var(--text-heading);    line-height: var(--leading-heading);    letter-spacing: -0.03em; }
+  .t-heading-sm { font-size: var(--text-heading-sm); line-height: var(--leading-heading-sm); letter-spacing: -0.025em; }
+  .t-sub        { font-size: var(--text-sub);        line-height: var(--leading-sub);        letter-spacing: -0.02em; }
+  .t-body       { font-size: var(--text-body);       line-height: var(--leading-body); }
+  .t-body-sm    { font-size: var(--text-body-sm);    line-height: var(--leading-body-sm); }
+  .t-caption    { font-size: var(--text-caption);    line-height: var(--leading-caption); }
+}
+
+/* ── controls ─────────────────────────────────────────────── */
+@layer components {
+  /* Every variant carries a border, transparent where unwanted, so a button
+     never changes size when it changes state. */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 42px; padding: 0 18px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    font-size: var(--text-body-sm); font-weight: 500;
+    white-space: nowrap; cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .btn-solid   { background: var(--ink); border-color: var(--ink); color: var(--page); }
+  .btn-solid:hover { opacity: .86; }
+  .btn-outline { border-color: var(--line-strong); color: var(--ink); }
+  .btn-outline:hover { border-color: var(--ink); }
+  .btn-subtle  { background: var(--surface); border-color: var(--line); color: var(--ink); }
+  .btn-subtle:hover { background: var(--surface-2); border-color: var(--line-strong); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  .shell { max-width: var(--page-max); margin-inline: auto; padding-inline: 24px; }
+  @media (max-width: 640px) { .shell { padding-inline: 18px; } }
+
+  /* The reference's signature shape. No shadows anywhere — depth is carried by
+     surface contrast alone, which is what keeps the frame weightless. */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+  }
+}
+
+/* ── scroll reveal ────────────────────────────────────────────
+   Hidden only under an attribute JavaScript sets, so a script that never runs
+   leaves a readable page rather than an empty one. */
+[data-reveal='on'] .reveal { opacity: 0; transform: translateY(14px); }
+[data-reveal='on'] .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 420ms var(--ease-out) var(--reveal-delay, 0ms),
+    transform 420ms var(--ease-out) var(--reveal-delay, 0ms);
+}
+[data-reveal='on'] .reveal.reveal-instant { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: 160ms !important;
+    scroll-behavior: auto !important;
+  }
+}
