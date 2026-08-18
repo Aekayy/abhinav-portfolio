@@ -1,6 +1,6 @@
 import { CASE_STUDIES } from '@/data/projects'
-import { PageHead, Section } from '@/components/Bits'
-import { ProjectCard } from '@/components/ProjectCard'
+import { PageHead } from '@/components/Bits'
+import { Gallery } from '@/components/Gallery'
 
 export function Projects() {
   return (
@@ -8,15 +8,13 @@ export function Projects() {
       <div className="shell">
         <PageHead
           eyebrow="Projects"
-          title="Work I did for companies"
-          lede="Four products, taken from a real problem through to something people use. Each one opens into the full case study."
+          title="Work for today, sometimes for tomorrow"
+          lede="A collection of selected work spanning product and brand. Some shipped, some still evolving, all part of an ongoing exploration of how digital products should feel."
         />
       </div>
-      <Section>
-        <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2">
-          {CASE_STUDIES.map((p) => <ProjectCard key={p.slug} project={p} />)}
-        </div>
-      </Section>
+      <section className="py-14 md:py-20">
+        <Gallery projects={CASE_STUDIES} />
+      </section>
     </>
   )
 }

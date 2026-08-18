@@ -8,7 +8,6 @@ export const NAV: [string, string][] = [
   ['/', 'Home'],
   ['/about', 'About'],
   ['/projects', 'Projects'],
-  ['/side-quests', 'Side Quests'],
   ['/blog', 'Blog'],
   ['/resume', 'Resume'],
   ['/contact', 'Contact'],

@@ -592,26 +592,102 @@ export const PROJECTS: Project[] = [
     ],
   },
 
-  // ── Side quest ─────────────────────────────────────────────────────────
+  // ── Spotify Alter ──────────────────────────────────────────────────────
   {
     slug: 'spotify-alter',
     name: 'Spotify Alter',
     title: 'Change the sound, not the record',
     summary:
-      'A concept feature for Spotify that lets listeners change the pitch, speed and tone of a track and keep that version — settings, not a copy, so the artist keeps the stream and the royalty. Designed and built end to end, including a working audio engine.',
+      'A concept feature letting listeners change the pitch, speed and tone of a track and keep that version — settings, not a copy, so the artist keeps the stream and the royalty. Designed and built end to end, including a working audio engine.',
     year: '2026',
     industry: 'Concept · Consumer audio',
-    role: 'Product Designer and build',
-    kind: 'side-quest',
+    role: 'Product Designer, and build',
+    client: 'Self-directed',
+    kind: 'project',
     accent: '#1db954',
     external: {
       href: 'https://spotify-alter.vercel.app/',
-      label: 'Open the live project',
-      note: 'Its own site and its own repository, linked rather than folded in.',
+      label: 'Open the live build',
+      note: 'Its own repository and deployment, linked rather than folded in.',
     },
+    sections: [
+      {
+        id: 'problem',
+        label: 'The problem',
+        heading: 'People already alter music. Somewhere else',
+        blocks: [
+          {
+            kind: 'list',
+            items: [
+              'Sped up and slowed versions pull enormous numbers on video platforms. The demand is settled.',
+              'Every one of them is a re-upload, which pays whoever uploaded it rather than the artist who made it.',
+              'Spotify already has the tools: an equaliser exists in settings. It is buried, global, and cannot be saved per song.',
+            ],
+          },
+          {
+            kind: 'text',
+            body: ['The demand is proven. The plumbing is what was missing.'],
+          },
+        ],
+      },
+      {
+        id: 'constraint',
+        label: 'The constraint',
+        heading: 'A version is settings, not audio',
+        blocks: [
+          {
+            kind: 'text',
+            body: [
+              'The whole idea rests on one decision: a saved version stores about forty bytes of settings, not a copy of the recording. Playback changes on the listener’s device and the master is untouched.',
+              'That is what makes it something a rights holder could say yes to. There is no new copy to license, no re-upload to police, and the stream still counts for the artist who made it.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'engine',
+        label: 'The build',
+        heading: 'Pitch and speed had to move independently',
+        blocks: [
+          {
+            kind: 'text',
+            body: [
+              'A concept that claims a listener can slow a track without dropping its key has to prove it, so I built the audio engine rather than faking it with a demo video.',
+              'It uses WSOLA time-stretching with a separate resampling stage — the same decomposition BASS_FX exposes as two independent attributes. Moving one control cannot move the other, verified offline to within fourteen cents of pitch and 0.4% of duration across eight combinations.',
+            ],
+          },
+          {
+            kind: 'split',
+            title: 'Two problems worth naming',
+            items: [
+              {
+                label: 'It sounded broken pushed up, muffled pulled down',
+                body: 'Both came from reading the buffer with a straight line between samples. Linear interpolation dulls the top end going down and aliases going up. A cubic read plus a guard filter took folded energy from 54% of the reference to 6%.',
+              },
+              {
+                label: 'It played nothing at all once deployed',
+                body: 'The worklet was assembled by stringifying a class. At the production build target that class references a helper the worklet scope cannot see, so it died silently. It is a properly bundled module now, with a test that runs the shipped file.',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'outcome',
+        label: 'Outcome',
+        heading: 'A working thing, not a mockup',
+        blocks: [
+          {
+            kind: 'text',
+            body: [
+              'The result is a live site with eight cleared sample tracks and the option to load your own file, a full case study covering the process, and mobile and desktop mockups of the feature inside Spotify’s own design language.',
+            ],
+          },
+        ],
+      },
+    ],
   },
 ]
 
-export const CASE_STUDIES = PROJECTS.filter((p) => p.kind === 'project')
-export const SIDE_QUESTS = PROJECTS.filter((p) => p.kind === 'side-quest')
+export const CASE_STUDIES = PROJECTS
 export const bySlug = (slug: string) => PROJECTS.find((p) => p.slug === slug)

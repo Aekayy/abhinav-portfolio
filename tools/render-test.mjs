@@ -24,8 +24,9 @@ function at(route) {
   return renderToString(createElement(Site))
 }
 
-const routes = ['/', '/about', '/projects', '/side-quests', '/blog', '/resume', '/contact',
-  '/projects/harmoney', '/projects/vesseli', '/projects/forecash', '/projects/merkle']
+const routes = ['/', '/about', '/projects', '/blog', '/resume', '/contact',
+  '/projects/harmoney', '/projects/vesseli', '/projects/forecash', '/projects/merkle',
+  '/projects/spotify-alter']
 
 const pages = Object.fromEntries(routes.map((r) => [r, at(r)]))
 const all = Object.values(pages).join('\n')
@@ -43,8 +44,9 @@ for (const r of routes) {
 }
 
 // ── the seven pages exist in the nav, on every page
-check('nav lists all seven pages',
-  ['About', 'Projects', 'Side Quests', 'Blog', 'Resume', 'Contact'].every((l) => pages['/'].includes(l)))
+check('nav lists every page',
+  ['About', 'Projects', 'Blog', 'Resume', 'Contact'].every((l) => pages['/'].includes(l)))
+check('side quests is gone', !pages['/'].includes('Side Quests'))
 
 // ── identity
 check('name and role present', pages['/'].includes('Abhinav Krishnan') && pages['/'].includes('Houston'))
@@ -59,18 +61,23 @@ check('outbound links are safe', !/target="_blank"(?![^>]*rel="noreferrer)/.test
   'every new-tab link carries rel=noreferrer noopener')
 
 // ── the work
-check('four case studies on Projects',
-  ['Harmoney', 'Vesseli', 'ForeCash', 'Merkle'].every((n) => pages['/projects'].includes(n)))
-check('side quests holds Spotify', pages['/side-quests'].includes('Spotify Alter'))
-check('Spotify is a link, not a page',
-  pages['/side-quests'].includes('spotify-alter.vercel.app'),
-  'stays its own repo and deployment')
+check('every study is in one gallery',
+  ['Harmoney', 'Vesseli', 'ForeCash', 'Merkle', 'Spotify Alter'].every((n) => pages['/projects'].includes(n)))
+// The gallery is a single scrolling track, never a stacked grid.
+check('projects are a horizontal track',
+  /snap-x snap-mandatory/.test(pages['/projects']) && /overflow-x-auto/.test(pages['/projects']))
+check('Spotify still links to its own build',
+  pages['/projects/spotify-alter'].includes('spotify-alter.vercel.app'),
+  'separate repo and deployment, linked from inside the study')
 
 // ── case study depth: the thing that makes them case studies rather than cards
-for (const slug of ['harmoney', 'vesseli', 'forecash']) {
+for (const slug of ['harmoney', 'vesseli', 'forecash', 'spotify-alter']) {
   const html = pages[`/projects/${slug}`]
   check(`${slug} is a full study`, html.length > 9000, `${html.length} chars`)
   check(`${slug} states role and year`, html.includes('Role') && html.includes('Year'))
+  // A study opens over the gallery, so the gallery must still be behind it.
+  check(`${slug} opens over the gallery`, html.includes('role="dialog"') && html.includes('aria-modal="true"'))
+  check(`${slug} can be dismissed`, html.includes('Close case study'))
 }
 check('merkle is honest about its gap',
   pages['/projects/merkle'].includes('password protected'),

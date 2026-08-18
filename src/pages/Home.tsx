@@ -1,7 +1,7 @@
 import { PROFILE, SERVICES, STATS, TESTIMONIALS, POSTS } from '@/data/profile'
-import { CASE_STUDIES, SIDE_QUESTS } from '@/data/projects'
+import { CASE_STUDIES } from '@/data/projects'
 import { Eyebrow, Section, Link } from '@/components/Bits'
-import { ProjectCard } from '@/components/ProjectCard'
+import { Gallery } from '@/components/Gallery'
 
 export function Home() {
   return (
@@ -27,32 +27,20 @@ export function Home() {
         </div>
       </section>
 
-      <Section>
-        <Eyebrow>My work</Eyebrow>
-        <h2 className="t-heading max-w-[24ch] text-(--ink)">
-          Each one began with a real problem
-        </h2>
-        <p className="t-body mt-5 max-w-[60ch] text-(--ink-muted)">
-          These projects reflect the way I think, solve and care. Each began with a real problem
-          and ended with a solution that made someone’s life a little easier. I aim to design with
-          intention, not decoration.
-        </p>
-        <div className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2">
-          {CASE_STUDIES.map((p) => <ProjectCard key={p.slug} project={p} />)}
+      <section className="py-14 md:py-20">
+        <div className="shell">
+          <Eyebrow>My work</Eyebrow>
+          <h2 className="t-heading max-w-[24ch] text-(--ink)">Each one began with a real problem</h2>
+          <p className="t-body mt-5 max-w-[60ch] text-(--ink-muted)">
+            These projects reflect the way I think, solve and care. Each began with a real problem
+            and ended with a solution that made someone’s life a little easier. I aim to design with
+            intention, not decoration.
+          </p>
         </div>
-      </Section>
-
-      <Section className="border-t border-(--line)">
-        <Eyebrow>Side quests</Eyebrow>
-        <h2 className="t-heading max-w-[24ch] text-(--ink)">Work nobody asked me for</h2>
-        <p className="t-body mt-5 max-w-[60ch] text-(--ink-muted)">
-          Self-directed projects where I set the brief. They are where I try the things a client
-          brief would not pay for.
-        </p>
-        <div className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2">
-          {SIDE_QUESTS.map((p) => <ProjectCard key={p.slug} project={p} />)}
+        <div className="mt-12">
+          <Gallery projects={CASE_STUDIES} />
         </div>
-      </Section>
+      </section>
 
       <Section className="border-t border-(--line)">
         <Eyebrow>What I can do</Eyebrow>
