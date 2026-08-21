@@ -18,8 +18,7 @@ the back button closes them.
 
 ## Design
 
-The blueprint is `newportfolio.md` (the David Kirschberg midnight gallery,
-followed strictly). Dark is the default and the reference verbatim — Obsidian
+The blueprint is Dark is the default and the reference verbatim — Obsidian
 `#181818`, Graphite `#262626`, Bone `#fafafa`, Ash `#a3a3a3` — with a light
 theme as the same gallery translated to daylight: the four neutrals keep
 their roles and relationships, opt-in via the menu and remembered per
