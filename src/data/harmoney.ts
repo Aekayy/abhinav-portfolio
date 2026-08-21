@@ -4,7 +4,7 @@ import type { Section } from './projects'
  * Harmoney, in full.
  *
  * Taken from the "06 Case Study Framer" page of the Harmoney by Ak Figma
- * file — a single 1440 × 19129 frame — and carried over as written. The copy is
+ * file · a single 1440 × 19129 frame · and carried over as written. The copy is
  * Abhinav's; the only editing is structural, mapping his bands onto the block
  * vocabulary the renderer understands.
  *
@@ -24,7 +24,8 @@ export const HARMONEY_SECTIONS: Section[] = [
           'Tap it to any phone and your Harmoney profile opens in the browser, ready to take a payment. Nothing to install, nothing to spell out, nothing to remember later.',
         ],
       },
-      { kind: 'figure', src: 'img/harmoney/hero.jpg', caption: 'The tapped profile and the seller’s home screen', ratio: '16/9' },
+      { kind: 'figure', src: 'img/harmoney/hero.png', caption: 'The tapped profile, the home screen and the card', ratio: '4/3' },
+      { kind: 'figure', src: 'img/harmoney/what-is-it.png', caption: 'The tap opens a profile ready to take a payment', ratio: '4480/1060' },
       {
         kind: 'split',
         title: '',
@@ -69,6 +70,8 @@ export const HARMONEY_SECTIONS: Section[] = [
           { name: 'Business card', good: 'Opens the conversation', gap: 'Carries the introduction, then hands off' },
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/opportunity.png', caption: 'How intent travels today, modelled with Tyi', ratio: '4480/2292' },
+      { kind: 'figure', src: 'img/harmoney/existing.png', caption: 'What already exists, and the space between', ratio: '4480/724' },
     ],
   },
 
@@ -85,6 +88,7 @@ export const HARMONEY_SECTIONS: Section[] = [
           'Tonight is a friend’s rooftop birthday. She has just finished touching up her friend’s makeup before they head upstairs.',
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/ninety-seconds.png', caption: 'The same ninety seconds, twice', ratio: '4480/1208' },
       {
         kind: 'split',
         title: 'The setup',
@@ -94,6 +98,7 @@ export const HARMONEY_SECTIONS: Section[] = [
           { label: 'On her', body: 'A phone and her pocket.' },
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/how-it-begins.png', caption: 'How it begins · identical either way', ratio: '4480/1388' },
       {
         kind: 'beats',
         title: 'How it begins · identical either way',
@@ -114,6 +119,7 @@ export const HARMONEY_SECTIONS: Section[] = [
         ],
         close: 'Nothing went wrong. Nobody was rude. The booking quietly evaporated between “I will DM you” and Thursday.',
       },
+      { kind: 'figure', src: 'img/harmoney/without.png', caption: 'Without Harmoney · four days, no booking', ratio: '4480/1392' },
       {
         kind: 'beats',
         title: 'With Harmoney · under a minute, deposit taken',
@@ -125,6 +131,8 @@ export const HARMONEY_SECTIONS: Section[] = [
         ],
         close: 'The whole thing took less time than spelling her Instagram handle would have.',
       },
+      { kind: 'figure', src: 'img/harmoney/with-1.png', caption: 'With Harmoney · under a minute, deposit taken', ratio: '4480/1392' },
+      { kind: 'figure', src: 'img/harmoney/with-2.png', caption: 'The deposit lands before the conversation ends', ratio: '4480/228' },
       {
         kind: 'split',
         title: 'What actually changed',
@@ -133,6 +141,8 @@ export const HARMONEY_SECTIONS: Section[] = [
           { label: 'Everything ahead of it', body: 'Spelling a handle out loud. Searching, and three similar accounts. “I will send you my rates.” Typing an amount, or guessing it. Four days for someone else to answer first.' },
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/changed-1.png', caption: 'What actually changed', ratio: '4480/1000' },
+      { kind: 'figure', src: 'img/harmoney/changed-2.png', caption: 'The payment step stays deliberate; everything ahead of it disappears', ratio: '4480/936' },
       {
         kind: 'quote',
         body: 'It does not make paying faster. It makes paying now possible, where the alternative was meaning to and not getting round to it.',
@@ -171,6 +181,8 @@ export const HARMONEY_SECTIONS: Section[] = [
           'Every screen between the tap and settled money carries the business, so those flows earned the deepest attention. Anything that could slow a payment down was treated as a design problem worth solving early.',
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/what-it-does-1.png', caption: 'Discovery, identity and payment in a single gesture', ratio: '4480/660' },
+      { kind: 'figure', src: 'img/harmoney/what-it-does-2.png', caption: 'Tap, open, pay', ratio: '4480/816' },
     ],
   },
 
@@ -193,6 +205,7 @@ export const HARMONEY_SECTIONS: Section[] = [
           { label: 'Unify the brand', body: 'One identity across marketing, product and the physical card.' },
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/goals.png', caption: 'The goals, agreed with the founder before design started', ratio: '4480/928' },
     ],
   },
 
@@ -217,6 +230,7 @@ export const HARMONEY_SECTIONS: Section[] = [
           ['The Payer · Alex Nguyen', 'Never heard of Harmoney. Two seconds, and a stranger holding out a card.', 'n/a', 'I have no idea what this is. Why would I put my card details in?'],
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/personas.png', caption: 'Three earner types plus the person nobody designs for', ratio: '4480/1848' },
     ],
   },
 
@@ -254,6 +268,8 @@ export const HARMONEY_SECTIONS: Section[] = [
           'That is why the tap and the public profile came first. The dashboard is where the seller lives, and the profile is where the payment is decided.',
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/journey-1.png', caption: 'The Service Creator, current state against designed state', ratio: '4480/1816' },
+      { kind: 'figure', src: 'img/harmoney/journey-2.png', caption: 'Three of the six stages exist only because payment happens later', ratio: '4480/944' },
     ],
   },
 
@@ -315,6 +331,8 @@ export const HARMONEY_SECTIONS: Section[] = [
           'Every requirement Alex has sits on the public profile, a screen the account holder rarely sees. That is why it was designed first, ahead of the dashboard where the paying customer spends their time.',
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/stories-1.png', caption: 'User stories as acceptance criteria, held to a person', ratio: '4480/2448' },
+      { kind: 'figure', src: 'img/harmoney/stories-2.png', caption: 'Prioritised P0 against the tap-to-paid flow', ratio: '4480/872' },
     ],
   },
 
@@ -333,6 +351,7 @@ export const HARMONEY_SECTIONS: Section[] = [
           { no: '05', name: 'One identity, end to end', body: 'Site, app and card match. Discontinuity reads as risk.' },
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/principles.png', caption: 'Five principles, agreed with Tyi before a single screen was drawn', ratio: '4480/2240' },
     ],
   },
 
@@ -360,6 +379,7 @@ export const HARMONEY_SECTIONS: Section[] = [
         kind: 'quote',
         body: 'The seller already believes in it. The payer is deciding in the moment. Design effort goes furthest where the decision is still open.',
       },
+      { kind: 'figure', src: 'img/harmoney/ideation.png', caption: 'Three structural concepts, run against the same ten-second story', ratio: '4480/1124' },
     ],
   },
 
@@ -374,7 +394,9 @@ export const HARMONEY_SECTIONS: Section[] = [
           'Structure and hierarchy resolved in greyscale, with the reasoning annotated on the artefact so it survived review without me in the room. Layout and density were then resolved at full detail with colour still withheld.',
         ],
       },
-      { kind: 'figure', src: 'img/harmoney/wireframes.jpg', caption: 'Home, ledger, request, links and the public profile, annotated', ratio: '16/9' },
+      { kind: 'figure', src: 'img/harmoney/wireframes.png', caption: 'Home, ledger, request, links and the public profile, annotated', ratio: '4480/1640' },
+      { kind: 'figure', src: 'img/harmoney/lofi-1.png', caption: 'Lo-fi: layout and density at full detail, colour still withheld', ratio: '4480/1640' },
+      { kind: 'figure', src: 'img/harmoney/lofi-2.png', caption: 'The public profile in grey · the only screen that must convert with zero prior context', ratio: '8/1' },
       {
         kind: 'split',
         title: 'Two things greyscale surfaced',
@@ -426,7 +448,9 @@ export const HARMONEY_SECTIONS: Section[] = [
           { label: 'Inconsolata', body: 'Tabular figures for money, so decimals align and amounts do not shift width.' },
         ],
       },
-      { kind: 'figure', src: 'img/harmoney/product.jpg', caption: 'Forty six screens across two themes', ratio: '16/9' },
+      { kind: 'figure', src: 'img/harmoney/visual-direction.png', caption: 'Deep green carries identity; lime is held back for the highest-intent action', ratio: '4480/1432' },
+      { kind: 'figure', src: 'img/harmoney/product.png', caption: 'Forty six screens across two themes', ratio: '4096/2268' },
+      { kind: 'figure', src: 'img/harmoney/product-2.png', caption: 'The card and its settings, both themes from the same components', ratio: '4480/1740' },
       {
         kind: 'text',
         body: [
@@ -451,6 +475,8 @@ export const HARMONEY_SECTIONS: Section[] = [
           { label: 'Placing friction where it helps', body: 'Claiming a permanent address is the one onboarding step that stays with you. It gets its own screen, a clear note, and a confirmation naming the exact value being set. The tradeoff: a small pause here saves a conversation later.' },
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/decisions-1.png', caption: 'Decisions and the thinking behind them', ratio: '4480/1452' },
+      { kind: 'figure', src: 'img/harmoney/decisions-2.png', caption: 'What each choice traded', ratio: '4480/1412' },
     ],
   },
 
@@ -469,6 +495,7 @@ export const HARMONEY_SECTIONS: Section[] = [
           { label: 'Success', body: 'A fee breakdown, not just a tick. Gross, processing fee, net to you, and the date it becomes available.' },
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/states.png', caption: 'Empty, offline, in progress, success · the quiet states', ratio: '4480/1920' },
     ],
   },
 
@@ -493,6 +520,7 @@ export const HARMONEY_SECTIONS: Section[] = [
           ['Screen reader semantics', 'Open', 'A transaction row should announce as one clear statement. Specified in handoff and ready to validate on device.'],
         ],
       },
+      { kind: 'figure', src: 'img/harmoney/accessibility.png', caption: 'Considered during design; where it is not resolved, it says so', ratio: '4480/1568' },
     ],
   },
 

@@ -12,7 +12,8 @@ export function Resume() {
           lede={`${PROFILE.location} · ${PROFILE.available ? 'Open to full time roles in the US' : 'Currently engaged'}`}
         />
         <div className="mt-8 flex flex-wrap gap-3">
-          <a href={`mailto:${PROFILE.email}`} className="btn btn-solid">Email me</a>
+          <a href="resume.pdf" download className="btn btn-solid">Download the PDF</a>
+          <a href={`mailto:${PROFILE.email}`} className="btn btn-outline">Email me</a>
           <a href={`tel:${PROFILE.phone.replace(/[^\d+]/g, '')}`} className="btn btn-outline">{PROFILE.phone}</a>
         </div>
       </div>

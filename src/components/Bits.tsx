@@ -4,7 +4,7 @@ import { go } from '@/site/router'
 /** Small caps label that opens a section. Carried from the reference's voice. */
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <p className="t-caption mb-4 uppercase tracking-[0.16em] text-(--ink-muted)">{children}</p>
+    <p className="t-caption mb-4 text-(--ink-muted)">{children}</p>
   )
 }
 

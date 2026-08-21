@@ -1,11 +1,11 @@
 /**
  * Checks both themes are complete and legible, from the CSS that ships.
  *
- * Adding a light theme means every colour decision now has to hold twice, and
- * the one that is easy to get wrong is green. Spotify green is a bright fill
- * colour; as text on white it measures about 2.3:1, which fails badly. So the
- * green used for fills and the green used for text are separate tokens, and
- * this asserts the text one actually passes on the surface it sits on.
+ * Dark is the reference verbatim and the default; light is the same gallery
+ * translated to daylight. The failure modes this guards: a role token missing
+ * from one theme (silently falling back to something nobody designed), the
+ * dark palette drifting from the reference, a text pair dipping under 4.5:1,
+ * and the default/restore machinery breaking.
  *
  * Reading the built stylesheet rather than the source, because the built file
  * is the thing a visitor gets.
@@ -21,7 +21,7 @@ if (!existsSync(distDir)) {
 const cssFile = readdirSync(distDir).find((f) => f.endsWith('.css'))
 const css = readFileSync(`${distDir}/${cssFile}`, 'utf8')
 
-/** Pull the custom properties out of one rule. */
+/** Pull the custom properties out of the first rule matching a selector. */
 function tokensFor(selector) {
   const at = css.indexOf(selector)
   if (at < 0) return null
@@ -33,12 +33,12 @@ function tokensFor(selector) {
   return out
 }
 
-const light = tokensFor(':root,[data-theme=light]') ?? tokensFor(':root')
+const light = tokensFor('[data-theme=light]') ?? tokensFor(':root,[data-theme=light]')
 const dark = tokensFor('[data-theme=dark]')
 
 const rows = []
 let failed = 0
-const check = (name, ok, detail) => {
+const check = (name, ok, detail = '') => {
   rows.push({ check: name, result: ok ? 'pass' : 'FAIL', detail })
   if (!ok) failed++
 }
@@ -50,11 +50,19 @@ if (light && dark) {
   // Every role must exist in both, or one theme silently falls back to the
   // other's value and produces something nobody designed.
   const roles = ['--page', '--surface', '--surface-2', '--line', '--line-strong',
-    '--ink', '--ink-muted', '--footer']
+    '--ink', '--ink-muted']
   const missingLight = roles.filter((r) => !light[r])
   const missingDark = roles.filter((r) => !dark[r])
   check('every role exists in light', missingLight.length === 0, missingLight.join(' ') || 'all present')
   check('every role exists in dark', missingDark.length === 0, missingDark.join(' ') || 'all present')
+
+  // The dark palette is the reference, verbatim — not approximately.
+  const reference = {
+    '--page': '#181818', '--surface': '#262626', '--ink': '#fafafa', '--ink-muted': '#a3a3a3',
+  }
+  for (const [token, want] of Object.entries(reference)) {
+    check(`dark ${token} is the reference value`, dark[token] === want, `${dark[token]} (want ${want})`)
+  }
 
   const srgb = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4))
   const lum = (hex) => {
@@ -72,15 +80,11 @@ if (light && dark) {
     ['body text', '--ink', '--page', 4.5],
     ['muted text on page', '--ink-muted', '--page', 4.5],
     ['muted text on surface', '--ink-muted', '--surface', 4.5],
-    ['muted text on the footer', '--ink-muted', '--footer', 4.5],
     // Borders are not text, so the non-text bar applies.
     ['hairline on page', '--line', '--page', 1.15],
-    // A card has to be perceptible against the page, and the footer has to
-    // read as a separate band rather than as more page.
+    // A card has to be perceptible against the page.
     ['a card against the page', '--surface', '--page', 1.15],
-    ['the footer against the page', '--footer', '--page', 1.12],
-    // A control edge has to be visible, which on light surfaces is the thing
-    // that carries a button rather than its fill.
+    // A control edge has to be visible against the surface it sits on.
     ['a control edge on a card', '--line-strong', '--surface', 1.9],
   ]
 
@@ -93,10 +97,10 @@ if (light && dark) {
   }
 }
 
-// The site has to open light. A returning visitor's choice is restored by the
-// inline script, but the served document itself must be light.
+// The gallery opens dark — it is the reference's identity — and a returning
+// visitor's choice is restored by the inline script before first paint.
 const html = readFileSync(fileURLToPath(new URL('../index.html', import.meta.url)), 'utf8')
-check('site opens in light mode', /<html[^>]*data-theme="light"/.test(html), '')
+check('site opens dark', /<html[^>]*data-theme="dark"/.test(html), '')
 check('stored preference applied before paint', html.includes("localStorage.getItem('ak-theme')"), '')
 
 console.table(rows)
@@ -104,4 +108,4 @@ if (failed) {
   console.error(`\n${failed} theme check(s) failed.`)
   process.exit(1)
 }
-console.log('\nboth themes are complete and every text pair clears 4.5:1.')
+console.log('\nboth themes are complete, dark is verbatim, and every text pair clears 4.5:1.')

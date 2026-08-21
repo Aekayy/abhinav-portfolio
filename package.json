@@ -9,6 +9,21 @@
     "preview": "vite preview",
     "test:build": "esbuild src/site/Site.tsx --bundle --format=esm --platform=node --outdir=dist-ssr --alias:@=./src --external:react --external:react-dom --external:react/jsx-runtime --loader:.css=empty --log-level=error",
     "test": "npm run test:build && node tools/render-test.mjs && node tools/responsive-test.mjs && node tools/contrast-test.mjs",
-    "test:visual": "npm run build && node tools/theme-test.mjs && node tools/cascade-test.mjs"
+    "test:visual": "npm run build && node tools/theme-test.mjs && node tools/cascade-test.mjs",
+    "build:preview": "node tools/build-preview.mjs"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "esbuild": "^0.28.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.1"
   }
 }

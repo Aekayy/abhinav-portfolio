@@ -26,18 +26,23 @@ export function PostOverlay({ post }: { post: Post }) {
     slug: post.slug,
     name: 'Writing',
     title: post.title,
-    summary: post.summary,
+    summary: `${post.date} · ${post.category}`,
     year: '',
     industry: '',
     role: 'Author',
     kind: 'project',
     accent: post.accent,
-    external: { href: post.href, label: 'Read the full piece' },
+    external: { href: post.href, label: 'Read it on the original site' },
     sections: post.body.map((b, i) => ({
       id: `s${i}`,
       label: 'Article',
       heading: b.heading,
-      blocks: [{ kind: 'text', body: b.paragraphs }],
+      blocks: [
+        ...(i === 0 && post.hero ? [{ kind: 'figure' as const, ...post.hero }] : []),
+        { kind: 'text' as const, body: b.paragraphs },
+        ...(b.quote ? [{ kind: 'quote' as const, ...b.quote }] : []),
+        ...(b.image ? [{ kind: 'figure' as const, ...b.image }] : []),
+      ],
     })),
   }
   return <StudyOverlay project={project} backTo="/blog" />
@@ -120,11 +125,16 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                     sm:rounded-(--radius-card) ${leaving ? 'panel-leave' : 'panel-enter'}`}
       >
         <div className="relative">
-          <div
-            className="aspect-[16/9] w-full"
-            style={{ background: `linear-gradient(150deg, ${project.accent}, ${project.accent}22)` }}
-            aria-hidden="true"
-          />
+          <div className="aspect-[16/9] w-full overflow-hidden bg-(--surface)" aria-hidden="true">
+            {project.thumb && (
+              <img
+                src={project.thumb}
+                alt=""
+                className="h-full w-full object-cover"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+              />
+            )}
+          </div>
           <button
             onClick={close}
             aria-label="Close case study"
@@ -169,7 +179,7 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
               <div className="mt-12 grid gap-14">
                 {project.sections?.map((s) => (
                   <section key={s.id} className="reveal-in min-w-0">
-                    <p className="t-caption mb-3 uppercase tracking-[0.16em] text-(--ink-muted)">{s.label}</p>
+                    <p className="t-caption mb-3 text-(--ink-muted)">{s.label}</p>
                     <h3 className="t-heading-sm max-w-[26ch] text-(--ink)">{s.heading}</h3>
                     <div className="mt-6 grid gap-7">
                       {s.blocks.map((b, i) => <BlockView key={i} block={b} />)}
@@ -224,7 +234,7 @@ function BlockView({ block }: { block: Block }) {
           <div className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
             {block.items.map((it) => (
               <div key={it.label} className="min-w-0 border-t border-(--line) pt-3">
-                <div className="t-body-sm font-medium text-(--ink)">{it.label}</div>
+                <div className="t-body-sm text-(--ink)">{it.label}</div>
                 <p className="t-body-sm mt-1.5 text-(--ink-muted)">{it.body}</p>
               </div>
             ))}
@@ -244,7 +254,7 @@ function BlockView({ block }: { block: Block }) {
               return (
                 <li key={st.stage} className="min-w-0">
                   <div className="flex items-baseline justify-between gap-4">
-                    <span className="t-body-sm font-medium text-(--ink)">{st.stage}</span>
+                    <span className="t-body-sm text-(--ink)">{st.stage}</span>
                     <span className="t-body-sm tabular-nums text-(--ink-muted)">{st.value}</span>
                   </div>
                   <div
@@ -267,7 +277,7 @@ function BlockView({ block }: { block: Block }) {
           <div className="grid gap-3">
             {block.items.map((it) => (
               <div key={it.name} className="card min-w-0 p-5">
-                <div className="t-body-sm font-medium text-(--ink)">{it.name}</div>
+                <div className="t-body-sm text-(--ink)">{it.name}</div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <p className="t-body-sm text-(--ink-muted)">{it.good}</p>
                   <p className="t-body-sm text-(--ink-muted)">{it.gap}</p>
@@ -291,7 +301,7 @@ function BlockView({ block }: { block: Block }) {
                   style={{ borderColor: block.tone === 'with' ? 'var(--ink)' : 'var(--line)' }}>
                 <div className="flex flex-wrap items-baseline gap-x-3">
                   <span className="t-caption tabular-nums text-(--ink-muted)">{b.at}</span>
-                  <span className="t-body-sm font-medium text-(--ink)">{b.said}</span>
+                  <span className="t-body-sm text-(--ink)">{b.said}</span>
                 </div>
                 <p className="t-body-sm text-(--ink-muted)">{b.note}</p>
               </li>
@@ -313,7 +323,7 @@ function BlockView({ block }: { block: Block }) {
                 <tr>
                   {block.columns.map((c) => (
                     <th key={c} scope="col"
-                        className="t-caption border-b border-(--line) bg-(--surface) px-4 py-3 font-medium text-(--ink-muted)">
+                        className="t-caption border-b border-(--line) bg-(--surface) px-4 py-3 text-(--ink-muted)">
                       {c}
                     </th>
                   ))}
@@ -325,7 +335,7 @@ function BlockView({ block }: { block: Block }) {
                     {row.map((cell, i) => (
                       <td key={i}
                           className={`t-body-sm border-b border-(--line) px-4 py-3 align-top ${
-                            i === 0 ? 'font-medium text-(--ink)' : 'text-(--ink-muted)'}`}>
+                            i === 0 ? 'text-(--ink)' : 'text-(--ink-muted)'}`}>
                         {cell}
                       </td>
                     ))}
@@ -346,7 +356,7 @@ function BlockView({ block }: { block: Block }) {
               <li key={it.no} className="grid gap-1 border-t border-(--line) py-4 sm:grid-cols-[auto_1fr] sm:gap-6">
                 <span className="t-caption tabular-nums text-(--ink-muted)">{it.no}</span>
                 <div className="min-w-0">
-                  <div className="t-body-sm font-medium text-(--ink)">{it.name}</div>
+                  <div className="t-body-sm text-(--ink)">{it.name}</div>
                   <p className="t-body-sm mt-1 text-(--ink-muted)">{it.body}</p>
                 </div>
               </li>

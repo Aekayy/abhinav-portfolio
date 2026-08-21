@@ -26,7 +26,7 @@ function at(route) {
 }
 
 const routes = ['/', '/about', '/blog', '/resume', '/contact',
-  '/blog/anthemnation', '/blog/designphilosophy',
+  '/blog/anthemnation', '/blog/designphilosophy', '/blog/spotify-syncro',
   '/projects/harmoney', '/projects/vesseli', '/projects/forecash', '/projects/merkle',
   '/projects/spotify-alter']
 
@@ -77,7 +77,7 @@ check('Spotify still links to its own build',
   'separate repo and deployment, linked from inside the study')
 
 // ── case study depth: the thing that makes them case studies rather than cards
-for (const slug of ['harmoney', 'vesseli', 'forecash', 'spotify-alter']) {
+for (const slug of ['harmoney', 'vesseli', 'forecash', 'merkle', 'spotify-alter']) {
   const html = pages[`/projects/${slug}`]
   check(`${slug} is a full study`, html.length > 9000, `${html.length} chars`)
   check(`${slug} states role and year`, html.includes('Role') && html.includes('Year'))
@@ -88,7 +88,7 @@ for (const slug of ['harmoney', 'vesseli', 'forecash', 'spotify-alter']) {
 // Posts open the same way studies do.
 check('a post opens in place', pages['/blog/anthemnation'].includes('role="dialog"'))
 check('a post keeps the original one click away',
-  pages['/blog/anthemnation'].includes('Read the full piece'))
+  pages['/blog/anthemnation'].includes('Read it on the original site'))
 
 // Company names as Abhinav gave them.
 check('SquareResults is named', pages['/about'].includes('SquareResults'))
@@ -109,13 +109,22 @@ const copy = Object.values(pages).join('\n').replace(/<[^>]*>/g, ' ')
 const dashes = (copy.match(/[\u2013\u2014]/g) || []).length
 check('no dashes in the copy', dashes === 0, `${dashes} found`)
 
-check('merkle is honest about its gap',
-  pages['/projects/merkle'].includes('password protected'),
-  'says why the detail is missing rather than padding it')
+// ── Merkle, the study that was once behind a password
+const m = pages['/projects/merkle']
+check('merkle is the full study now',
+  m.includes('Fourteen steps to launch one campaign') && m.includes('Sarah’s journey'),
+  'the password wall is gone, so the stub is too')
+check('merkle names what shipped',
+  ['Dashboard', 'Campaign Library', 'Audience Builder', 'Journey Builder', 'Approvals']
+    .every((n) => m.includes(n)))
 
 // ── writing
-check('blog lists both posts',
-  pages['/blog'].includes('Designing for Culture') && pages['/blog'].includes('Philosophical'))
+check('blog lists all three posts',
+  pages['/blog'].includes('Designing for Culture') && pages['/blog'].includes('Philosophical')
+    && pages['/blog'].includes('Spotify Syncro'))
+check('spotify syncro is the full article',
+  pages['/blog/spotify-syncro'].includes('Creative Mode') && pages['/blog/spotify-syncro'].includes('Group Product Manager'),
+  'the piece the old site had and this one missed')
 
 // ── the numbers match the CV
 check('uses the defensible experience figure',

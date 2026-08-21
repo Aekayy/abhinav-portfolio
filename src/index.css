@@ -4,34 +4,29 @@
 /* ─────────────────────────────────────────────────────────────
    Abhinav Krishnan — portfolio tokens
 
-   The reference (newportfolio.md) describes a midnight gallery: a near-black
-   room where the work is the only colour and the frame is engineered to
-   disappear. That is exactly what the dark theme is.
+   The reference (newportfolio.md) is a midnight gallery: a near-black room
+   where the work is the only colour and the frame is engineered to disappear.
+   It is followed strictly. Dark is the only theme; the palette is the
+   reference verbatim — Obsidian #181818, Graphite #262626, Bone #fafafa,
+   Ash #a3a3a3.
 
-   The site opens light, though, which is a deliberate departure and worth
-   saying out loud. A portfolio is usually met cold — a link in an application,
-   opened next to a dozen others on a laptop in daylight. Light is the safer
-   first impression, and the gallery is there for anyone who wants it.
-
-   The discipline of the reference carries into both themes: two surfaces, two
-   text tones, no accent in the chrome, no shadows, one weight where possible.
-   Colour belongs to the work, not to the frame around it.
+   Two surfaces, two text tones, no accent in the chrome, no shadows, one
+   weight everywhere. Colour belongs to the work, not to the frame around it.
    ───────────────────────────────────────────────────────────── */
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* Type scale. The reference runs a single display size at 32px; a portfolio
-     with seven pages and four case studies needs a few more steps than a
-     one-page gallery, so the scale extends upward while keeping the tight
-     tracking that gives the reference its voice. */
-  --text-caption: 13px;      --leading-caption: 1.4;
-  --text-body-sm: 15px;      --leading-body-sm: 1.5;
+  /* The reference's whole scale: 16 and 17 for text, 32 for the single
+     display voice at -0.04em. Hierarchy comes from Bone against Ash, never
+     from weight — every class here is weight 400. */
+  --text-caption: 16px;      --leading-caption: 1.4;
+  --text-body-sm: 16px;      --leading-body-sm: 1.5;
   --text-body: 17px;         --leading-body: 1.5;
-  --text-sub: 21px;          --leading-sub: 1.35;
-  --text-heading-sm: 26px;   --leading-heading-sm: 1.2;
+  --text-sub: 17px;          --leading-sub: 1.35;
+  --text-heading-sm: 32px;   --leading-heading-sm: 1.1;
   --text-heading: 32px;      --leading-heading: 1.1;
-  --text-display: 52px;      --leading-display: 1.04;
+  --text-display: 32px;      --leading-display: 1.1;
 
   --radius-card: 24px;
   --radius-pill: 16px;
@@ -44,26 +39,31 @@
 }
 
 /* ── themes ───────────────────────────────────────────────────
-   Light is default. Dark is the reference palette, verbatim:
-   Obsidian #181818, Graphite #262626, Bone #fafafa, Ash #a3a3a3.
+   Dark is the reference, verbatim, and the default: Obsidian #181818 canvas,
+   Graphite #262626 elevated, Bone #fafafa ink, Ash #a3a3a3 muted.
+
+   Light is the same gallery translated to daylight, not a second identity:
+   the four neutrals keep their roles and their relationships — the canvas is
+   the lightest thing (#faf4f4, a warm paper white), the elevated surface sits
+   one perceptible step above it, ink is Obsidian, muted is the darkest grey
+   that still reads as quiet. No accent, no shadows, one weight, in both.
 
    Contrast, measured, both directions:
-     --ink-muted on --page   light 7.4:1   dark 9.2:1
-     --ink       on --page   light 16.1:1  dark 16.4:1
+     --ink-muted on --page   light 6.7:1   dark 9.2:1
+     --ink       on --page   light 16.2:1  dark 16.4:1
    Border tokens are not text and use the lower non-text bar. */
 :root,
 [data-theme='light'] {
   color-scheme: light;
-  --page:        #ffffff;
-  /* A card has to be perceptible against the page. #f4f4f5 measured 1.10:1
-     against white, which reads as a rendering artefact rather than a surface. */
-  --surface:     #eeeef1;
-  --surface-2:   #e4e4e9;
-  --line:        #dcdce0;
-  --line-strong: #9a9aa0;
-  --ink:         #191919;
+  --page:        #faf4f4;
+  /* Warm steps off the paper canvas; cool greys read blue against it. A card
+     still has to be perceptible: #eeeef1 measured only 1.06:1 here. */
+  --surface:     #e9e1e1;
+  --surface-2:   #ded5d5;
+  --line:        #ddd4d4;
+  --line-strong: #9c9494;
+  --ink:         #181818;
   --ink-muted:   #575759;
-  --footer:      #ebebee;
 }
 
 [data-theme='dark'] {
@@ -75,9 +75,6 @@
   --line-strong: #545454;
   --ink:         #fafafa;
   --ink-muted:   #a3a3a3;
-  /* The reference's own Graphite. #202020 was a shade of nothing against the
-     canvas at 1.09:1; the palette already contained the right answer. */
-  --footer:      #262626;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -86,7 +83,6 @@
   }
 }
 
-/* ── base ─────────────────────────────────────────────────── */
 * { -webkit-tap-highlight-color: transparent; }
 html, body, #root { min-height: 100%; }
 
@@ -119,10 +115,10 @@ body {
 
 /* ── type ─────────────────────────────────────────────────── */
 @layer components {
-  .t-display    { font-size: clamp(34px, 5vw, var(--text-display)); line-height: var(--leading-display); letter-spacing: -0.04em; }
-  .t-heading    { font-size: var(--text-heading);    line-height: var(--leading-heading);    letter-spacing: -0.03em; }
-  .t-heading-sm { font-size: var(--text-heading-sm); line-height: var(--leading-heading-sm); letter-spacing: -0.025em; }
-  .t-sub        { font-size: var(--text-sub);        line-height: var(--leading-sub);        letter-spacing: -0.02em; }
+  .t-display,
+  .t-heading,
+  .t-heading-sm { font-size: var(--text-display); line-height: var(--leading-display); letter-spacing: -0.04em; }
+  .t-sub        { font-size: var(--text-sub);        line-height: var(--leading-sub); }
   .t-body       { font-size: var(--text-body);       line-height: var(--leading-body); }
   .t-body-sm    { font-size: var(--text-body-sm);    line-height: var(--leading-body-sm); }
   .t-caption    { font-size: var(--text-caption);    line-height: var(--leading-caption); }
@@ -137,7 +133,7 @@ body {
     height: 42px; padding: 0 18px;
     border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    font-size: var(--text-body-sm); font-weight: 500;
+    font-size: var(--text-body-sm);
     white-space: nowrap; cursor: pointer;
     transition: background-color .15s ease, color .15s ease, border-color .15s ease;
   }

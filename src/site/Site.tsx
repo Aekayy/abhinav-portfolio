@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useRoute } from './router'
 import { startReveal } from './reveal'
-import { Nav, Footer } from './Chrome'
+import { Nav } from './Chrome'
 import { Home } from '@/pages/Home'
 import { About } from '@/pages/About'
 import { Blog } from '@/pages/Blog'
@@ -34,7 +34,6 @@ export default function Site() {
     <div className="min-h-dvh bg-(--page) text-(--ink)">
       <Nav route={behind} />
       <main>{render(behind)}</main>
-      <Footer />
       {study && <StudyOverlay project={study} backTo="/" />}
       {post && <PostOverlay post={post} />}
     </div>

@@ -48,7 +48,7 @@ export function Avatar({ src, name, size = 40 }: { src?: string; name: string; s
       style={{ width: size, height: size }}
       aria-hidden="true"
     >
-      <span className="t-caption font-medium">{initials}</span>
+      <span className="t-caption">{initials}</span>
       {src && (
         <img
           src={src}

@@ -24,12 +24,12 @@ export function Contact() {
         <div className="grid gap-6 lg:grid-cols-2">
           <a href={`mailto:${PROFILE.email}`}
              className="card min-w-0 p-8 transition-colors hover:border-(--line-strong)">
-            <div className="t-caption uppercase tracking-[0.16em] text-(--ink-muted)">Email</div>
+            <div className="t-caption text-(--ink-muted)">Email</div>
             <div className="t-sub mt-3 break-all text-(--ink)">{PROFILE.email}</div>
           </a>
           <a href={`tel:${PROFILE.phone.replace(/[^\d+]/g, '')}`}
              className="card min-w-0 p-8 transition-colors hover:border-(--line-strong)">
-            <div className="t-caption uppercase tracking-[0.16em] text-(--ink-muted)">Phone</div>
+            <div className="t-caption text-(--ink-muted)">Phone</div>
             <div className="t-sub mt-3 text-(--ink)">{PROFILE.phone}</div>
           </a>
         </div>

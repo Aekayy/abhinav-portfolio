@@ -116,7 +116,7 @@ for (const file of walk(join(root, 'src', 'site'))) {
 const css = readFileSync(join(root, 'src', 'index.css'), 'utf8')
 const baseChecks = [
   ['focus ring follows the theme', /:focus-visible\s*{[^}]*var\(--ink\)/.test(css)],
-  ['color-scheme is not pinned dark', !/:root\s*{[^}]*color-scheme:\s*dark/.test(css)],
+  ['color-scheme is not pinned dark on :root', !/:root\s*{[^}]*color-scheme:\s*dark/.test(css)],
 ]
 for (const [name, ok] of baseChecks) {
   if (!ok) failed++

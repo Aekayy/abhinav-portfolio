@@ -41,6 +41,8 @@ export type Project = {
   client?: string
   duration?: string
   kind: 'project' | 'side-quest'
+  /** Card thumbnail; the accent panel shows until it loads. */
+  thumb?: string
   /** Present when the full study lives here. */
   sections?: Section[]
   /** Present when the study lives elsewhere. */
@@ -64,6 +66,7 @@ export const PROJECTS: Project[] = [
     role: 'Product Designer',
     client: 'Anthem Nation, with Tyi Moncrieffe',
     kind: 'project',
+    thumb: 'img/harmoney/card.png',
     accent: '#1f6f4a',
     duration: 'Dec 2025, Jun 2026',
     sections: HARMONEY_SECTIONS,
@@ -82,6 +85,7 @@ export const PROJECTS: Project[] = [
     client: 'Vesseli, UK, with Laurence McRory',
     duration: '3 months',
     kind: 'project',
+    thumb: 'img/work/vesseli-card.png',
     accent: '#2b6c8f',
     sections: [
       {
@@ -89,6 +93,7 @@ export const PROJECTS: Project[] = [
         label: 'Background',
         heading: 'A clear vision without the structure to carry it',
         blocks: [
+          { kind: 'figure', src: 'img/work/vesseli/hero.png', caption: 'The redesigned Vesseli app', ratio: '4/3' },
           {
             kind: 'text',
             body: [
@@ -105,6 +110,7 @@ export const PROJECTS: Project[] = [
               'There is a lack of modern, user-friendly digital solutions.',
             ],
           },
+          { kind: 'figure', src: 'img/work/vesseli/opportunity.png', caption: 'Feed and boat screens from the redesign', ratio: '4/3' },
         ],
       },
       {
@@ -131,6 +137,7 @@ export const PROJECTS: Project[] = [
               'The app did not reflect its true potential.',
             ],
           },
+          { kind: 'figure', src: 'img/work/vesseli/problem.png', caption: 'The existing app: functional, unstructured, hard to trust', ratio: '4/3' },
         ],
       },
       {
@@ -195,6 +202,21 @@ export const PROJECTS: Project[] = [
               'Testing revealed that while the platform enables hiring, it lacks clear trust indicators and structured profiles. Users struggle to confidently evaluate crew members, which slows decisions. The absence of strong visual hierarchy and credibility signals increases cognitive load and reduces engagement.',
             ],
           },
+          { kind: 'figure', src: 'img/work/vesseli/research-1.png', caption: 'Competitive review across maritime and gig platforms', ratio: '2912/1960' },
+          { kind: 'figure', src: 'img/work/vesseli/research-2.png', caption: 'What the review surfaced', ratio: '1230/1141' },
+          { kind: 'figure', src: 'img/work/vesseli/seapeople.webp', caption: 'Usability test · SeaPeople, a competing maritime hiring app', ratio: '1200/630' },
+          {
+            kind: 'list',
+            title: 'Requirements, defined by Laurence',
+            items: [
+              'Enable boat owners to hire crew efficiently.',
+              'Allow crew to showcase experience and availability.',
+              'Support delivery skippers and service providers.',
+              'Keep the experience simple and mobile-first.',
+              'Ensure the product feels professional and reliable.',
+            ],
+          },
+          { kind: 'figure', src: 'img/work/vesseli/requirements.png', caption: 'The requirements, agreed with the CEO', ratio: '4/3' },
         ],
       },
       {
@@ -221,6 +243,7 @@ export const PROJECTS: Project[] = [
               'Needs: clear profiles, a simple hiring flow, strong trust indicators.',
             ],
           },
+          { kind: 'figure', src: 'img/work/vesseli/persona.png', caption: 'The boat owner, primary persona', ratio: '5024/2408' },
         ],
       },
       {
@@ -249,6 +272,10 @@ export const PROJECTS: Project[] = [
               'A consistent design system.',
             ],
           },
+          { kind: 'figure', src: 'img/work/vesseli/design-system.png', caption: 'The design system: a beachy, harbour-inspired theme within the client’s main colour', ratio: '2048/2005' },
+          { kind: 'figure', src: 'img/work/vesseli/design-1.png', caption: 'Before and after: generic utility to a structured maritime product', ratio: '1459/1063' },
+          { kind: 'figure', src: 'img/work/vesseli/design-2.png', caption: 'Role-based onboarding and trust-driven profiles', ratio: '4/3' },
+          { kind: 'figure', src: 'img/work/vesseli/design-3.png', caption: 'The simplified hiring flow', ratio: '4/3' },
         ],
       },
       {
@@ -282,6 +309,7 @@ export const PROJECTS: Project[] = [
     client: 'Self-initiated concept',
     duration: '4 months',
     kind: 'project',
+    thumb: 'img/work/forecash-card.png',
     accent: '#8a5a2b',
     sections: [
       {
@@ -289,6 +317,7 @@ export const PROJECTS: Project[] = [
         label: 'Background',
         heading: 'Most finance apps show you the past',
         blocks: [
+          { kind: 'figure', src: 'img/work/forecash/hero.png', caption: 'ForeCash · forecast, plan and track with AI guidance', ratio: '7680/5364' },
           {
             kind: 'list',
             title: 'I noticed that most finance apps either',
@@ -302,6 +331,7 @@ export const PROJECTS: Project[] = [
             kind: 'quote',
             body: 'How might we help people feel more in control of their money without overwhelming them?',
           },
+          { kind: 'figure', src: 'img/work/forecash/personas.png', caption: 'Jesse and Caitlyn, the early persona sketches', ratio: '5500/4108' },
         ],
       },
       {
@@ -316,6 +346,7 @@ export const PROJECTS: Project[] = [
               'People know what they earn and what they spend, but they struggle with saving intentionally or working toward meaningful milestones like starting a business, paying off student debt, or travelling the world.',
             ],
           },
+          { kind: 'figure', src: 'img/work/forecash/problem.png', caption: 'Tracking without guidance: the gap the product had to close', ratio: '4800/3092' },
         ],
       },
       {
@@ -376,6 +407,26 @@ export const PROJECTS: Project[] = [
               'Together those tests set the bar: financial wellness tools have to accept a question in the user’s own words, and answer it with something specific to them.',
             ],
           },
+          { kind: 'figure', src: 'img/work/forecash/affinity.png', caption: 'Affinity mapping the community research', ratio: '3936/2094' },
+          { kind: 'figure', src: 'img/work/forecash/journey.png', caption: 'The customer journey map the themes shaped', ratio: '3778/1940' },
+          { kind: 'figure', src: 'img/work/forecash/test-erica.png', caption: 'Usability test #1 · Erica AI, Bank of America', ratio: '794/742' },
+          { kind: 'figure', src: 'img/work/forecash/test-cleo.png', caption: 'Usability test #2 · Cleo AI', ratio: '750/740' },
+          {
+            kind: 'list',
+            title: 'Requirements, from what users actually asked for',
+            items: [
+              'An interactive AI to ask for financial advice.',
+              'A clear visual of their finances.',
+              'Specific targets they can set through the AI chat.',
+              'Progress tracking against each goal.',
+              'A plan that adjusts when circumstances change.',
+              'A clear transaction history.',
+              'Who owes them, and who they owe.',
+              'A minimal chat, to the point.',
+              'A clear, easy onboarding.',
+            ],
+          },
+          { kind: 'figure', src: 'img/work/forecash/requirements.png', caption: 'The requirements list, from the discovery notes', ratio: '3/2' },
         ],
       },
       {
@@ -401,6 +452,7 @@ export const PROJECTS: Project[] = [
               'Personalised advice and next-step suggestions.',
             ],
           },
+          { kind: 'figure', src: 'img/work/forecash/persona.png', caption: 'Emily · built from usability tests and affinity mapping', ratio: '1829/1313' },
         ],
       },
       {
@@ -424,6 +476,14 @@ export const PROJECTS: Project[] = [
               'The build covers two onboarding directions, a clean authentic version and an illustrated one, plus authentication, dashboard, goals and transactions, profile, security and analytics, and a conversational AI layer that offers suggestions, reminders and nudges.',
             ],
           },
+          { kind: 'figure', src: 'img/work/forecash/ai-1.png', caption: 'The AI chat creates and adjusts plans while the dashboard tracks the rest', ratio: '3/2' },
+          { kind: 'figure', src: 'img/work/forecash/ai-3.png', caption: 'From simple tracker to adaptive partner', ratio: '1/1' },
+          { kind: 'figure', src: 'img/work/forecash/design-system.png', caption: 'The ForeCash design system', ratio: '2048/1256' },
+          { kind: 'figure', src: 'img/work/forecash/onboarding.png', caption: 'Two onboarding directions: authentic and illustrated', ratio: '3796/2479' },
+          { kind: 'figure', src: 'img/work/forecash/dashboard.png', caption: 'Authentication into a dashboard of balance, subscriptions and transactions', ratio: '3735/2593' },
+          { kind: 'figure', src: 'img/work/forecash/goals.png', caption: 'Goals with progress tracking, and transaction entry that confirms before it commits', ratio: '3796/2593' },
+          { kind: 'figure', src: 'img/work/forecash/profile.png', caption: 'Profile, security and analytics tied back to savings goals', ratio: '3796/2593' },
+          { kind: 'figure', src: 'img/work/forecash/ai-interaction.png', caption: 'The AI layer: suggestions, reminders and nudges in the user’s own words', ratio: '5760/2460' },
         ],
       },
       {
@@ -455,26 +515,260 @@ export const PROJECTS: Project[] = [
     client: 'Merkle',
     duration: 'Jul 2024, Aug 2025',
     kind: 'project',
+    thumb: 'img/work/merkle-card.png',
     accent: '#4a4a86',
     sections: [
       {
         id: 'overview',
         label: 'Overview',
-        heading: 'A single workspace for omnichannel campaigns',
+        heading: 'One platform, fourteen disconnected screens',
         blocks: [
           {
             kind: 'text',
             body: [
-              'Led end to end UX for an enterprise marketing platform, improving campaign workflows through research, prototyping and usability testing with more than 150 users, driving a 22% increase in engagement.',
-              'Collaborated across product, business and engineering to design scalable Figma systems and reusable patterns that simplified complex workflows and improved usability and consistency.',
+              'A campaign manager at a global retailer needs to reach lapsed customers across email, SMS and push, in four markets, with consent honoured and a budget signed off. ECO is where that happens end to end.',
+              'Inconsistent UI patterns, poor information architecture, and cognitive overload slowed every team down, from campaign managers to legal reviewers.',
+            ],
+          },
+          { kind: 'figure', src: 'img/work/merkle/hero.png', caption: 'The Enterprise Campaign Orchestrator dashboard', ratio: '16/9' },
+          {
+            kind: 'split',
+            title: 'Headline numbers',
+            items: [
+              { label: '22%', body: 'Increase in engagement.' },
+              { label: '150+', body: 'Enterprise users researched.' },
+              { label: '3', body: 'Agile squads.' },
+              { label: 'AA', body: 'WCAG 2.1 compliance.' },
+            ],
+          },
+          {
+            kind: 'quote',
+            body: 'Transform disconnected marketing tools into one intelligent operating system.',
+            source: 'The design vision',
+          },
+        ],
+      },
+      {
+        id: 'problem',
+        label: 'The problem',
+        heading: 'Fourteen steps to launch one campaign',
+        blocks: [
+          {
+            kind: 'text',
+            body: [
+              'Fortune 500 marketing teams relied on fragmented legacy systems to manage complex omnichannel campaigns. Launching a single campaign meant navigating fourteen disconnected screens.',
             ],
           },
           {
             kind: 'list',
-            title: 'What this section still needs',
+            title: 'The fourteen steps',
             items: [
-              'The full study on the existing site is password protected, so the detail is not reproduced here yet.',
-              'Once the content is to hand this page takes the same shape as the three studies beside it: problem, goals, research, users, solution, outcome.',
+              '01 · Strategy intake', '02 · Campaign brief', '03 · Channel selection', '04 · Audience rules',
+              '05 · Suppression lists', '06 · Journey setup', '07 · Content creation', '08 · Personalization',
+              '09 · QA', '10 · Legal review', '11 · Business approval', '12 · Launch scheduling',
+              '13 · Monitoring', '14 · Analytics',
+            ],
+          },
+          {
+            kind: 'split',
+            title: 'What that felt like',
+            items: [
+              { label: '60%', body: 'Lost inside advanced filtering.' },
+              { label: 'High', body: 'Support ticket volume.' },
+              { label: 'Slow', body: 'Campaign launch speed.' },
+              { label: 'Steep', body: 'Learning curve for new users.' },
+            ],
+          },
+          { kind: 'figure', src: 'img/work/merkle/research-1.png', caption: 'Mapping every type of user’s journey, categorised by empathy', ratio: '4960/656' },
+          { kind: 'figure', src: 'img/work/merkle/research-2.png', caption: 'The end-to-end orchestration lifecycle', ratio: '4960/948' },
+          { kind: 'figure', src: 'img/work/merkle/research-3.png', caption: 'Where the fourteen steps hurt most', ratio: '4960/648' },
+        ],
+      },
+      {
+        id: 'users',
+        label: 'Six roles',
+        heading: 'Six roles, one campaign workspace',
+        blocks: [
+          {
+            kind: 'split',
+            title: 'Understanding the business',
+            items: [
+              { label: 'Strategy · Marketing Manager', body: 'Goal: align channels, timing, and business outcomes. Pain point: low visibility and slow approvals.' },
+              { label: 'Execution · Campaign Manager', body: 'Goal: build and launch campaigns accurately. Pain point: duplicate work and fragile handoffs.' },
+              { label: 'Data · CRM Specialist', body: 'Goal: create accurate segments and rules. Pain point: advanced filters are hard to trust.' },
+              { label: 'Insights · Marketing Analyst', body: 'Goal: explain performance and business impact. Pain point: delayed, contextless analytics.' },
+              { label: 'Governance · Director of Marketing', body: 'Goal: oversee portfolio risk and adoption. Pain point: no unified operational view.' },
+              { label: 'Compliance · Legal Reviewer', body: 'Goal: review content and approvals. Pain point: unclear audit history.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'research',
+        label: 'Research',
+        heading: 'Grounded in 150+ enterprise conversations',
+        blocks: [
+          {
+            kind: 'text',
+            body: [
+              'Visualizing the end-to-end orchestration lifecycle for the ECO enterprise platform by mapping out every type of user’s journey. Based on the conversations, I mapped it out categorizing by empathy and what the user felt about using an enterprise campaign orchestrator.',
+            ],
+          },
+          {
+            kind: 'list',
+            title: 'Methods',
+            items: ['Interviews', 'Usability testing', 'Heatmaps', 'Analytics', 'Journey mapping', 'Competitive analysis', 'Affinity mapping'],
+          },
+          {
+            kind: 'list',
+            title: 'What the conversations said',
+            items: [
+              '01 · Marketing managers think in workflows, not features.',
+              '02 · Users constantly switch between dashboards.',
+              '03 · Users need progressive guidance.',
+              '04 · Campaign approvals create unnecessary bottlenecks.',
+            ],
+          },
+          { kind: 'figure', src: 'img/work/merkle/affinity.png', caption: 'Affinity mapping the 150+ conversations', ratio: '4928/4372' },
+          {
+            kind: 'list',
+            title: 'How might we',
+            items: [
+              'How might we reduce campaign creation time?',
+              'How might we simplify audience segmentation?',
+              'How might we improve collaboration?',
+              'How might we surface insights earlier?',
+              'How might we reduce navigation complexity?',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'principles',
+        label: 'Principles',
+        heading: 'Five rules that filtered every decision',
+        blocks: [
+          {
+            kind: 'principles',
+            items: [
+              { no: '01', name: 'Progressive Disclosure', body: 'One decision at a time.' },
+              { no: '02', name: 'Task-first Navigation', body: 'Users think in outcomes, not modules.' },
+              { no: '03', name: 'Single Source of Truth', body: 'Every campaign lives in one workspace.' },
+              { no: '04', name: 'Design for Scale', body: 'Enterprise complexity without overwhelm.' },
+              { no: '05', name: 'Data with Context', body: 'Every metric answers a business question.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'ia',
+        label: 'Information architecture',
+        heading: 'From feature list to campaign lifecycle',
+        blocks: [
+          {
+            kind: 'compare',
+            title: 'The navigation, before and after',
+            items: [
+              { name: 'Before · feature-based', good: 'Dashboards, Audiences, Journeys, Messages', gap: 'Approvals, Analytics, Assets, Settings · eight modules named for what they contain, not what the user is trying to do' },
+              { name: 'After · task-based', good: 'Plan, Build, Review, Launch', gap: 'Monitor, Optimize, Report · seven stages named for where the user is in the campaign’s life' },
+            ],
+          },
+          { kind: 'figure', src: 'img/work/merkle/ia-1.png', caption: 'The sitemap, reorganised around the campaign lifecycle', ratio: '4715/1960' },
+          { kind: 'figure', src: 'img/work/merkle/ia-2.png', caption: 'Feature list to lifecycle', ratio: '4960/1274' },
+          {
+            kind: 'split',
+            title: 'Sarah’s journey · Marketing Manager',
+            items: [
+              { label: '01 · Morning dashboard', body: 'Reviews campaign health and risks.' },
+              { label: '02 · Campaign creation', body: 'Captures goal, channel, and timing.' },
+              { label: '03 · Audience & journey', body: 'Builds segments and cross-channel flow.' },
+              { label: '04 · Content & review', body: 'Previews content, resolves comments.' },
+              { label: '05 · Launch & monitor', body: 'Approves, launches, watches delivery.' },
+              { label: '06 · Optimize & report', body: 'Tests variants, prepares readouts.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'shipped',
+        label: 'What shipped',
+        heading: 'Twelve screens, one workspace',
+        blocks: [
+          { kind: 'figure', src: 'img/work/merkle/shipped-1.png', caption: 'The shipped workspace', ratio: '4960/1840' },
+          { kind: 'figure', src: 'img/work/merkle/dashboard-1.png', caption: 'Dashboard · KPIs appear first so teams have operational awareness before task execution', ratio: '4080/2537' },
+          { kind: 'figure', src: 'img/work/merkle/dashboard-2.png', caption: 'Dashboard, continued', ratio: '3938/2537' },
+          { kind: 'figure', src: 'img/work/merkle/campaign-library.png', caption: 'Campaign Library · optimized for scanning: status, owner, channel mix, and pending actions', ratio: '4083/3091' },
+          { kind: 'figure', src: 'img/work/merkle/wizard.png', caption: 'Campaign Wizard · progressive disclosure guides setup one decision at a time', ratio: '3950/3312' },
+          { kind: 'figure', src: 'img/work/merkle/audience-builder.png', caption: 'Audience Builder · visual filtering makes segmentation logic readable and testable', ratio: '3922/3113' },
+          { kind: 'figure', src: 'img/work/merkle/journey-builder.png', caption: 'Journey Builder · drag-and-drop orchestration across Email, SMS, Push, and In-App', ratio: '5120/3146' },
+          { kind: 'figure', src: 'img/work/merkle/review.png', caption: 'Review Screen · consolidates content, audience, and approvals for launch confidence', ratio: '3664/2371' },
+          { kind: 'figure', src: 'img/work/merkle/monitoring.png', caption: 'Live Monitoring · delivery health and anomalies surfaced for operational awareness', ratio: '4944/2998' },
+          { kind: 'figure', src: 'img/work/merkle/analytics.png', caption: 'Analytics · turns performance data into a story that supports optimization', ratio: '3544/2047' },
+          { kind: 'figure', src: 'img/work/merkle/experiments.png', caption: 'Experiments · variant comparison and learnings support continuous optimization', ratio: '5120/3281' },
+          { kind: 'figure', src: 'img/work/merkle/approvals.png', caption: 'Approvals · owners, deadlines, and audit trail improve governance', ratio: '3163/2009' },
+          { kind: 'figure', src: 'img/work/merkle/comments.png', caption: 'Comments · contextual collaboration keeps feedback inside the campaign', ratio: '4056/2443' },
+          { kind: 'figure', src: 'img/work/merkle/asset-library.png', caption: 'Asset Library · centralizes reusable marketing assets across teams', ratio: '3708/2885' },
+        ],
+      },
+      {
+        id: 'design-system',
+        label: 'Design system',
+        heading: 'Tokens that kept 12 releases consistent',
+        blocks: [
+          {
+            kind: 'split',
+            title: 'Typography',
+            items: [
+              { label: 'Geist Display', body: 'Headlines.' },
+              { label: 'Inter', body: 'Body.' },
+              { label: 'JetBrains Mono', body: 'Data.' },
+            ],
+          },
+          {
+            kind: 'split',
+            title: 'Spacing, colour, accessibility',
+            items: [
+              { label: 'Spacing', body: '8px base unit, 16px card radius, 96px section.' },
+              { label: 'Colour', body: 'Navy, red, teal, orange, purple.' },
+              { label: 'Accessibility', body: 'WCAG 2.1 AA, focus states, keyboard nav.' },
+            ],
+          },
+          { kind: 'figure', src: 'img/work/merkle/shipped-2.png', caption: 'The system applied across the workspace', ratio: '4960/1840' },
+        ],
+      },
+      {
+        id: 'impact',
+        label: 'Impact',
+        heading: 'Measurable results across the platform',
+        blocks: [
+          {
+            kind: 'split',
+            title: '',
+            items: [
+              { label: '22%', body: 'Increase in engagement.' },
+              { label: 'Faster', body: 'Campaign setup.' },
+              { label: 'Fewer', body: 'Support tickets.' },
+              { label: 'Higher', body: 'Platform adoption.' },
+            ],
+          },
+          {
+            kind: 'quote',
+            body: 'The new workspace is calmer, more predictable, and finally matches how we actually plan campaigns.',
+            source: 'Director of Marketing, enterprise client',
+          },
+        ],
+      },
+      {
+        id: 'reflection',
+        label: 'Reflection',
+        heading: 'Complexity, made trustworthy',
+        blocks: [
+          {
+            kind: 'text',
+            body: [
+              'This project reinforced that enterprise UX is not about making complexity disappear, it is about making complexity understandable and trustworthy.',
+              'Progressive disclosure became the core strategy because it respected both marketers who needed speed and enterprises who needed governance.',
+              'Future opportunities include AI-assisted campaign recommendations, predictive audience insights, and intelligent automation for journey optimization.',
             ],
           },
         ],
@@ -494,6 +788,9 @@ export const PROJECTS: Project[] = [
     role: 'Product Designer, and build',
     client: 'Self-directed',
     kind: 'project',
+    // Syncro's post hero doubles as the card: same project family, and the
+    // side quest's own repo keeps its media.
+    thumb: 'img/blog/spotify-syncro-hero.png',
     accent: '#1db954',
     external: {
       href: 'https://spotify-alter.vercel.app/',

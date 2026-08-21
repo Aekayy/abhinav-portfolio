@@ -15,9 +15,17 @@ export function Blog() {
         <div className="grid gap-6 lg:grid-cols-2">
           {POSTS.map((p) => (
             <Link key={p.slug} to={`/blog/${p.slug}`}
-                  className="card lift min-w-0 p-7 transition-colors hover:border-(--line-strong)">
-              <div className="t-sub text-(--ink)">{p.title} ↗</div>
-              <p className="t-body-sm mt-3 text-(--ink-muted)">{p.summary}</p>
+                  className="card lift min-w-0 overflow-hidden p-0 transition-colors hover:border-(--line-strong)">
+              {p.card && (
+                <div className="aspect-[4/3] w-full overflow-hidden" aria-hidden="true">
+                  <img src={p.card} alt="" loading="lazy" className="h-full w-full object-cover" />
+                </div>
+              )}
+              <div className="p-7">
+                <div className="t-caption text-(--ink-muted)">{p.date} · {p.category}</div>
+                <div className="t-sub mt-2 text-(--ink)">{p.title} ↗</div>
+                <p className="t-body-sm mt-3 text-(--ink-muted)">{p.summary}</p>
+              </div>
             </Link>
           ))}
         </div>
