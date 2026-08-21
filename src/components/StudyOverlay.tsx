@@ -3,6 +3,21 @@ import type { Block, Project } from '@/data/projects'
 import type { Post } from '@/data/profile'
 import { go } from '@/site/router'
 
+function getContrastColor(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.5 ? '#181818' : '#fafafa'
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 /**
  * A case study opens over the gallery rather than replacing it.
  *
@@ -32,6 +47,7 @@ export function PostOverlay({ post }: { post: Post }) {
     role: 'Author',
     kind: 'project',
     accent: post.accent,
+    hero: post.hero?.src,
     external: { href: post.href, label: 'Read it on the original site' },
     sections: post.body.map((b, i) => ({
       id: `s${i}`,
@@ -44,6 +60,7 @@ export function PostOverlay({ post }: { post: Post }) {
         ...(b.image ? [{ kind: 'figure' as const, ...b.image }] : []),
       ],
     })),
+    noSectionNav: true,
   }
   return <StudyOverlay project={project} backTo="/blog" />
 }
@@ -52,6 +69,8 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
   const panel = useRef<HTMLDivElement | null>(null)
   const restoreTo = useRef<HTMLElement | null>(null)
   const [leaving, setLeaving] = useState(false)
+  const scroller = useRef<HTMLDivElement | null>(null)
+  const [activeSection, setActiveSection] = useState<string>(() => project.sections?.[0]?.id ?? '')
 
   /**
    * Play the exit, then change the route.
@@ -67,7 +86,13 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
     window.setTimeout(() => go(backTo), 180)
   }
 
-  const scroller = useRef<HTMLDivElement | null>(null)
+  const scrollToSection = (id: string) => {
+    const el = scroller.current?.querySelector(`#${id}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setActiveSection(id)
+    }
+  }
 
   useEffect(() => {
     restoreTo.current = document.activeElement as HTMLElement
@@ -102,12 +127,37 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
     document.body.style.overflow = 'hidden'
     document.addEventListener('keydown', onKey)
 
+    const scrollEl = scroller.current
+    const handleScroll = () => {
+      if (!project.sections?.length || !scrollEl) return
+      const containerTop = scrollEl.getBoundingClientRect().top
+      let current = project.sections[0].id
+      for (const s of project.sections) {
+        const secEl = scrollEl.querySelector(`#${s.id}`)
+        if (secEl) {
+          const rect = secEl.getBoundingClientRect()
+          if (rect.top - containerTop <= 160) {
+            current = s.id
+          }
+        }
+      }
+      setActiveSection(current)
+    }
+
+    scrollEl?.addEventListener('scroll', handleScroll, { passive: true })
+
     return () => {
       document.removeEventListener('keydown', onKey)
+      scrollEl?.removeEventListener('scroll', handleScroll)
       document.body.style.overflow = prevOverflow
       restoreTo.current?.focus?.()
     }
   }, [project.slug])
+
+  const hasSections = Boolean(project.sections && project.sections.length > 1)
+  const showNav = hasSections && !project.noSectionNav
+  const navFg = getContrastColor(project.accent)
+  const isLightNav = navFg === '#181818'
 
   return (
     <div
@@ -121,15 +171,17 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
         aria-modal="true"
         aria-label={`${project.name} case study`}
         tabIndex={-1}
-        className={`mx-auto w-full max-w-[900px] overflow-hidden bg-(--page) outline-none
-                    sm:rounded-(--radius-card) ${leaving ? 'panel-leave' : 'panel-enter'}`}
+        className={`mx-auto w-full max-w-[1400px] bg-(--page) outline-none
+                    sm:rounded-(--radius-card) sm:border sm:border-(--line) ${leaving ? 'panel-leave' : 'panel-enter'}`}
       >
         <div className="relative">
-          <div className="aspect-[16/9] w-full overflow-hidden bg-(--surface)" aria-hidden="true">
-            {project.thumb && (
+          <div className="aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-(--surface) sm:rounded-t-(--radius-card)" aria-hidden="true">
+            {(project.hero || project.thumb) && (
               <img
-                src={project.thumb}
+                src={project.hero || project.thumb}
                 alt=""
+                decoding="async"
+                fetchPriority="high"
                 className="h-full w-full object-cover"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
               />
@@ -139,7 +191,7 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
             onClick={close}
             aria-label="Close case study"
             className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full
-                       bg-(--page) text-(--ink) transition-transform hover:scale-105"
+                       bg-(--page) text-(--ink) shadow-md transition-transform hover:scale-105"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -148,42 +200,96 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
         </div>
 
         <div className="px-6 py-10 sm:px-10 md:px-14">
-          <div className="grid gap-8 md:grid-cols-[180px_1fr] md:gap-12">
-            <dl className="grid h-max min-w-0 gap-5">
-              {[
-                ['Role', project.role],
-                ['Client', project.client ?? ''],
-                ['Year', project.year],
-                ['Industry', project.industry],
-                ...(project.duration ? [['Duration', project.duration]] : []),
-              ].filter(([, v]) => v).map(([k, v]) => (
-                <div key={k} className="min-w-0">
-                  <dt className="t-caption text-(--ink-muted)">{k}</dt>
-                  <dd className="t-body-sm mt-1 text-(--ink)">{v}</dd>
-                </div>
-              ))}
-            </dl>
+          <div className="max-w-[840px]">
+            <h2 className="t-body text-(--ink-muted)">{project.name}</h2>
+            <p className="t-heading mt-2 text-(--ink)">{project.title}</p>
+            <p className="t-body mt-4 text-(--ink-muted)">{project.summary}</p>
+
+            {project.external && (
+              <a href={project.external.href} target="_blank" rel="noreferrer noopener"
+                 className="btn btn-solid mt-6 inline-flex">
+                {project.external.label} ↗
+              </a>
+            )}
+          </div>
+
+          {/* Horizontal Role, Client, Year, Industry, Duration metadata */}
+          <dl className="my-8 grid grid-cols-2 gap-4 border-y border-(--line) py-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {[
+              ['Role', project.role],
+              ['Client', project.client ?? ''],
+              ['Year', project.year],
+              ['Industry', project.industry],
+              ...(project.duration ? [['Duration', project.duration]] : []),
+            ].filter(([, v]) => v).map(([k, v]) => (
+              <div key={k} className="min-w-0">
+                <dt className="t-caption text-(--ink-muted)">{k}</dt>
+                <dd className="t-body-sm mt-1 text-(--ink)">{v}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {/* Main Content Area with Side Floating Navigation */}
+          <div className={`mt-8 grid gap-10 ${showNav ? 'lg:grid-cols-[260px_1fr] lg:gap-16 items-start' : ''}`}>
+            {showNav && (
+              <aside className="hidden lg:block sticky top-8 min-w-0">
+                <nav
+                  aria-label="Case study sections"
+                  className="card min-w-0 rounded-(--radius-card) p-4 shadow-lg"
+                  style={{ backgroundColor: project.accent, color: navFg }}
+                >
+                  <p className="t-caption mb-3 px-2 font-medium" style={{ color: hexToRgba(navFg, 0.7) }}>Contents</p>
+                  <ul className="grid gap-1">
+                    {project.sections?.map((s) => {
+                      const isActive = activeSection === s.id
+                      return (
+                        <li key={s.id} className="min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => scrollToSection(s.id)}
+                            className={`t-body-sm block w-full truncate rounded px-2.5 py-1.5 text-left transition-colors ${
+                              isActive
+                                ? isLightNav ? 'bg-black/15' : 'bg-white/30'
+                                : isLightNav ? 'hover:bg-black/10' : 'hover:bg-white/20'
+                            }`}
+                            style={{ color: isActive ? navFg : hexToRgba(navFg, 0.7) }}
+                          >
+                            {s.label || s.heading}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </nav>
+              </aside>
+            )}
 
             <div className="min-w-0">
-              <h2 className="t-body text-(--ink-muted)">{project.name}</h2>
-              <p className="t-heading mt-2 max-w-[24ch] text-(--ink)">{project.title}</p>
-              <p className="t-body mt-6 text-(--ink-muted)">{project.summary}</p>
-
-              {project.external && (
-                <a href={project.external.href} target="_blank" rel="noreferrer noopener"
-                   className="btn btn-solid mt-7">
-                  {project.external.label} ↗
-                </a>
-              )}
-
-              <div className="mt-12 grid gap-14">
+              <div className="grid gap-14">
                 {project.sections?.map((s) => (
-                  <section key={s.id} className="reveal-in min-w-0">
+                  <section id={s.id} key={s.id} className="reveal-in min-w-0 scroll-mt-6">
                     <p className="t-caption mb-3 text-(--ink-muted)">{s.label}</p>
-                    <h3 className="t-heading-sm max-w-[26ch] text-(--ink)">{s.heading}</h3>
-                    <div className="mt-6 grid gap-7">
-                      {s.blocks.map((b, i) => <BlockView key={i} block={b} />)}
-                    </div>
+                    <h3 className="t-heading-sm max-w-[32ch] text-(--ink)">{s.heading}</h3>
+                     <div className="mt-6 grid gap-7">
+                       {s.blocks.map((b, i) => {
+                         if (
+                           b.kind === 'figure' &&
+                           (b as { layout?: string }).layout === 'horizontal' &&
+                           s.blocks[i + 1]?.kind === 'figure' &&
+                           (s.blocks[i + 1] as { layout?: string }).layout === 'horizontal'
+                         ) {
+                           const next = s.blocks[i + 1] as Extract<Block, { kind: 'figure' }>
+                           return (
+                             <div key={i} className="grid grid-cols-2 gap-4">
+                               <FigureBlock block={b} />
+                               <FigureBlock block={next} />
+                             </div>
+                           )
+                         }
+                         if ((b as { layout?: string }).layout === 'horizontal') return null
+                         return <BlockView key={i} block={b} />
+                       })}
+                     </div>
                   </section>
                 ))}
               </div>
@@ -191,7 +297,45 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
           </div>
         </div>
       </div>
+
+      {/* Sticky close button for mobile variant */}
+      <button
+        onClick={close}
+        aria-label="Close case study"
+        className="sm:hidden fixed bottom-6 right-6 z-[110] flex items-center gap-2 rounded-full border border-(--line-strong) bg-(--page) px-4 py-2.5 text-(--ink) shadow-xl transition-transform active:scale-95"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+        <span className="t-body-sm">Close</span>
+      </button>
     </div>
+  )
+}
+
+function FigureBlock({ block }: { block: Extract<Block, { kind: 'figure' }> }) {
+  return (
+    <figure className="min-w-0">
+      <div
+        className={`w-full overflow-hidden rounded-(--radius-card) border border-(--line) ${block.bg ? '' : 'bg-(--surface)'}`}
+        style={{
+          aspectRatio: block.ratio ?? '16/9',
+          ...(block.bg ? { backgroundColor: block.bg } : {}),
+        }}
+      >
+        <div className="p-4">
+          <img
+            src={block.src}
+            alt={block.caption ?? ''}
+            loading="lazy"
+            decoding="async"
+            className={`h-full w-full ${block.fit === 'contain' ? 'object-contain' : 'object-cover'}`}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+          />
+        </div>
+      </div>
+      {block.caption && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.caption}</figcaption>}
+    </figure>
   )
 }
 
@@ -370,22 +514,6 @@ function BlockView({ block }: { block: Block }) {
        its caption, so a missing asset reads as "not added yet" rather than as
        a broken page. */
     case 'figure':
-      return (
-        <figure className="min-w-0">
-          <div
-            className="w-full overflow-hidden rounded-(--radius-card) border border-(--line) bg-(--surface)"
-            style={{ aspectRatio: block.ratio ?? '16/9' }}
-          >
-            <img
-              src={block.src}
-              alt={block.caption ?? ''}
-              loading="lazy"
-              className="h-full w-full object-cover"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-            />
-          </div>
-          {block.caption && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.caption}</figcaption>}
-        </figure>
-      )
+      return <FigureBlock block={block} />
   }
 }

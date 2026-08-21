@@ -1,17 +1,16 @@
 /**
- * Page theme. Dark is the reference and the default; light is the same
- * gallery in daylight, opt-in and remembered.
+ * Page theme. Light is the default; dark is the same gallery in nighttime,
+ * opt-in and remembered.
  *
- * A portfolio is usually opened cold from a link, so it follows the reference
- * rather than the OS setting — everyone sees the gallery unless they have
- * asked for daylight on this site.
+ * A portfolio is usually opened cold from a link, so it starts in daylight
+ * unless the visitor has asked for dark on this site.
  */
 export type Theme = 'light' | 'dark'
 const KEY = 'ak-theme'
 
 export function readTheme(): Theme {
-  if (typeof localStorage === 'undefined') return 'dark'
-  try { return localStorage.getItem(KEY) === 'light' ? 'light' : 'dark' } catch { return 'dark' }
+  if (typeof localStorage === 'undefined') return 'light'
+  try { return localStorage.getItem(KEY) === 'dark' ? 'dark' : 'light' } catch { return 'light' }
 }
 
 export function applyTheme(t: Theme): void {

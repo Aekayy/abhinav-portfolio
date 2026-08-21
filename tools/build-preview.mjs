@@ -8,7 +8,7 @@
  * the img/ paths resolve against public/.
  */
 import { execSync } from 'node:child_process'
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { readFileSync, readdirSync, writeFileSync, existsSync, cpSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
@@ -34,3 +34,10 @@ html = html.replace(
 
 writeFileSync(`${root}/portfolio-preview.html`, html)
 console.log(`portfolio-preview.html rebuilt (${(html.length / 1024).toFixed(0)} KB, images linked not inlined)`)
+
+// Ensure image paths resolve when opening the preview file directly.
+const srcImg = `${root}/public/img`
+const dstImg = `${root}/img`
+if (existsSync(srcImg)) {
+  cpSync(srcImg, dstImg, { recursive: true })
+}

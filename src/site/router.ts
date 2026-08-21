@@ -8,14 +8,31 @@ import { useEffect, useState } from 'react'
  * that trade — a # in the URL against a link that never 404s — is the right
  * way round.
  */
+function getBasePage(path: string): string {
+  const clean = path.replace(/^#/, '').split('#')[0] || '/'
+  if (clean.startsWith('/projects/')) return '/'
+  if (clean.startsWith('/blog/')) return '/blog'
+  return clean
+}
+
 export function useRoute(): string {
   const [route, setRoute] = useState(() =>
     typeof location === 'undefined' ? '/' : location.hash.replace(/^#/, '') || '/')
 
   useEffect(() => {
+    let prevRoute = typeof location === 'undefined' ? '/' : location.hash.replace(/^#/, '') || '/'
     const on = () => {
-      setRoute(location.hash.replace(/^#/, '') || '/')
-      window.scrollTo({ top: 0, behavior: 'auto' })
+      const newRoute = location.hash.replace(/^#/, '') || '/'
+      const prevBase = getBasePage(prevRoute)
+      const newBase = getBasePage(newRoute)
+      setRoute(newRoute)
+      prevRoute = newRoute
+
+      // Only scroll to top when switching between fundamentally different base pages
+      // (e.g., / -> /about), but keep scroll position when opening or closing overlays.
+      if (prevBase !== newBase && !location.hash.includes('#')) {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      }
     }
     window.addEventListener('hashchange', on)
     return () => window.removeEventListener('hashchange', on)

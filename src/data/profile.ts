@@ -14,7 +14,7 @@ export const PROFILE = {
   available: true,
   email: 'abhinavdesignerux@gmail.com',
   phone: '+1 (945) 249-6036',
-  tagline: 'A UX/Product Designer based in Houston, TX',
+  tagline: 'A UX/Product Designer currently based in Houston, TX',
   metaDescription:
     'Abhinav is a UX/Product Designer currently open to full time opportunities in the US.',
   intro:

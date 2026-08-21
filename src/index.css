@@ -16,6 +16,7 @@
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'twkLausanne', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* The reference's whole scale: 16 and 17 for text, 32 for the single
      display voice at -0.04em. Hierarchy comes from Bone against Ash, never
@@ -55,6 +56,7 @@
 :root,
 [data-theme='light'] {
   color-scheme: light;
+  scroll-behavior: smooth;
   --page:        #faf4f4;
   /* Warm steps off the paper canvas; cool greys read blue against it. A card
      still has to be perceptible: #eeeef1 measured only 1.06:1 here. */
@@ -117,7 +119,7 @@ body {
 @layer components {
   .t-display,
   .t-heading,
-  .t-heading-sm { font-size: var(--text-display); line-height: var(--leading-display); letter-spacing: -0.04em; }
+  .t-heading-sm { font-family: var(--font-display); font-size: var(--text-display); line-height: var(--leading-display); letter-spacing: -0.04em; }
   .t-sub        { font-size: var(--text-sub);        line-height: var(--leading-sub); }
   .t-body       { font-size: var(--text-body);       line-height: var(--leading-body); }
   .t-body-sm    { font-size: var(--text-body-sm);    line-height: var(--leading-body-sm); }

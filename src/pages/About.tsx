@@ -5,37 +5,30 @@ import { PageHead, Section, Eyebrow } from '@/components/Bits'
 export function About() {
   return (
     <>
-      <div className="shell">
-        <PageHead eyebrow="About" title="Who I am and how I work" lede={PROFILE.aboutQuote} />
-      </div>
-
-      {/* Text on the left, images on the right, and the images stay with the
-          reader across both sections. This is the longest unbroken stretch of
-          prose on the site, so it is the stretch that most needs something to
-          look at. Sticky only where there is a second column to be sticky in. */}
-      <Section>
-        <div className="grid gap-12 lg:grid-cols-[1fr_minmax(280px,380px)] lg:gap-16">
+      <Section className="!pt-24">
+        <div className="grid gap-8 lg:grid-cols-[1fr_minmax(280px,380px)] lg:gap-16 items-start">
           <div className="min-w-0">
-            <p className="t-sub max-w-[52ch] text-(--ink)">{PROFILE.intro}</p>
-            <p className="t-body mt-6 max-w-[54ch] text-(--ink-muted)">{PROFILE.aboutBody}</p>
-
-            <div className="mt-16">
-              <Eyebrow>My approach</Eyebrow>
-              <h2 className="t-heading text-(--ink)">{PROFILE.philosophyTitle}</h2>
-              <div className="mt-6 grid max-w-[54ch] gap-5">
-                {PROFILE.philosophy.map((p) => (
-                  <p key={p.slice(0, 24)} className="t-body text-(--ink-muted)">{p}</p>
-                ))}
-              </div>
-            </div>
+            <PageHead eyebrow="About" title="Who I am and how i work" lede={PROFILE.aboutQuote} />
+            <p className="t-sub text-(--ink)">{PROFILE.intro}</p>
+            <p className="t-body mt-6 text-(--ink-muted)">{PROFILE.aboutBody}</p>
           </div>
+          <div className="min-w-0 lg:sticky lg:top-28 lg:h-max pt-16 md:pt-24">
+            <Frame src={ABOUT_IMAGES[0].src} alt={ABOUT_IMAGES[0].alt} ratio="4/5" />
+          </div>
+        </div>
 
-          <div className="min-w-0 lg:sticky lg:top-28 lg:h-max">
-            <div className="grid gap-5">
-              {ABOUT_IMAGES.map((img) => (
-                <Frame key={img.src} src={img.src} alt={img.alt} ratio="4/5" />
+        <div className="grid gap-8 lg:grid-cols-[1fr_minmax(280px,380px)] lg:gap-16 items-start mt-16">
+          <div className="min-w-0">
+            <Eyebrow>My approach</Eyebrow>
+            <h2 className="t-heading text-(--ink)">{PROFILE.philosophyTitle}</h2>
+            <div className="mt-6 grid gap-5">
+              {PROFILE.philosophy.map((p) => (
+                <p key={p.slice(0, 24)} className="t-body text-(--ink-muted)">{p}</p>
               ))}
             </div>
+          </div>
+          <div className="min-w-0 lg:sticky lg:top-28 lg:h-max">
+            <Frame src={ABOUT_IMAGES[1].src} alt={ABOUT_IMAGES[1].alt} ratio="4/5" />
           </div>
         </div>
       </Section>
@@ -63,7 +56,13 @@ export function About() {
             <li key={job.role + job.period} className="grid gap-3 border-t border-(--line) py-7 md:grid-cols-[1fr_2fr] md:gap-10">
               <div className="min-w-0">
                 <div className="flex items-center gap-3">
-                  <Avatar src={job.logo} name={job.org} size={36} />
+                  {job.logo && (
+                    <img
+                      src={job.logo}
+                      alt={job.org}
+                      className="h-9 w-9 object-contain"
+                    />
+                  )}
                   <div className="min-w-0">
                     <div className="t-sub text-(--ink)">{job.role}</div>
                     <div className="t-body-sm mt-0.5 text-(--ink-muted)">{job.org}</div>

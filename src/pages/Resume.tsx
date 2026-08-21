@@ -9,7 +9,7 @@ export function Resume() {
         <PageHead
           eyebrow="Resume"
           title={PROFILE.role}
-          lede={`${PROFILE.location} · ${PROFILE.available ? 'Open to full time roles in the US' : 'Currently engaged'}`}
+          lede={`${PROFILE.location} · Open to full time roles in the US · Visa Sponsorship Not Required · Open to relocate anywhere in the US`}
         />
         <div className="mt-8 flex flex-wrap gap-3">
           <a href="resume.pdf" download className="btn btn-solid">Download the PDF</a>
@@ -22,10 +22,9 @@ export function Resume() {
           wants the document should not have to read the page first. */}
       <Section>
         <Eyebrow>The document</Eyebrow>
-        <div className="grid max-w-[760px] gap-6">
+        <div className="grid max-w-[1000px] grid-cols-2 gap-4">
           {RESUME_PAGES.map((pg, i) => (
-            <Frame key={pg.src} src={pg.src} alt={pg.alt} ratio="8.5/11"
-                   label={`Page ${i + 1}`} />
+            <Frame key={pg.src} src={pg.src} alt={pg.alt} ratio="8.5/11" label={`Page ${i + 1}`} />
           ))}
         </div>
       </Section>
