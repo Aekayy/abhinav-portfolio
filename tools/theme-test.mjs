@@ -97,10 +97,16 @@ if (light && dark) {
   }
 }
 
-// The gallery opens dark — it is the reference's identity — and a returning
-// visitor's choice is restored by the inline script before first paint.
+// The gallery opens light. A portfolio is opened cold from a link, usually in
+// daylight, so daylight is the honest first impression; dark is the
+// reference's identity but it is opt-in, and a returning visitor's choice is
+// restored by the inline script before first paint.
+//
+// This assertion used to read data-theme="dark" and had gone stale against
+// both index.html and src/site/theme.ts, which have defaulted to light for a
+// while. A test that disagrees with the code it guards is worse than no test.
 const html = readFileSync(fileURLToPath(new URL('../index.html', import.meta.url)), 'utf8')
-check('site opens dark', /<html[^>]*data-theme="dark"/.test(html), '')
+check('site opens light', /<html[^>]*data-theme="light"/.test(html), '')
 check('stored preference applied before paint', html.includes("localStorage.getItem('ak-theme')"), '')
 
 console.table(rows)

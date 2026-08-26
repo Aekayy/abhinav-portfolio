@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useRoute } from './router'
 import { startReveal } from './reveal'
+import { Intro } from './intro'
 import { Nav } from './Chrome'
 import { Home } from '@/pages/Home'
 import { About } from '@/pages/About'
@@ -32,8 +33,16 @@ export default function Site() {
 
   return (
     <div className="min-h-dvh bg-(--page) text-(--ink)">
+      {/* Renders nothing on the server and nothing after the first session, so
+          the page below is never waiting on it. Given the real route, not
+          `behind`, so a deep link to a study does not open on a name card. */}
+      <Intro route={route} />
       <Nav route={behind} />
-      <main>{render(behind)}</main>
+      {/* Keyed on the page, so React remounts it and the arrival replays on
+          every navigation. Studies and posts open over whatever is behind
+          them, so they deliberately do not re-key it — the page underneath
+          has not changed. */}
+      <main key={behind} className="page-in">{render(behind)}</main>
       {study && <StudyOverlay project={study} backTo="/" />}
       {post && <PostOverlay post={post} />}
     </div>

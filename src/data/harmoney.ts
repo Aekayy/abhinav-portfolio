@@ -10,13 +10,18 @@ import type { Section } from './projects'
  *
  * Image slots point at public/img/harmoney/. Until an export is dropped in,
  * each renders as a tinted panel with its caption, so the page is never broken
- * and never pretends an artefact exists that does not.
+ * and never pretends an artifact exists that does not.
  */
 export const HARMONEY_SECTIONS: Section[] = [
   {
     id: 'what',
     label: 'The product',
     heading: 'A physical card that carries your business',
+    tldr: [
+      'A physical card. Tap it to any phone and a Harmoney profile opens in the browser, ready to take a payment.',
+      'Nothing to install on the payer’s side, nothing to spell out, nothing to remember later.',
+      'Ten dollars once, no subscription and no terminal.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -42,6 +47,11 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'opportunity',
     label: 'The opportunity',
     heading: 'Intent is strongest the moment someone says yes',
+    tldr: [
+      'Intent to pay peaks the moment someone says yes in person, then decays through every step before money moves.',
+      'Modelled with the founder: 100% at meet, ~60% at exchange, ~30% at recall, ~15% at follow up, ~8% paid.',
+      'Link in bio, card readers, P2P apps and business cards each hold one piece. None of them close the gap.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -77,8 +87,14 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'ninety-seconds',
-    label: 'The same ninety seconds, twice',
+    label: 'The core scenario',
     heading: 'Nothing goes wrong. The booking just evaporates',
+    tldr: [
+      'The same ninety seconds told twice, through Danielle, a mobile stylist at a rooftop party.',
+      'Without: she spells her handle, three similar accounts appear, and a $400 booking evaporates over four days. Nothing went wrong.',
+      'With: card to phone, profile in a second, deposit taken before the conversation ends.',
+      'The payment step itself is untouched and deliberate. Everything ahead of it disappears.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -137,7 +153,7 @@ export const HARMONEY_SECTIONS: Section[] = [
         kind: 'split',
         title: 'What actually changed',
         items: [
-          { label: 'Identical in both: the payment step', body: 'Open the phone, authorise, done. That step should take a deliberate action, and Harmoney leaves it alone.' },
+          { label: 'Identical in both: the payment step', body: 'Open the phone, authorize, done. That step should take a deliberate action, and Harmoney leaves it alone.' },
           { label: 'Everything ahead of it', body: 'Spelling a handle out loud. Searching, and three similar accounts. “I will send you my rates.” Typing an amount, or guessing it. Four days for someone else to answer first.' },
         ],
       },
@@ -158,8 +174,12 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'does',
-    label: 'What Harmoney does',
+    label: 'The concept',
     heading: 'Discovery, identity and payment in one gesture',
+    tldr: [
+      'Three moves: tap the card, a profile opens, payment and booking sit one tap deep.',
+      'Revenue comes from payments that complete rather than from subscription, so every screen between the tap and settled money carries the business.',
+    ],
     blocks: [
       {
         kind: 'split',
@@ -188,8 +208,12 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'goals',
-    label: 'Project goals',
+    label: 'Goals',
     heading: 'Agreed before design started',
+    tldr: [
+      'Four, agreed with the founder before design started and used to settle scope arguments later.',
+      'Convert the gesture into completed payments, smooth onboarding to one decision per step, make fees and timing legible, and unify the brand across site, app and card.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -213,11 +237,16 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'who',
     label: 'Who it is for',
     heading: 'Three earner types, plus the person nobody designs for',
+    tldr: [
+      'Three earner types: the vendor with her hands full, the service creator selling credibility before time, and the operator who answers to a bank account.',
+      'Plus the fourth: the payer, who has never heard of Harmoney and is being handed a card by a stranger.',
+      'Labeled proto personas on purpose. At this stage they are informed models, not validated research.',
+    ],
     blocks: [
       {
         kind: 'text',
         body: [
-          'Built from the founder’s market knowledge and the presale audience, and labelled proto personas because at this stage they are informed models, not validated research.',
+          'Built from the founder’s market knowledge and the presale audience, and labeled proto personas because at this stage they are informed models, not validated research.',
         ],
       },
       {
@@ -236,8 +265,13 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'journey',
-    label: 'User journey map',
+    label: 'Journey map',
     heading: 'Three of the six stages exist only because payment happens later',
+    tldr: [
+      'The service creator mapped current state against designed state, across six stages.',
+      'Three of the six exist only because payment happens later. Bring payment into the moment and they fall away.',
+      'That is why the tap and the public profile were designed first, ahead of the dashboard.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -277,6 +311,10 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'stories',
     label: 'User stories',
     heading: 'Requirements that never left their reason behind',
+    tldr: [
+      'Written as acceptance criteria a developer could build against, but held to a named person so the requirement never lost its reason.',
+      'Every requirement the payer has sits on the public profile, a screen the account holder rarely sees, which is why it was designed before the dashboard.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -332,14 +370,18 @@ export const HARMONEY_SECTIONS: Section[] = [
         ],
       },
       { kind: 'figure', src: 'img/harmoney/stories-1.png', caption: 'User stories as acceptance criteria, held to a person', ratio: '4480/2448' },
-      { kind: 'figure', src: 'img/harmoney/stories-2.png', caption: 'Prioritised P0 against the tap-to-paid flow', ratio: '4480/872' },
+      { kind: 'figure', src: 'img/harmoney/stories-2.png', caption: 'Prioritized P0 against the tap-to-paid flow', ratio: '4480/872' },
     ],
   },
 
   {
     id: 'principles',
-    label: 'Principles',
+    label: 'Design principles',
     heading: 'Five, agreed before a single screen was drawn',
+    tldr: [
+      'Protect the gesture, money is never a surprise, density where it earns it, every state is considered, one identity end to end.',
+      'Agreed before a single screen was drawn, so later disagreements were settled against the rules rather than against taste.',
+    ],
     blocks: [
       {
         kind: 'principles',
@@ -359,6 +401,11 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'ideation',
     label: 'Ideation',
     heading: 'Three structural concepts, one story',
+    tldr: [
+      'Three structural concepts run against the same story: take payment from a stranger in under ten seconds.',
+      'Wallet first asks the seller to navigate before earning. Terminal first leads with an amount, which skips the credibility the service creator needs.',
+      'Profile first won because it matches where the money is actually decided. The cost was putting the seller dashboard second.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -385,35 +432,39 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'wireframes',
-    label: 'Wireframes and lo-fi',
-    heading: 'If a screen does not work in grey, colour will not save it',
+    label: 'Wireframes',
+    heading: 'If a screen does not work in gray, color will not save it',
+    tldr: [
+      'Structure and hierarchy resolved in grayscale, annotated on the artifact so the reasoning survived review without me in the room.',
+      'Two things gray surfaced: the ledger row gave name and amount equal weight, and four primary actions on home read as one. Reduced to three.',
+    ],
     blocks: [
       {
         kind: 'text',
         body: [
-          'Structure and hierarchy resolved in greyscale, with the reasoning annotated on the artefact so it survived review without me in the room. Layout and density were then resolved at full detail with colour still withheld.',
+          'Structure and hierarchy resolved in grayscale, with the reasoning annotated on the artifact so it survived review without me in the room. Layout and density were then resolved at full detail with color still withheld.',
         ],
       },
       { kind: 'figure', src: 'img/harmoney/wireframes.png', caption: 'Home, ledger, request, links and the public profile, annotated', ratio: '4480/1640' },
-      { kind: 'figure', src: 'img/harmoney/lofi-1.png', caption: 'Lo-fi: layout and density at full detail, colour still withheld', ratio: '4480/1640' },
-      { kind: 'figure', src: 'img/harmoney/lofi-2.png', caption: 'The public profile in grey · the only screen that must convert with zero prior context', ratio: '8/1' },
+      { kind: 'figure', src: 'img/harmoney/lofi-1.png', caption: 'Lo-fi: layout and density at full detail, color still withheld', ratio: '4480/1640' },
+      { kind: 'figure', src: 'img/harmoney/lofi-2.png', caption: 'The public profile in gray · the only screen that must convert with zero prior context', ratio: '8/1' },
       {
         kind: 'split',
-        title: 'Two things greyscale surfaced',
+        title: 'Two things grayscale surfaced',
         items: [
-          { label: 'It clarified the ledger row', body: 'The name and the amount were carrying equal weight. Seeing it in grey made the fix obvious, and it held once colour arrived.' },
-          { label: 'It simplified the home screen', body: 'Without colour to separate them, four primary actions read as one. We reduced it to three.' },
+          { label: 'It clarified the ledger row', body: 'The name and the amount were carrying equal weight. Seeing it in gray made the fix obvious, and it held once color arrived.' },
+          { label: 'It simplified the home screen', body: 'Without color to separate them, four primary actions read as one. We reduced it to three.' },
         ],
       },
       {
         kind: 'list',
-        title: 'Reasoning annotated on the artefact',
+        title: 'Reasoning annotated on the artifact',
         items: [
           'Creating a link is the primary job, so it sits above the list rather than behind a plus icon.',
           'Conversion data lives on the row, because a link without performance data is unactionable.',
           'Card analytics live with the card, not in a separate insights tab. The object and its performance belong together.',
           'The public profile is seen by a stranger. It is the only screen that must convert with zero prior context.',
-          'Freeze is destructive, so it is isolated and colour coded, and it is reversible, so the copy says so.',
+          'Freeze is destructive, so it is isolated and color coded, and it is reversible, so the copy says so.',
         ],
       },
     ],
@@ -421,8 +472,13 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'visual',
-    label: 'Visual direction',
-    heading: 'Colour applied last, on structure already settled',
+    label: 'Design system',
+    heading: 'Color applied last, on structure already settled',
+    tldr: [
+      'Deep green carries navigation, the card and identity. Lime is held back for the single highest intent action on any screen.',
+      'Bebas Neue for display, Archivo for interface, Inconsolata for money so decimals align and amounts do not shift width.',
+      'Both themes are a structural property rather than a separate skin, so they come out of the same components.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -462,8 +518,14 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'decisions',
-    label: 'Decisions',
+    label: 'Key decisions',
     heading: 'Four choices, and what each one traded',
+    tldr: [
+      'Fees before the confirm: a creator who understands the fee on their first payment comes back for the second. Costs a moment of reading.',
+      'The empty state designed first, because every seller starts at zero and sees it most in week one.',
+      'Offline leads with reassurance that the money is safe, and mentions connectivity second.',
+      'Friction placed deliberately: claiming a permanent address is the one step that stays with you, so it gets its own screen.',
+    ],
     blocks: [
       {
         kind: 'split',
@@ -482,8 +544,12 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'states',
-    label: 'Every state is designed',
+    label: 'States and edge cases',
     heading: 'The quiet states are where trust is built',
+    tldr: [
+      'Empty confirms the card is live. Offline reassures before it explains. In progress treats the tap as an event.',
+      'Success shows a fee breakdown rather than a tick: gross, processing fee, net, and the date it becomes available.',
+    ],
     blocks: [
       {
         kind: 'split',
@@ -503,6 +569,9 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'accessibility',
     label: 'Accessibility',
     heading: 'Considered during design, not audited afterwards',
+    tldr: [
+      'Considered during design rather than audited afterwards, and where it is not resolved the study says so rather than omitting it.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -512,11 +581,11 @@ export const HARMONEY_SECTIONS: Section[] = [
         kind: 'table',
         columns: ['Item', 'Status', 'Detail'],
         rows: [
-          ['Never colour alone', 'Resolved', 'Status carries colour, background and a word. Direction carries colour, an arrow and a sign. Verified by designing the whole product in grey first.'],
+          ['Never color alone', 'Resolved', 'Status carries color, background and a word. Direction carries color, an arrow and a sign. Verified by designing the whole product in gray first.'],
           ['44pt tap floor', 'Resolved', 'Anything visually smaller sits inside a larger pressable row that carries the target.'],
           ['Tabular figures', 'Resolved', 'Money uses a monospaced face so decimals align and amounts do not shift width as digits change.'],
           ['Contrast on the brightest accent', 'In review', 'The brightest brand green on white sits close to the AA threshold for normal text. Documented with two remedies so the team can pick the right one.'],
-          ['Dynamic Type', 'Open', 'Built on a fixed scale. Behaviour at the largest accessibility sizes is the next thing to test, starting with the ledger row.'],
+          ['Dynamic Type', 'Open', 'Built on a fixed scale. Behavior at the largest accessibility sizes is the next thing to test, starting with the ledger row.'],
           ['Screen reader semantics', 'Open', 'A transaction row should announce as one clear statement. Specified in handoff and ready to validate on device.'],
         ],
       },
@@ -526,17 +595,21 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'handover',
-    label: 'Production readiness',
+    label: 'Handoff',
     heading: 'Finished when a team can build it without asking what I meant',
+    tldr: [
+      'Color, type, spacing and elevation defined as named roles, so a theme change is a systems change rather than a screen by screen edit.',
+      'Components documented with variants, content rules and construction reasoning, and tokens exported in a format engineering consumes directly.',
+    ],
     blocks: [
       {
         kind: 'split',
         title: '',
         items: [
-          { label: 'A system, not a file', body: 'Colour, type, spacing and elevation defined as named roles, so a theme change is a systems change rather than a screen by screen edit.' },
+          { label: 'A system, not a file', body: 'Color, type, spacing and elevation defined as named roles, so a theme change is a systems change rather than a screen by screen edit.' },
           { label: 'Documented components', body: 'Each carries its variants, content rules and construction reasoning, so intent survives after I leave.' },
-          { label: 'Handed over as code', body: 'Tokens exported in a format engineering consumes directly, with written guidance on device targets and theming behaviour.' },
-          { label: 'Reviewed for consistency', body: 'Structural checks across the full screen set for spacing, layout behaviour and consistent styling, so the file holds together as it grows.' },
+          { label: 'Handed over as code', body: 'Tokens exported in a format engineering consumes directly, with written guidance on device targets and theming behavior.' },
+          { label: 'Reviewed for consistency', body: 'Structural checks across the full screen set for spacing, layout behavior and consistent styling, so the file holds together as it grows.' },
         ],
       },
     ],
@@ -544,8 +617,12 @@ export const HARMONEY_SECTIONS: Section[] = [
 
   {
     id: 'measures',
-    label: 'How I would know it worked',
+    label: 'Success measures',
     heading: 'Measures agreed, and the signals to look again',
+    tldr: [
+      'The product had not launched at handover, so these are the measures agreed with the founder rather than results claimed.',
+      'Each one is paired with the signal that would tell us to look again.',
+    ],
     blocks: [
       {
         kind: 'text',
@@ -571,13 +648,18 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'reflection',
     label: 'Reflection',
     heading: 'What I took from it',
+    tldr: [
+      'The brief opened up: it started as a set of screens and became defining what the product was for and which moments carried the business.',
+      'Holding color back paid off. Every hierarchy question got answered with structure instead.',
+      'What is missing is not more screens. Five conversations with working vendors would test three of the assumptions this rests on.',
+    ],
     blocks: [
       {
         kind: 'split',
         title: '',
         items: [
           { label: 'The brief opened up into something bigger', body: 'The starting point was a set of screens. Working through it with Tyi, it became clear the more useful contribution was defining what the product was for, who it served, and which moments carried the business. He gave me the room to go there.' },
-          { label: 'Holding colour back paid off', body: 'Working in greyscale through wireframes and lo-fi meant every hierarchy question was answered with structure. Two things surfaced there that would have been easy to miss later.' },
+          { label: 'Holding color back paid off', body: 'Working in grayscale through wireframes and lo-fi meant every hierarchy question was answered with structure. Two things surfaced there that would have been easy to miss later.' },
           { label: 'What I would add next', body: 'Not more screens. Five conversations with working vendors would test three of the assumptions this work is built on, and I designed those parts to be easy to change for exactly that reason.' },
         ],
       },

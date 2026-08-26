@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import type { Project } from '@/data/projects'
 import { go } from '@/site/router'
+import { SHOWCASES } from '@/data/screens'
+import { Showcase } from '@/components/Showcase'
 
 /**
  * The reference's horizontal scroll row.
@@ -42,20 +44,37 @@ export function Gallery({ projects }: { projects: Project[] }) {
     initPosition()
     const timer = window.setTimeout(initPosition, 80)
 
-    // Translate standard vertical/horizontal wheel into smooth viscous momentum
+    // Someone who asked for less motion gets the browser's own scrolling:
+    // native overflow already carries trackpad and touch momentum, and the
+    // physics below is the part that was never asked for.
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+    // Translate a wheel or trackpad gesture into viscous momentum, on either
+    // axis and in both directions. A vertical wheel drives the track sideways,
+    // which is the whole point of the gallery: one continuous row you push
+    // through, forwards and back.
+    //
+    // Scrolling up used to be handed back to the page, to guarantee a way out
+    // of a track that loops forever and so has no end to reach. Abhinav asked
+    // for both directions twice, so both directions it is. The escape is that
+    // the listener is on the card row itself rather than the whole section:
+    // the heading above it and the page margins below are ordinary page, so
+    // there is always somewhere to put the pointer and carry on scrolling.
     const onWheel = (e: WheelEvent) => {
       if (!el) return
-      e.preventDefault()
 
-      const rawDelta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX
+      const vertical = Math.abs(e.deltaY) > Math.abs(e.deltaX)
+
+      e.preventDefault()
+      const raw = vertical ? e.deltaY : e.deltaX
       // Normalize wheel ticks vs trackpad high-frequency pulses
       const factor = e.deltaMode === 1 ? 25 : e.deltaMode === 2 ? 200 : 0.85
-      velocityRef.current += (rawDelta * factor) * 0.35
+      velocityRef.current += (raw * factor) * 0.35
       // Cap maximum velocity for silky smooth gliding
       velocityRef.current = Math.max(-60, Math.min(60, velocityRef.current))
     }
 
-    el.addEventListener('wheel', onWheel, { passive: false })
+    if (!reduce) el.addEventListener('wheel', onWheel, { passive: false })
 
     // High-performance RAF physics loop with friction damping
     let animationId: number
@@ -197,7 +216,21 @@ export function Gallery({ projects }: { projects: Project[] }) {
               className="lift aspect-[4/5] w-full overflow-hidden rounded-(--radius-card) bg-(--surface) border border-(--line)"
               aria-hidden="true"
             >
-              {p.thumb && (
+              {/* The real screens where a study has them, so the card and the
+                  study hero are the same artifact rather than a photo of it
+                  and the thing itself.
+                  These play on their own, the way the old Spotify card did.
+                  What keeps five looping cards from becoming a slot machine is
+                  the IntersectionObserver inside Showcase: only the cards
+                  actually in the viewport are running, and on a horizontal
+                  track that is three or four of them, not fifteen. */}
+              {SHOWCASES[p.slug] ? (
+                <Showcase
+                  slug={p.slug}
+                  accent={p.accent}
+                  className="h-full"
+                />
+              ) : p.thumb ? (
                 <img
                   src={p.thumb}
                   alt=""
@@ -207,7 +240,7 @@ export function Gallery({ projects }: { projects: Project[] }) {
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
                 />
-              )}
+              ) : null}
             </div>
             <div className="mt-3 flex min-w-0 items-baseline justify-between gap-2">
               <span className="t-body-sm text-(--ink) font-normal truncate">{p.name}</span>

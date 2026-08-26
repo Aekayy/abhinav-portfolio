@@ -20,11 +20,11 @@ export const PROFILE = {
   intro:
     'I am a strategist, crafting experiences that connect deeply and spark creativity.',
   bio:
-    'I specialise in UI/UX design, web and mobile interfaces, and brand identity. I turn complex ideas into intuitive, visually striking designs using Figma, pencil and Framer. Driven by research, clarity and attention to detail, I create interfaces that do not just look good, they work.',
+    'I specialize in UI/UX design, web and mobile interfaces, and brand identity. I turn complex ideas into intuitive, visually striking designs using Figma, pencil and Framer. Driven by research, clarity and attention to detail, I create interfaces that do not just look good, they work.',
   aboutQuote:
     'I’m a UX/Product Designer who builds with clarity and questions with intent. I stay current with design trends but focus on what truly improves the experience.',
   aboutBody:
-    'I care about solving real world problems. From healthcare and enterprise products to B2B2C and SaaS, my work centres on reducing friction and designing systems that feel human.',
+    'I care about solving real world problems. From healthcare and enterprise products to B2B2C and SaaS, my work centers on reducing friction and designing systems that feel human.',
   philosophyTitle: 'The Law of Circle',
   philosophy: [
     'It means that no matter how far I go, I always return to the basics. In a field that constantly moves forward, I pause, reflect, and revisit the foundation: the users, the context, the core problem.',

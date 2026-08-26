@@ -6,9 +6,10 @@
 
    The reference (newportfolio.md) is a midnight gallery: a near-black room
    where the work is the only colour and the frame is engineered to disappear.
-   It is followed strictly. Dark is the only theme; the palette is the
-   reference verbatim — Obsidian #181818, Graphite #262626, Bone #fafafa,
-   Ash #a3a3a3.
+   The palette is the reference verbatim — Obsidian #181818, Graphite #262626,
+   Bone #fafafa, Ash #a3a3a3 — but light is the default: a portfolio is opened
+   cold from a link, usually in daylight, and the gallery reads as a daylit
+   room until the visitor asks for the lights down.
 
    Two surfaces, two text tones, no accent in the chrome, no shadows, one
    weight everywhere. Colour belongs to the work, not to the frame around it.
@@ -37,13 +38,28 @@
 
   /* Entrances and exits ease out; the built-in curves are too weak for UI. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Movement across the screen, where something travels rather than arrives. */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* One duration scale, so nothing is hand-tuned in a component file.
+     UI stays under 300ms — a 180ms dropdown reads as more responsive than a
+     400ms one. Only the intro, which is watched once, is allowed past it. */
+  --dur-quick:   150ms;   /* hover, colour, small state change */
+  --dur-ui:      240ms;   /* moving between pages */
+  --dur-panel:   320ms;   /* the study panel opening */
+  --dur-arrive:  420ms;   /* a block arriving on scroll */
+  --dur-intro:   560ms;   /* the once-per-session opening */
+
+  /* A stagger reads as order at 30-80ms and as a queue past that. */
+  --stagger: 60ms;
 }
 
 /* ── themes ───────────────────────────────────────────────────
-   Dark is the reference, verbatim, and the default: Obsidian #181818 canvas,
-   Graphite #262626 elevated, Bone #fafafa ink, Ash #a3a3a3 muted.
+   Dark is the reference, verbatim: Obsidian #181818 canvas, Graphite #262626
+   elevated, Bone #fafafa ink, Ash #a3a3a3 muted. It is opt-in and remembered.
 
-   Light is the same gallery translated to daylight, not a second identity:
+   Light is the default, and the same gallery translated to daylight rather
+   than a second identity:
    the four neutrals keep their roles and their relationships — the canvas is
    the lightest thing (#faf4f4, a warm paper white), the elevated surface sits
    one perceptible step above it, ink is Obsidian, muted is the darkest grey
@@ -137,7 +153,10 @@ body {
     border-radius: var(--radius-pill);
     font-size: var(--text-body-sm);
     white-space: nowrap; cursor: pointer;
-    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+    transition:
+      background-color var(--dur-quick) ease,
+      color            var(--dur-quick) ease,
+      border-color     var(--dur-quick) ease;
   }
   .btn-solid   { background: var(--ink); border-color: var(--ink); color: var(--page); }
   .btn-solid:hover { opacity: .86; }
@@ -190,7 +209,7 @@ body {
 
 .overlay-enter  { animation: overlay-in  200ms var(--ease-out) both; }
 .overlay-leave  { animation: overlay-out 160ms var(--ease-out) both; }
-.panel-enter    { animation: panel-in    320ms var(--ease-out) both; }
+.panel-enter    { animation: panel-in    var(--dur-panel) var(--ease-out) both; }
 .panel-leave    { animation: panel-out   180ms var(--ease-out) both; }
 
 /* Sections inside the study arrive as the reader reaches them, on the same
@@ -202,6 +221,160 @@ body {
   transition:
     opacity 460ms var(--ease-out) var(--reveal-delay, 0ms),
     transform 460ms var(--ease-out) var(--reveal-delay, 0ms);
+}
+
+/* ── the opening ──────────────────────────────────────────────
+   Once per session, and the only motion on this site allowed past 300ms.
+
+   The gate: frequency is once, purpose is arrival — the reference is a gallery
+   and this is the moment the lights come up in the room. That is the rare tier
+   where a delight budget exists. Every other tier on this page is stricter.
+
+   It is built as a CSS animation rather than JS on purpose: an entrance that
+   runs while the bundle is still parsing must not share the main thread with
+   it. Keyframes are correct here for the same reason a transition would be
+   wrong — nothing can interrupt an intro that plays once and leaves. */
+@keyframes intro-mark  { from { opacity: 0; transform: translateY(8px) scale(.96) } to { opacity: 1; transform: none } }
+@keyframes intro-rule  { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+@keyframes intro-leave { from { opacity: 1 } to { opacity: 0 } }
+
+.intro {
+  position: fixed; inset: 0; z-index: 90;
+  display: grid; place-items: center; gap: 20px;
+  background: var(--page);
+}
+.intro-mark { animation: intro-mark var(--dur-intro) var(--ease-out) both; }
+.intro-rule {
+  width: min(220px, 40vw); height: 1px;
+  background: var(--line-strong);
+  transform-origin: center;
+  animation: intro-rule 420ms var(--ease-in-out) 180ms both;
+}
+/* Leaving is a plain fade. The hero underneath is already mounted and running
+   its own entrance, so the intro's job is to get out of the way, not to
+   perform a second time. */
+.intro-out { animation: intro-leave 260ms var(--ease-out) both; pointer-events: none; }
+
+/* ── moving between pages ─────────────────────────────────────
+   Purpose is preventing a jarring change: the nav swaps the whole document in
+   one frame, and without this the reader cannot tell whether the page changed
+   or the content simply jumped. It is short on purpose — this is navigation,
+   not a performance, and the reveal below carries the rest of the page.
+
+   Only the incoming page animates. Animating the outgoing one too would mean
+   holding the reader on a page they have already left. */
+@keyframes page-in { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+
+.page-in { animation: page-in var(--dur-ui) var(--ease-out) both; }
+
+/* ── the hero arriving ────────────────────────────────────────
+   Staggered so the mark, the headline and the line read as an order rather
+   than as one block landing. Gated behind an attribute the intro sets, so a
+   visitor who has already seen it this session gets the hero instantly. */
+@keyframes hero-rise { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
+
+[data-intro='done'] .hero-item {
+  animation: hero-rise var(--dur-arrive) var(--ease-out) both;
+  animation-delay: calc(var(--hero-i, 0) * var(--stagger));
+}
+
+/* ── the work moving as you read past it ──────────────────────
+   Scroll-driven, using animation-timeline rather than a scroll listener.
+   That is not a style preference: a listener runs on the main thread and
+   drops frames while the study's images decode, which is exactly when this
+   motion is on screen. The timeline version runs off it.
+
+   @supports because Safari and Firefox are still landing this; where it is
+   missing the figure is simply static, which is a complete state, not a
+   broken one. Nothing is hidden waiting for an animation that cannot run.
+
+   The range stops at cover 55% so the settle finishes while the figure is
+   still arriving. Running it across the whole pass would mean the image is
+   never at rest in the middle of the viewport, where it is actually read. */
+/* Scale only, never translate. These sit inside clipped frames on an
+   object-cover image: scaling down to 1 lands exactly at fill, while any
+   translate would drag an edge off the image and expose the panel behind it. */
+@keyframes settle    { from { transform: scale(1.04) } to { transform: scale(1) } }
+@keyframes showcase  { from { transform: scale(1.06) } to { transform: scale(1) } }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .settle {
+      animation: settle linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 55%;
+    }
+    /* The study's opening image, which is the one thing in a case study the
+       reader looks at before deciding whether to keep going. */
+    .showcase-media {
+      animation: showcase linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 70%;
+    }
+  }
+}
+
+/* The pointer walking a showcase.
+   The cursor sits at its tap point rather than centered on it, which is how a
+   real cursor works: the hotspot is the tip, at the arrow's top-left. The
+   ripple is the opposite, centered on that same tip, so the press reads as
+   coming from the point rather than from the arrow's body. */
+/* A disc of glass rather than an arrow.
+
+   An arrow is a desktop cursor, and three of these five products are phones —
+   a mouse pointer poking a tab bar quietly says "this is a mockup". A soft
+   translucent disc reads as a touch instead, and belongs to no platform, so the
+   same component works over a phone and over a dashboard.
+
+   It has to stay legible over a black now-playing screen and a white
+   dashboard, which a single flat fill cannot do. So: a bright rim, a dark outer
+   shadow, and a light inner one. The rim carries it on dark, the shadow carries
+   it on light, and the blur behind makes it read as a lens rather than a dot.
+
+   Both the disc and its ripple are sized against the frame, not in fixed
+   pixels. The same component renders a phone at ~400px in a study hero and at
+   ~155px on a gallery card; a fixed 30px disc is right in the first and covers
+   a fifth of the screen in the second. */
+.tap-cursor {
+  display: block;
+  width: clamp(17px, 7.4cqw, 34px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: rgb(255 255 255 / .26);
+  border: 1.5px solid rgb(255 255 255 / .72);
+  box-shadow:
+    0 2px 10px rgb(0 0 0 / .3),
+    0 0 0 1px rgb(0 0 0 / .16),
+    inset 0 1px 3px rgb(255 255 255 / .55);
+  /* Progressive: without support it is still a translucent white disc with a
+     rim, which is legible. The blur only makes it feel like glass. */
+  backdrop-filter: blur(3px) saturate(1.5);
+  -webkit-backdrop-filter: blur(3px) saturate(1.5);
+}
+
+/* The read-mode tip arriving. Down and out from the control it points at, so
+   the direction of travel says where it came from. */
+@keyframes hint-in {
+  from { opacity: 0; transform: translateY(-6px) scale(.97) }
+  to   { opacity: 1; transform: none }
+}
+.hint-in { animation: hint-in var(--dur-ui) var(--ease-out) both; transform-origin: top right; }
+
+@keyframes tap-ripple {
+  from { opacity: .8;  transform: translate(-50%, -50%) scale(.3) }
+  to   { opacity: 0;   transform: translate(-50%, -50%) scale(1) }
+}
+
+.tap-ripple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(24px, 11cqw, 46px);
+  height: clamp(24px, 11cqw, 46px);
+  border-radius: 999px;
+  border: 2px solid rgb(255 255 255 / .95);
+  box-shadow: 0 0 0 1.5px rgb(0 0 0 / .35), inset 0 0 0 1.5px rgb(0 0 0 / .2);
+  animation: tap-ripple 340ms var(--ease-out) both;
 }
 
 /* A card lifting under the pointer. Gated to real pointers, because touch

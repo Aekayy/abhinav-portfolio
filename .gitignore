@@ -2,6 +2,16 @@ node_modules
 dist
 dist-ssr
 dist-test
+
+# Raw Figma exports: ~183MB of 4x PNG, and the archive rather than the build.
+# `node tools/screens.mjs` converts them into public/img/work/<slug>/screens/
+# as ~5MB of WebP, and that conversion is what ships and what is committed.
+# Git keeps every blob forever, so these must never be committed even once.
+# Re-export from Figma into these folders and re-run the script.
+*Mobile & Web Screens/
+*Mobile Screens/
+*Web screens/
+*Mobile and Web Screens/
 .DS_Store
 *.local
 .env

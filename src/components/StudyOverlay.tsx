@@ -1,7 +1,25 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { Block, Project } from '@/data/projects'
 import type { Post } from '@/data/profile'
 import { go } from '@/site/router'
+import { SHOWCASES } from '@/data/screens'
+import { Showcase } from '@/components/Showcase'
+import { DeviceFrame, PHONE_SCREEN, webScreenFor } from '@/components/DeviceFrame'
+import { sectionWords, readMinutes } from '@/site/reading'
+import {
+  readMode, storeMode, needsModeHint, markModeHintSeen, type ReadMode,
+} from '@/site/readmode'
+
+/**
+ * useLayoutEffect, except on the server where it does not exist and React
+ * warns about it. The scroll correction has to run before paint or it is a
+ * visible jump, so useEffect is not an option on the client.
+ */
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
+/** CSS.escape is not in the SSR bundle's globals; section ids are simple. */
+const cssEscape = (s: string) => s.replace(/["\\]/g, '\\$&')
 
 function getContrastColor(hex: string): string {
   const r = parseInt(hex.slice(1, 3), 16)
@@ -130,16 +148,14 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
     const scrollEl = scroller.current
     const handleScroll = () => {
       if (!project.sections?.length || !scrollEl) return
-      const containerTop = scrollEl.getBoundingClientRect().top
+      // The same reading line the mode switch anchors on. These two disagreeing
+      // is its own small bug: the nav would highlight one section while a
+      // switch held a different one.
+      const line = scrollEl.getBoundingClientRect().top + scrollEl.clientHeight * 0.35
       let current = project.sections[0].id
       for (const s of project.sections) {
         const secEl = scrollEl.querySelector(`#${s.id}`)
-        if (secEl) {
-          const rect = secEl.getBoundingClientRect()
-          if (rect.top - containerTop <= 160) {
-            current = s.id
-          }
-        }
+        if (secEl && secEl.getBoundingClientRect().top <= line) current = s.id
       }
       setActiveSection(current)
     }
@@ -154,10 +170,146 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
     }
   }, [project.slug])
 
+  // Starts on the server default and settles to the stored choice after mount,
+  // so SSR renders one predictable version rather than reading storage that
+  // does not exist there.
+  const [mode, setMode] = useState<ReadMode>('quick')
+  useEffect(() => { setMode(readMode()) }, [])
+
+  /**
+   * Switching read mode must not move the reader.
+   *
+   * Quick and Full differ by thousands of pixels, so keeping `scrollTop` the
+   * same lands you somewhere unrelated: you fold the Design system section and
+   * arrive in Reflection. The reason to switch is almost always "this section
+   * is longer than the time I have", which only works if you stay in that
+   * section.
+   *
+   * So: note which section is being read and where it sits, let the content
+   * change, then put that same section back at that same offset.
+   */
+  const anchor = useRef<{ id: string; top: number } | null>(null)
+  const spacer = useRef<HTMLDivElement | null>(null)
+
+  /**
+   * Where "the section I am reading" is judged from, as a fraction of the
+   * scroller's height.
+   *
+   * This was a flat 140px and that was the whole bug. A heading resting at
+   * 144px counted as "not started yet", so the previous section was anchored
+   * instead and the reader was moved a few hundred pixels. Measured against
+   * Merkle's real section sizes, a fixed line drifted by up to 312px; a line at
+   * a third of the viewport holds every position exactly.
+   *
+   * A fraction is also the correct shape for the rule. Whether a heading near
+   * the top counts as the thing you are reading depends on how much screen
+   * there is, not on a number of pixels.
+   */
+  const READING_LINE = 0.35
+
+  const switchMode = (m: ReadMode) => {
+    const sc = scroller.current
+    if (sc) {
+      // The section being read is the last one whose heading has passed the
+      // reading line, not the first one merely visible.
+      const line = sc.getBoundingClientRect().top + sc.clientHeight * READING_LINE
+      let seen: HTMLElement | null = null
+      for (const s of sc.querySelectorAll<HTMLElement>('section[id]')) {
+        if (s.getBoundingClientRect().top <= line) seen = s
+      }
+      if (seen) anchor.current = { id: seen.id, top: seen.getBoundingClientRect().top }
+    }
+    setMode(m)
+    storeMode(m)
+  }
+
+  // Before paint, so the correction is never a visible jump.
+  useIsomorphicLayoutEffect(() => {
+    const sc = scroller.current
+    if (!sc) return
+
+    /*
+     * Trailing room, so the last sections can be held too.
+     *
+     * Quick read is about a third the length of Full, and a short document
+     * cannot scroll far enough to put a late section back where it was — the
+     * browser clamps at the bottom and the reader is dumped several hundred
+     * pixels away. Adding scrollable space past the end removes the clamp.
+     *
+     * A third of the viewport, measured rather than guessed: against Merkle's
+     * real sizes, 0% left up to 312px of drift and 25% left 79px, while 35%
+     * held every position exactly and 50% and 100% bought nothing further. So
+     * this is the least empty space that actually works.
+     */
+    if (spacer.current) {
+      const all = sc.querySelectorAll<HTMLElement>('section[id]')
+      const last = all[all.length - 1]
+      spacer.current.style.height = '0px'
+      if (last) {
+        const room = sc.clientHeight - last.getBoundingClientRect().height
+        spacer.current.style.height =
+          `${Math.round(Math.max(0, Math.min(room, sc.clientHeight * READING_LINE)))}px`
+      }
+    }
+
+    const a = anchor.current
+    if (!a) return
+    anchor.current = null
+
+    const find = () => sc.querySelector<HTMLElement>(`section[id="${cssEscape(a.id)}"]`)
+    if (!find()) return
+
+    // Explicitly a jump. `scroll-behavior` is not inherited, so the smooth
+    // scrolling set on :root does not reach this element today — but adding a
+    // `scroll-smooth` class here later would silently turn this correction into
+    // a visible glide against a layout that has already changed, and the bug
+    // would look like the one this whole block exists to fix.
+    const jump = () => {
+      const el = find()
+      if (!el) return
+      const drift = el.getBoundingClientRect().top - a.top
+      if (Math.abs(drift) < 1) return
+      const prev = sc.style.scrollBehavior
+      sc.style.scrollBehavior = 'auto'
+      sc.scrollTop += drift
+      sc.style.scrollBehavior = prev
+    }
+
+    jump()
+    // One more on the next frame. Blocks that were `hidden` a moment ago can
+    // settle a pixel or two as their images decode, and the difference between
+    // landing on the heading and landing just under it is the whole point.
+    requestAnimationFrame(jump)
+  }, [mode])
+
   const hasSections = Boolean(project.sections && project.sections.length > 1)
   const showNav = hasSections && !project.noSectionNav
   const navFg = getContrastColor(project.accent)
   const isLightNav = navFg === '#181818'
+
+  /** Every section, in order, measured in whichever mode is showing. */
+  const sections = project.sections ?? []
+  const totalWords = sections.reduce((n, s) => n + sectionWords(s, mode), 0)
+
+  /**
+   * The toggle explains itself, once.
+   *
+   * A two-button control with no label is a coin flip: nothing on screen says
+   * that one of them is a summary. But a tip that fires on every study becomes
+   * furniture people learn to dismiss without reading, so this is stored
+   * against the same key the mode is, and never shown twice.
+   */
+  const [hint, setHint] = useState(false)
+  useEffect(() => {
+    if (!hasSections || !needsModeHint()) return
+    const t = window.setTimeout(() => setHint(true), 900)
+    return () => clearTimeout(t)
+  }, [hasSections])
+
+  const dismissHint = () => {
+    setHint(false)
+    markModeHintSeen()
+  }
 
   return (
     <div
@@ -175,18 +327,32 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                     sm:rounded-(--radius-card) sm:border sm:border-(--line) ${leaving ? 'panel-leave' : 'panel-enter'}`}
       >
         <div className="relative">
-          <div className="aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-(--surface) sm:rounded-t-(--radius-card)" aria-hidden="true">
-            {(project.hero || project.thumb) && (
-              <img
-                src={project.hero || project.thumb}
-                alt=""
-                decoding="async"
-                fetchPriority="high"
-                className="h-full w-full object-cover"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+          {/* The real screens, playing, where a study has them. Everything else
+              keeps the single hero still — a study with no sequence should not
+              get a worse version of one. */}
+          {SHOWCASES[project.slug] ? (
+            <div className="w-full overflow-hidden sm:rounded-t-(--radius-card)">
+              <Showcase
+                slug={project.slug}
+                accent={project.accent}
+                layout="trio"
+                className="aspect-[4/3] sm:aspect-[16/9]"
               />
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-(--surface) sm:rounded-t-(--radius-card)" aria-hidden="true">
+              {(project.hero || project.thumb) && (
+                <img
+                  src={project.hero || project.thumb}
+                  alt=""
+                  decoding="async"
+                  fetchPriority="high"
+                  className="showcase-media h-full w-full object-cover"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                />
+              )}
+            </div>
+          )}
           <button
             onClick={close}
             aria-label="Close case study"
@@ -211,6 +377,7 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                 {project.external.label} ↗
               </a>
             )}
+
           </div>
 
           {/* Horizontal Role, Client, Year, Industry, Duration metadata */}
@@ -235,12 +402,43 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
               <aside className="hidden lg:block sticky top-8 min-w-0">
                 <nav
                   aria-label="Case study sections"
-                  className="card min-w-0 rounded-(--radius-card) p-4 shadow-lg"
+                  className="card min-w-0 max-h-[calc(100vh-8rem)] overflow-y-auto
+                             rounded-(--radius-card) p-4 shadow-lg
+                             [scrollbar-width:thin]"
                   style={{ backgroundColor: project.accent, color: navFg }}
                 >
-                  <p className="t-caption mb-3 px-2 font-medium" style={{ color: hexToRgba(navFg, 0.7) }}>Contents</p>
-                  <ul className="grid gap-1">
-                    {project.sections?.map((s) => {
+                  {/* The estimate is the toggle's receipt.
+                      A reader who switches mode should be able to see what they
+                      just bought without scrolling to find out, and a number
+                      that drops from 14 min to 3 min says it in one glance. */}
+                  <div className="mb-3 flex items-baseline justify-between gap-3 px-2">
+                    <p className="t-caption font-medium" style={{ color: hexToRgba(navFg, 0.7) }}>
+                      Contents
+                    </p>
+                    <p
+                      className="t-caption tabular-nums transition-opacity"
+                      style={{ color: hexToRgba(navFg, 0.7) }}
+                    >
+                      {readMinutes(totalWords)} min
+                    </p>
+                  </div>
+
+                  {/*
+                    A flat list, and every line goes somewhere.
+
+                    This was grouped under four phase headings with a length bar
+                    under each item. Both are gone. The headings were the only
+                    things in the panel that looked like list items and did
+                    nothing when clicked, which is a genuinely confusing thing to
+                    put in a navigation control; and between four headings,
+                    eighteen labels and eighteen bars, Harmoney's contents had
+                    about forty elements in it competing to be read.
+
+                    The read-mode estimate above still moves, so the toggle keeps
+                    its feedback without every row needing its own chart.
+                  */}
+                  <ul className="grid gap-0.5">
+                    {sections.map((s) => {
                       const isActive = activeSection === s.id
                       return (
                         <li key={s.id} className="min-w-0">
@@ -249,10 +447,10 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                             onClick={() => scrollToSection(s.id)}
                             className={`t-body-sm block w-full truncate rounded px-2.5 py-1.5 text-left transition-colors ${
                               isActive
-                                ? isLightNav ? 'bg-black/15' : 'bg-white/30'
-                                : isLightNav ? 'hover:bg-black/10' : 'hover:bg-white/20'
+                                ? isLightNav ? 'bg-black/15' : 'bg-white/25'
+                                : isLightNav ? 'hover:bg-black/10' : 'hover:bg-white/15'
                             }`}
-                            style={{ color: isActive ? navFg : hexToRgba(navFg, 0.7) }}
+                            style={{ color: isActive ? navFg : hexToRgba(navFg, 0.72) }}
                           >
                             {s.label || s.heading}
                           </button>
@@ -265,11 +463,116 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
             )}
 
             <div className="min-w-0">
+              {/* Read mode, inside the frame and sticky to the scroll.
+                  It has to stay reachable eight sections deep, because that is
+                  where a reader decides a section is longer than the time they
+                  have. A header control would mean scrolling back up to change
+                  it, which is the moment they close the tab instead. */}
+              {hasSections && (
+                <div className="sticky top-3 z-20 mb-8 flex flex-col items-end">
+                  <div
+                    role="group"
+                    aria-label="How much of this study to show"
+                    className="inline-flex gap-1 rounded-(--radius-pill) border border-(--line)
+                               bg-(--page) p-1 shadow-lg"
+                  >
+                    {(['quick', 'full'] as const).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => { switchMode(m); dismissHint() }}
+                        aria-pressed={mode === m}
+                        aria-describedby={hint ? 'read-mode-hint' : undefined}
+                        title={m === 'quick'
+                          ? 'The argument, in two or three lines a section'
+                          : 'The full write up, with the reasoning'}
+                        className={`t-body-sm rounded-[12px] px-4 py-1.5 transition-colors
+                                    ${mode === m
+                                      ? 'bg-(--ink) text-(--page)'
+                                      : 'text-(--ink-muted) hover:text-(--ink)'}`}
+                      >
+                        {m === 'quick' ? 'Quick read' : 'Full read'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Sits under the control it describes and points at it, so
+                      there is no question which thing is being explained. */}
+                  {hint && (
+                    <div
+                      id="read-mode-hint"
+                      role="status"
+                      className="hint-in relative mt-2 max-w-[19rem] rounded-(--radius-sm) border border-(--line)
+                                 bg-(--ink) px-3.5 py-2.5 text-(--page) shadow-xl"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="absolute -top-1 right-8 h-2 w-2 rotate-45 border-l border-t border-(--line) bg-(--ink)"
+                      />
+                      <p className="t-body-sm">
+                        Short on time? Quick read gives you the argument of every
+                        section. Full read keeps the reasoning behind it.
+                      </p>
+                      <button
+                        onClick={dismissHint}
+                        className="t-caption mt-2 underline underline-offset-2 opacity-70 hover:opacity-100"
+                      >
+                        Got it
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="grid gap-14">
                 {project.sections?.map((s) => (
                   <section id={s.id} key={s.id} className="reveal-in min-w-0 scroll-mt-6">
                     <p className="t-caption mb-3 text-(--ink-muted)">{s.label}</p>
                     <h3 className="t-heading-sm max-w-[32ch] text-(--ink)">{s.heading}</h3>
+
+                    {/* Both versions are always in the DOM, and the mode only
+                        hides one.
+
+                        Rendering conditionally would have been simpler and
+                        wrong: the server has no stored preference, so it would
+                        emit the Quick version, and the prose that makes this a
+                        writing sample would vanish from the HTML a search
+                        engine reads. `hidden` keeps every word indexable, and
+                        switching becomes instant rather than a remount.
+
+                        The hidden figures cost nothing to fetch — they are
+                        lazy, and a lazy image inside `hidden` is never
+                        requested. */}
+                    <div hidden={mode !== 'quick'}>
+                      <div className="mt-6 grid gap-7">
+                        {s.tldr && (
+                          <ul className="grid gap-3">
+                            {s.tldr.map((line) => (
+                              <li key={line.slice(0, 24)} className="t-body-sm flex gap-3 text-(--ink-muted)">
+                                <span aria-hidden="true" className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-(--ink-muted)" />
+                                <span>{line}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        {(() => {
+                          // The first visual, whichever kind it is. Looking for
+                          // a `figure` alone used to leave sections blank once
+                          // their artwork became a `screens` block, which is
+                          // the opposite of what Quick read is for: it drops
+                          // the prose and keeps the proof.
+                          const vis = s.blocks.find((b) => b.kind === 'figure' || b.kind === 'screens')
+                          if (!vis) return null
+                          if (vis.kind === 'screens') {
+                            // One row, not four. Quick read gets the evidence
+                            // without becoming a scroll of its own.
+                            return <ScreensBlock block={{ ...vis, title: undefined, items: vis.items.slice(0, 3) }} />
+                          }
+                          return <FigureBlock block={vis as Extract<Block, { kind: 'figure' }>} />
+                        })()}
+                      </div>
+                    </div>
+
+                    <div hidden={mode !== 'full'}>
                      <div className="mt-6 grid gap-7">
                        {s.blocks.map((b, i) => {
                          if (
@@ -290,8 +593,14 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                          return <BlockView key={i} block={b} />
                        })}
                      </div>
+                    </div>
                   </section>
                 ))}
+
+                {/* Scroll room past the end. Sized in the layout effect above,
+                    because how much is needed depends on the last section's
+                    height in the mode that is currently showing. */}
+                <div ref={spacer} aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -329,7 +638,7 @@ function FigureBlock({ block }: { block: Extract<Block, { kind: 'figure' }> }) {
             alt={block.caption ?? ''}
             loading="lazy"
             decoding="async"
-            className={`h-full w-full ${block.fit === 'contain' ? 'object-contain' : 'object-cover'}`}
+            className={`settle h-full w-full ${block.fit === 'contain' ? 'object-contain' : 'object-cover'}`}
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
           />
         </div>
@@ -339,8 +648,65 @@ function FigureBlock({ block }: { block: Extract<Block, { kind: 'figure' }> }) {
   )
 }
 
+/**
+ * Product screens in the hardware they were drawn for.
+ *
+ * The frame carried a hardcoded `1512 / 982` for desktop, and not one export is
+ * that shape — Merkle is 1440x1024, ForeCash 1440x936, Spotify 1440x900. With
+ * object-cover the difference came off the top and bottom of every desktop
+ * screen, which is why the Merkle hero looked cropped. The ratio now comes from
+ * the file's own project, and `object-contain` means a screen that still does
+ * not match letterboxes instead of losing its header.
+ */
+function ScreensBlock({ block }: { block: Extract<Block, { kind: 'screens' }> }) {
+  return (
+    <figure className="min-w-0">
+      {block.title && <p className="t-caption mb-4 text-(--ink-muted)">{block.title}</p>}
+      <div
+        className={`grid gap-5 ${
+          block.device === 'phone'
+            ? block.items.length === 1
+              ? 'max-w-[280px] grid-cols-1'
+              : block.items.length === 2
+                ? 'grid-cols-2 sm:max-w-[600px]'
+                : 'grid-cols-2 sm:grid-cols-3'
+            : 'grid-cols-1'
+        }`}
+      >
+        {block.items.map((s) => (
+          <figure key={s.src} className="min-w-0">
+            <DeviceFrame
+              device={block.device}
+              className="w-full"
+              screen={block.device === 'phone' ? PHONE_SCREEN : webScreenFor(s.src)}
+            >
+              <img
+                src={s.src}
+                alt={s.caption ?? ''}
+                loading="lazy"
+                decoding="async"
+                className="settle h-full w-full object-contain"
+                style={{
+                  aspectRatio: block.device === 'phone' ? PHONE_SCREEN : webScreenFor(s.src),
+                }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+              />
+            </DeviceFrame>
+            {s.caption && (
+              <figcaption className="t-caption mt-2.5 text-(--ink-muted)">{s.caption}</figcaption>
+            )}
+          </figure>
+        ))}
+      </div>
+    </figure>
+  )
+}
+
 function BlockView({ block }: { block: Block }) {
   switch (block.kind) {
+    case 'screens':
+      return <ScreensBlock block={block} />
+
     case 'text':
       return (
         <div className="grid gap-4">
