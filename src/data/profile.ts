@@ -9,7 +9,7 @@
 export const PROFILE = {
   name: 'Abhinav Krishnan',
   initials: 'AK',
-  role: 'UX / Product Designer',
+  role: 'Product Designer | UI/UX Designer',
   location: 'Houston, TX',
   available: true,
   email: 'abhinavdesignerux@gmail.com',
@@ -51,8 +51,8 @@ export const ABOUT_IMAGES = [
 
 /** 6. The ATS resume, one frame per page, stacked. */
 export const RESUME_PAGES = [
-  { src: 'img/resume/resume-1.jpg', alt: 'Resume, page one' },
-  { src: 'img/resume/resume-2.jpg', alt: 'Resume, page two' },
+  { src: 'img/resume/Resume1.jpg', alt: 'Resume, page one' },
+  { src: 'img/resume/Resume2.jpg', alt: 'Resume, page two' },
 ] as const
 
 /** Outbound profiles. Instagram is pending a URL from Abhinav. */
@@ -86,12 +86,21 @@ export const STATS = [
   { value: '100%', label: 'Client satisfaction' },
 ] as const
 
-export const EXPERIENCE = [
+export type ExperienceJob = {
+  role: string
+  org: string
+  logo?: string
+  logoFit?: 'contain' | 'cover'
+  period: string
+  points: readonly string[]
+}
+
+export const EXPERIENCE: readonly ExperienceJob[] = [
   {
     role: 'Product Designer',
     org: 'SquareResults',
-    logo: 'img/work/squareresults.png',
-    period: 'Dec 2025, Present',
+    logo: 'img/work/sqr.jpg',
+    period: 'Dec 2025 - Present',
     points: [
       'Owned end to end product design for SquareResults, an AI powered job matching platform, taking it from concept to an investor ready MVP in 30 days, including the candidate swipe and recruiter dashboard experiences.',
       'Built scalable, role based interfaces and a cross platform Figma system, translating complex AI matching logic into intuitive UX alongside engineering.',
@@ -100,18 +109,19 @@ export const EXPERIENCE = [
   {
     role: 'UI/UX Designer',
     org: 'Anthem Nation',
-    logo: 'img/work/anthem-nation.png',
-    period: 'Dec 2025, Jun 2026',
+    logo: 'img/work/anthem-nation.jpg',
+    period: 'Dec 2025 - Jun 2026',
     points: [
       'Led UI design for Anthem Nation’s education and events platforms, restructuring the information architecture to simplify navigation and improve consistency.',
       'Designed Harmoney, a platform for businesses to manage payments, payouts and financial workflows, building its website, mobile framework and design system from scratch.',
     ],
   },
   {
-    role: 'Freelance UX/UI Product Designer',
+    role: 'UX/UI Designer',
     org: 'Vesseli',
-    logo: 'img/work/vesseli.png',
-    period: 'Oct 2025, Dec 2025',
+    logo: 'img/work/Vesseli.png',
+    logoFit: 'cover',
+    period: 'Oct 2025 - Dec 2025',
     points: [
       'Led end to end UX for a maritime platform, improving onboarding through research, journey mapping and iterative testing so users reached their first key action faster.',
       'Built a responsive Figma design system and prototyped features supporting 100+ yacht deliveries annually.',
@@ -120,8 +130,8 @@ export const EXPERIENCE = [
   {
     role: 'Product Designer',
     org: 'Merkle',
-    logo: 'img/work/merkle.png',
-    period: 'Jul 2024, Aug 2025',
+    logo: 'img/work/Merkle.png',
+    period: 'Jul 2024 - Aug 2025',
     points: [
       'Led end to end UX for an enterprise marketing platform, improving campaign workflows through research, prototyping and usability testing with 150+ users, driving a 22% engagement increase.',
       'Designed scalable Figma systems and reusable patterns that simplified complex workflows across product, business and engineering.',
@@ -132,8 +142,8 @@ export const EXPERIENCE = [
     // The logo on the old site is the Jewish Healthcare Foundation's;
     // GlucoGuard was the product, not the employer.
     org: 'Jewish Healthcare Foundation',
-    logo: 'img/work/jewish-healthcare-foundation.png',
-    period: 'Jan 2024, May 2024',
+    logo: 'img/work/jhf.png',
+    period: 'Jan 2024 - May 2024',
     points: [
       'Designed real time glucose monitoring dashboards to enable faster emergency response and improve patient outcomes.',
     ],
@@ -141,13 +151,13 @@ export const EXPERIENCE = [
   {
     role: 'UX Designer Intern',
     org: 'Datamatics',
-    logo: 'img/work/datamatics.png',
-    period: 'Nov 2021, Aug 2022',
+    logo: 'img/work/datamatics.jpg',
+    period: 'Nov 2021 - Aug 2022',
     points: [
       'Developed wireframes and prototypes for enterprise software, supporting research and design systems to improve consistency and usability.',
     ],
   },
-] as const
+]
 
 export const TESTIMONIALS = [
   {

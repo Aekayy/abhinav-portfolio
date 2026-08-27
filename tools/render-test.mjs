@@ -101,12 +101,12 @@ check('no placeholder employer names',
 // Portraits and logos have a slot even before the files arrive.
 check('testimonials carry a portrait', pages['/'].includes('rounded-full'))
 check('work history carries a logo per company',
-  pages['/about'].includes('img/work/squareresults.png') &&
-  pages['/about'].includes('img/work/anthem-nation.png') &&
-  pages['/about'].includes('img/work/vesseli.png') &&
-  pages['/about'].includes('img/work/merkle.png') &&
-  pages['/about'].includes('img/work/jewish-healthcare-foundation.png') &&
-  pages['/about'].includes('img/work/datamatics.png')
+  pages['/about'].includes('img/work/sqr.jpg') &&
+  pages['/about'].includes('img/work/anthem-nation.jpg') &&
+  pages['/about'].includes('img/work/Vesseli.png') &&
+  pages['/about'].includes('img/work/Merkle.png') &&
+  pages['/about'].includes('img/work/jhf.png') &&
+  pages['/about'].includes('img/work/datamatics.jpg')
 )
 check('resume shows the document itself',
   pages['/resume'].includes('Page 1') && pages['/resume'].includes('Page 2'))

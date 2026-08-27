@@ -1,5 +1,5 @@
 import { PROFILE, EXPERIENCE, SERVICES, STATS, RESUME_PAGES } from '@/data/profile'
-import { Frame, Avatar } from '@/components/Frame'
+import { Frame } from '@/components/Frame'
 import { PageHead, Section, Eyebrow } from '@/components/Bits'
 
 export function Resume() {
@@ -21,7 +21,6 @@ export function Resume() {
       {/* The resume itself, before the transcription of it. A recruiter who
           wants the document should not have to read the page first. */}
       <Section>
-        <Eyebrow>The document</Eyebrow>
         <div className="grid max-w-[1000px] grid-cols-2 gap-4">
           {RESUME_PAGES.map((pg, i) => (
             <Frame key={pg.src} src={pg.src} alt={pg.alt} ratio="8.5/11" label={`Page ${i + 1}`} />
@@ -36,7 +35,15 @@ export function Resume() {
             <li key={job.role + job.period} className="grid gap-3 border-t border-(--line) py-7 md:grid-cols-[1fr_2fr] md:gap-10">
               <div className="min-w-0">
                 <div className="flex items-center gap-3">
-                  <Avatar src={job.logo} name={job.org} size={34} />
+                  {job.logo && (
+                    <img
+                      src={job.logo}
+                      alt={job.org}
+                      className={`h-9 w-9 border border-(--line) ${
+                        job.logoFit === 'cover' ? 'rounded-full object-cover' : 'rounded-2xl object-contain'
+                      }`}
+                    />
+                  )}
                   <div className="min-w-0">
                     <div className="t-sub text-(--ink)">{job.role}</div>
                     <div className="t-body-sm mt-0.5 text-(--ink-muted)">{job.org}</div>

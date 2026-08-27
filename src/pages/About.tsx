@@ -74,7 +74,9 @@ export function About() {
                     <img
                       src={job.logo}
                       alt={job.org}
-                      className="h-9 w-9 object-contain"
+                      className={`h-9 w-9 border border-(--line) ${
+                        job.logoFit === 'cover' ? 'rounded-full object-cover' : 'rounded-2xl object-contain'
+                      }`}
                     />
                   )}
                   <div className="min-w-0">
