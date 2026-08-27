@@ -18,17 +18,24 @@ export const PROFILE = {
   metaDescription:
     'Abhinav is a UX/Product Designer currently open to full time opportunities in the US.',
   intro:
-    'I am a strategist, crafting experiences that connect deeply and spark creativity.',
+    'I am a Product Designer who thrives in the space between an idea and a product.',
   bio:
-    'I specialize in UI/UX design, web and mobile interfaces, and brand identity. I turn complex ideas into intuitive, visually striking designs using Figma, pencil and Framer. Driven by research, clarity and attention to detail, I create interfaces that do not just look good, they work.',
+    'I turn ideas into products, and complexity into clarity. I am a Product Designer based in Houston, TX, connecting product thinking, design, technology, and AI to move ideas from early concepts to real, buildable experiences.',
   aboutQuote:
-    'I’m a UX/Product Designer who builds with clarity and questions with intent. I stay current with design trends but focus on what truly improves the experience.',
+    'I enjoy taking ambiguous problems, early concepts, and complex workflows and turning them into clear, practical experiences. My work goes beyond designing interfaces. I focus on understanding the problem, exploring possibilities, shaping the right solution, and working through what it takes to make that solution real.',
   aboutBody:
-    'I care about solving real world problems. From healthcare and enterprise products to B2B2C and SaaS, my work centers on reducing friction and designing systems that feel human.',
-  philosophyTitle: 'The Law of Circle',
+    'I have worked across enterprise SaaS, AI, fintech, healthcare, and B2B2C products, partnering with product managers, engineers, analysts, founders, and stakeholders throughout the design process.',
+  philosophyTitle: 'How I bring ideas to life',
   philosophy: [
-    'It means that no matter how far I go, I always return to the basics. In a field that constantly moves forward, I pause, reflect, and revisit the foundation: the users, the context, the core problem.',
-    'That loop keeps my work honest and focused. For me, design isn’t about chasing novelty. It’s about staying rooted while growing sharper.',
+    'My approach combines product thinking, UX, visual design, and technical understanding.',
+    'I can move from research and problem framing to information architecture, user flows, prototypes, and high-fidelity interfaces. Because I understand frontend logic and development constraints, I design with implementation in mind and collaborate closely with engineers to bridge the gap between what is imagined and what gets built.',
+    'AI is also becoming an important part of how I work. I use it as a tool to explore ideas faster, prototype interactions, experiment with solutions, and accelerate execution while keeping human judgment at the center.',
+  ],
+  valueTitle: 'What I bring to a team',
+  value: [
+    'I bring curiosity at the beginning of a problem and ownership through execution.',
+    'I question assumptions, generate possibilities, and look for solutions that balance user needs, business goals, and technical reality.',
+    'My goal is simple: turn good ideas into products that create real value.',
   ],
 } as const
 

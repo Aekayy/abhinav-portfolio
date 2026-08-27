@@ -12,7 +12,7 @@
 export type Block =
   | { kind: 'text'; body: string[] }
   | { kind: 'list'; title?: string; items: string[] }
-  | { kind: 'quote'; body: string; source?: string }
+  | { kind: 'quote'; body: string; source?: string; weight?: 'normal' | 'bold' }
   | { kind: 'split'; title: string; items: { label: string; body: string }[] }
   /** A funnel: each rung loses some of the one above it. */
   | { kind: 'ladder'; title?: string; steps: { stage: string; note: string; value: string }[] }
@@ -26,7 +26,7 @@ export type Block =
   | { kind: 'principles'; title?: string; items: { no: string; name: string; body: string }[] }
   /** An image from the Figma file. Falls back to a tinted panel until the
    *  export is dropped into public/img/, so nothing ever renders broken. */
-   | { kind: 'figure'; src: string; caption?: string; ratio?: string; bg?: string; fit?: 'cover' | 'contain'; layout?: 'default' | 'horizontal' }
+   | { kind: 'figure'; src: string; caption?: string; ratio?: string; bg?: string; fit?: 'cover' | 'contain'; layout?: 'default' | 'horizontal'; quickRead?: boolean; fullscreen?: boolean; scrollable?: boolean }
   /**
    * Real product screens, shown at the size they were drawn.
    *
@@ -38,7 +38,7 @@ export type Block =
    *
    * Phones sit up to three across; a desktop screen takes the full width.
    */
-  | { kind: 'screens'; device: 'phone' | 'web'; title?: string; items: { src: string; caption?: string }[] }
+   | { kind: 'screens'; device: 'phone' | 'web'; title?: string; items: { src: string; caption?: string }[]; quickRead?: boolean }
 
 export type Section = {
   id: string
@@ -750,13 +750,6 @@ export const PROJECTS: Project[] = [
         ],
         blocks: [
           {
-            kind: 'screens', device: 'phone',
-            items: [
-              { src: 'img/work/forecash/screens/15-home.webp', caption: 'Forecast, plan and track, with the guidance attached' },
-              { src: 'img/work/forecash/screens/19d-ask-cuts.webp', caption: 'The assistant proposing cuts against a real goal' },
-            ],
-          },
-          {
             kind: 'list',
             title: 'I noticed that most finance apps either',
             items: [
@@ -768,8 +761,9 @@ export const PROJECTS: Project[] = [
           {
             kind: 'quote',
             body: 'How might we help people feel more in control of their money without overwhelming them?',
+            weight: 'bold',
           },
-          { kind: 'figure', src: 'img/work/forecash/personas.png', caption: 'Jesse and Caitlyn, the early persona sketches', ratio: '5500/4108' },
+          { kind: 'figure', src: 'img/work/forecash/personas.png', caption: 'Dashboard Web Version', ratio: '5500/4108', fit: 'contain', bg: '#FFFFFF' },
         ],
       },
       {
@@ -863,6 +857,14 @@ export const PROJECTS: Project[] = [
           { kind: 'figure', src: 'img/work/forecash/test-erica.png', caption: 'Usability test #1 · Erica AI, Bank of America', ratio: '794/742', layout: 'horizontal' },
           { kind: 'figure', src: 'img/work/forecash/test-cleo.png', caption: 'Usability test #2 · Cleo AI', ratio: '750/740', layout: 'horizontal' },
           {
+            kind: 'split',
+            title: 'Research & Insights',
+            items: [
+              { label: 'Field & Behavioral Discovery', body: 'I analyzed financial discussions across communities where people expressed frustration with existing financial tools that focus only on tracking historical spending without helping them anticipate or plan ahead.' },
+              { label: 'Key Insights', body: 'Users want a partner-like financial experience, not a ledger. They want something that tells them what is likely to happen with their money, and how to reach their goal with simple steps.' },
+            ],
+          },
+          {
             kind: 'list',
             title: 'Requirements, from what users actually asked for',
             items: [
@@ -951,6 +953,7 @@ export const PROJECTS: Project[] = [
           {
             kind: 'screens', device: 'phone',
             title: 'Safe to spend today, and the goal it is protecting',
+            quickRead: true,
             items: [
               { src: 'img/work/forecash/screens/15-home.webp', caption: 'Home leads with what is safe to spend, not the balance' },
               { src: 'img/work/forecash/screens/16-goals.webp', caption: 'Goals, with pace against plan' },
@@ -960,6 +963,7 @@ export const PROJECTS: Project[] = [
           {
             kind: 'screens', device: 'phone',
             title: 'The assistant, in four states',
+            quickRead: true,
             items: [
               { src: 'img/work/forecash/screens/19a-ask-empty.webp', caption: 'What it can see, before you ask anything' },
               { src: 'img/work/forecash/screens/19c-ask-thinking.webp', caption: 'Reading the plan, with its sources named' },
@@ -994,7 +998,7 @@ export const PROJECTS: Project[] = [
               { src: 'img/work/forecash/screens/w14-ask-applied.webp', caption: 'The assistant applying a change, with the plan diff shown' },
             ],
           },
-          { kind: 'figure', src: 'img/work/forecash/design-system.png', caption: 'The ForeCash design system', ratio: '2048/1256', bg: '#FFFFFF' },
+          { kind: 'figure', src: 'img/work/forecash/design-system.png', caption: 'The ForeCash design system', ratio: '2048/1256', bg: '#FFFFFF', quickRead: true, scrollable: true },
         ],
       },
       {
@@ -1008,6 +1012,9 @@ export const PROJECTS: Project[] = [
           {
             kind: 'text',
             body: [
+              'Over four months I took ForeCash from a blank Figma file to a fully built product, end to end. I ran the research, wrote the requirements, designed the flows, built the design system, and shipped the final screens for both mobile and web.',
+              'The work covered the full product surface: authentication, onboarding, dashboard, goals, transactions, profile, security, analytics, and the conversational AI layer that ties it all together.',
+              'The hardest call was choosing what not to build. I traded density for clarity, shortcuts for a guided path, and visual polish for flows that actually hold up under stress.',
               'Feedback from usability testing shaped the final iteration of ForeCash into a platform that not only forecasts savings but actively motivates users to achieve their biggest financial goals.',
             ],
           },
@@ -1024,7 +1031,7 @@ export const PROJECTS: Project[] = [
   // worse than one that no longer matches its title.
   {
     slug: 'spotify-alter',
-    name: 'Spotify Vibe',
+    name: 'Spotify Alter',
     title: 'Change the sound, not the record',
     summary:
       'A concept feature letting listeners change the pitch, speed and tone of a track and keep that version, settings, not a copy, so the artist keeps the stream and the royalty. Designed and built end to end, including a working audio engine.',

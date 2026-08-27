@@ -53,13 +53,22 @@ export function sectionWords(s: Section, mode: ReadMode): number {
   if (mode === 'full') {
     return heading + s.blocks.reduce((n, b) => n + blockWords(b), 0)
   }
-  // Quick read is the summary plus the first visual, which is exactly what
-  // StudyOverlay renders. Keeping the two in step matters more than precision:
-  // a nav that promises a short section and delivers a long one is worse than
-  // no nav at all.
+  // Quick read is the summary plus every block that opted in with
+  // `quickRead: true`. A section with no opt-ins falls back to the first
+  // visual, the same shape the UI shows. Keeping the two in step matters more
+  // than precision: a nav that promises a short section and delivers a long
+  // one is worse than no nav at all.
   const tldr = (s.tldr ?? []).reduce((n, l) => n + l.trim().split(/\s+/).length, 0)
-  const vis = s.blocks.find((b) => b.kind === 'figure' || b.kind === 'screens')
-  return heading + tldr + (vis ? 18 : 0)
+  const opted = s.blocks.filter((b) => {
+    if (b.kind === 'figure' && b.quickRead) return true
+    if (b.kind === 'screens' && b.quickRead) return true
+    return false
+  })
+  const vis = opted.length > 0
+    ? opted
+    : s.blocks.find((b) => b.kind === 'figure' || b.kind === 'screens')
+  const visCount = Array.isArray(vis) ? vis.length : (vis ? 1 : 0)
+  return heading + tldr + (visCount > 0 ? visCount * 18 : 0)
 }
 
 /**

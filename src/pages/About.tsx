@@ -33,6 +33,20 @@ export function About() {
         </div>
       </Section>
 
+      <Section className="!border-t !border-(--line)">
+        <div className="grid gap-8 items-start">
+          <div className="min-w-0">
+            <Eyebrow>What I bring</Eyebrow>
+            <h2 className="t-heading text-(--ink)">{PROFILE.valueTitle}</h2>
+            <div className="mt-6 grid gap-5 max-w-[62ch]">
+              {PROFILE.value.map((v) => (
+                <p key={v.slice(0, 24)} className="t-body text-(--ink-muted)">{v}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
+
       <Section className="border-t border-(--line)">
         <Eyebrow>By the numbers</Eyebrow>
         <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">

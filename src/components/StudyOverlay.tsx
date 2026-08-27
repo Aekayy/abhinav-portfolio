@@ -173,7 +173,7 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
   // Starts on the server default and settles to the stored choice after mount,
   // so SSR renders one predictable version rather than reading storage that
   // does not exist there.
-  const [mode, setMode] = useState<ReadMode>('quick')
+  const [mode, setMode] = useState<ReadMode>('full')
   useEffect(() => { setMode(readMode()) }, [])
 
   /**
@@ -542,7 +542,7 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                         The hidden figures cost nothing to fetch — they are
                         lazy, and a lazy image inside `hidden` is never
                         requested. */}
-                    <div hidden={mode !== 'quick'}>
+                     <div hidden={mode !== 'quick'}>
                       <div className="mt-6 grid gap-7">
                         {s.tldr && (
                           <ul className="grid gap-3">
@@ -555,22 +555,29 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                           </ul>
                         )}
                         {(() => {
-                          // The first visual, whichever kind it is. Looking for
-                          // a `figure` alone used to leave sections blank once
-                          // their artwork became a `screens` block, which is
-                          // the opposite of what Quick read is for: it drops
-                          // the prose and keeps the proof.
-                          const vis = s.blocks.find((b) => b.kind === 'figure' || b.kind === 'screens')
+                          // Quick read shows every block that opts in with
+                          // `quickRead: true`. A section with no opt-ins still
+                          // gets the first visual, the same as before, so the
+                          // fallback never empties a section.
+                          const opted = s.blocks.filter((b) => {
+                            if (b.kind === 'figure' && b.quickRead) return true
+                            if (b.kind === 'screens' && b.quickRead) return true
+                            return false
+                          })
+                          const vis = opted.length > 0
+                            ? opted
+                            : s.blocks.find((b) => b.kind === 'figure' || b.kind === 'screens')
                           if (!vis) return null
-                          if (vis.kind === 'screens') {
-                            // One row, not four. Quick read gets the evidence
-                            // without becoming a scroll of its own.
-                            return <ScreensBlock block={{ ...vis, title: undefined, items: vis.items.slice(0, 3) }} />
-                          }
-                          return <FigureBlock block={vis as Extract<Block, { kind: 'figure' }>} />
+                          const list = Array.isArray(vis) ? vis : [vis]
+                          return list.map((b, i) => {
+                            if (b.kind === 'screens') {
+                              return <ScreensBlock key={i} block={{ ...b, title: b.title ? b.title : undefined, items: b.items.slice(0, 3) }} />
+                            }
+                            return <FigureBlock key={i} block={b as Extract<Block, { kind: 'figure' }>} />
+                          })
                         })()}
                       </div>
-                    </div>
+                     </div>
 
                     <div hidden={mode !== 'full'}>
                      <div className="mt-6 grid gap-7">
@@ -623,28 +630,118 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
 }
 
 function FigureBlock({ block }: { block: Extract<Block, { kind: 'figure' }> }) {
-  return (
-    <figure className="min-w-0">
-      <div
-        className={`w-full overflow-hidden rounded-(--radius-card) border border-(--line) ${block.bg ? '' : 'bg-(--surface)'}`}
-        style={{
-          aspectRatio: block.ratio ?? '16/9',
-          ...(block.bg ? { backgroundColor: block.bg } : {}),
-        }}
-      >
-        <div className="p-4">
+  const [fullscreen, setFullscreen] = useState(false)
+  const openFullscreen = block.fullscreen ? () => setFullscreen(true) : undefined
+
+  if (block.scrollable) {
+    return (
+      <figure className="min-w-0">
+        <div
+          className={`w-full overflow-y-auto overflow-x-hidden rounded-[8px] border border-(--line) ${block.bg ? '' : 'bg-(--surface)'}`}
+          style={{
+            height: '720px',
+            maxHeight: 'calc(100vh - 6rem)',
+            ...(block.bg ? { backgroundColor: block.bg } : {}),
+            padding: '10px',
+          }}
+        >
           <img
             src={block.src}
             alt={block.caption ?? ''}
             loading="lazy"
             decoding="async"
-            className={`settle h-full w-full ${block.fit === 'contain' ? 'object-contain' : 'object-cover'}`}
+            className="settle block w-full"
+            style={{ height: 'auto' }}
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
           />
         </div>
+        {block.caption && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.caption}</figcaption>}
+      </figure>
+    )
+  }
+
+  return (
+    <figure className="min-w-0">
+      <div
+        className={`group relative w-full overflow-hidden rounded-[8px] border border-(--line) ${block.bg ? '' : 'bg-(--surface)'}`}
+        style={{
+          aspectRatio: block.ratio ?? '16/9',
+          ...(block.bg ? { backgroundColor: block.bg } : {}),
+          padding: '10px',
+        }}
+      >
+        <img
+          src={block.src}
+          alt={block.caption ?? ''}
+          loading="lazy"
+          decoding="async"
+          className={`settle block h-full w-full ${block.fit === 'contain' ? 'object-contain' : 'object-cover'}`}
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+          onClick={openFullscreen}
+          style={openFullscreen ? { cursor: 'zoom-in' } : undefined}
+        />
+        {block.fullscreen && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setFullscreen(true) }}
+            aria-label="View fullscreen"
+            className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full
+                       bg-black/55 text-white shadow-md ring-1 ring-white/20 backdrop-blur-sm
+                       transition-all hover:bg-black/80 hover:scale-105 focus-visible:opacity-100"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+            </svg>
+          </button>
+        )}
       </div>
       {block.caption && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.caption}</figcaption>}
+      {block.fullscreen && fullscreen && (
+        <FullscreenViewer
+          src={block.src}
+          alt={block.caption ?? ''}
+          onClose={() => setFullscreen(false)}
+        />
+      )}
     </figure>
+  )
+}
+
+/**
+ * Fullscreen viewer for a single image.
+ *
+ * Shows the whole image fitted to the viewport. No zoom, no pan, no lens — the
+ * point is to give the image the room it was saved for. Escape or the close
+ * button dismisses.
+ */
+function FullscreenViewer({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-6"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <button
+        onClick={onClose}
+        aria-label="Close fullscreen view"
+        className="absolute right-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
+      <img
+        src={src}
+        alt={alt}
+        className="block h-full w-full object-contain select-none"
+        draggable={false}
+      />
+    </div>
   )
 }
 
@@ -661,7 +758,7 @@ function FigureBlock({ block }: { block: Extract<Block, { kind: 'figure' }> }) {
 function ScreensBlock({ block }: { block: Extract<Block, { kind: 'screens' }> }) {
   return (
     <figure className="min-w-0">
-      {block.title && <p className="t-caption mb-4 text-(--ink-muted)">{block.title}</p>}
+      {block.title && <h3 className="t-body mb-5 font-semibold text-(--ink)">{block.title}</h3>}
       <div
         className={`grid gap-5 ${
           block.device === 'phone'
@@ -732,7 +829,7 @@ function BlockView({ block }: { block: Block }) {
     case 'quote':
       return (
         <figure className="card min-w-0 p-6">
-          <blockquote className="t-body text-(--ink)">“{block.body}”</blockquote>
+          <blockquote className={`t-body text-(--ink) ${'weight' in block && block.weight === 'bold' ? 'font-semibold' : ''}`}>"{block.body}"</blockquote>
           {block.source && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.source}</figcaption>}
         </figure>
       )
