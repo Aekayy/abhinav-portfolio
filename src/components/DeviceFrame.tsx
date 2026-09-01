@@ -42,18 +42,22 @@ export function PhoneFrame({
   className = '',
   style,
   screen = PHONE_SCREEN,
+  overflow,
   children,
 }: {
   className?: string
   style?: React.CSSProperties
   /** The screen's own aspect ratio, which the shell is sized around. */
   screen?: string
+  /** Marks a device the deck drops on a small screen. */
+  overflow?: boolean
   children: ReactNode
 }) {
   const pct = (n: number) => `${(n * 100).toFixed(2)}cqw`
   return (
     <div
       className={`relative shrink-0 bg-[#1c1c1e] shadow-lg ${className}`}
+      data-overflow={overflow ? '' : undefined}
       style={{
         aspectRatio: String(shellRatio('phone', screen)),
         // Makes cqw inside this frame mean "percent of this frame". Without it
@@ -97,17 +101,21 @@ export function WebFrame({
   className = '',
   style,
   screen = WEB_SCREEN_DEFAULT,
+  overflow,
   children,
 }: {
   className?: string
   style?: React.CSSProperties
   /** The screen's own aspect ratio. Every project drew to a different one. */
   screen?: string
+  /** Marks a device the deck drops on a small screen. */
+  overflow?: boolean
   children: ReactNode
 }) {
   return (
     <div
       className={`relative shrink-0 ${className}`}
+      data-overflow={overflow ? '' : undefined}
       style={{
         aspectRatio: String(shellRatio('web', screen)),
         // Same reason as the phone: the lid's border is measured against this
@@ -151,6 +159,7 @@ export function DeviceFrame({
   className = '',
   style,
   screen,
+  overflow,
   children,
 }: {
   device: 'phone' | 'web'
@@ -158,11 +167,13 @@ export function DeviceFrame({
   style?: React.CSSProperties
   /** Defaults to iPhone 17 Pro, or a 1440 laptop, per device. */
   screen?: string
+  /** Marks a device the deck drops on a small screen. */
+  overflow?: boolean
   children: ReactNode
 }) {
   const Frame = device === 'phone' ? PhoneFrame : WebFrame
   return (
-    <Frame className={className} style={style} screen={screen}>
+    <Frame className={className} style={style} screen={screen} overflow={overflow}>
       {children}
     </Frame>
   )

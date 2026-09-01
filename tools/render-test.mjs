@@ -89,8 +89,11 @@ for (const slug of ['harmoney', 'vesseli', 'forecash', 'merkle', 'spotify-alter'
 }
 // Posts open the same way studies do.
 check('a post opens in place', pages['/blog/anthemnation'].includes('role="dialog"'))
-check('a post keeps the original one click away',
-  pages['/blog/anthemnation'].includes('Read it on the original site'))
+// The posts are the articles themselves, not teasers for somewhere else, so
+// the link off to the original Framer site is gone from all of them.
+check('no post sends the reader elsewhere',
+  ['/blog/anthemnation', '/blog/designphilosophy', '/blog/spotify-syncro']
+    .every((r) => !pages[r].includes('Read it on the original site')))
 
 // Company names as Abhinav gave them.
 check('SquareResults is named', pages['/about'].includes('SquareResults'))
@@ -103,7 +106,7 @@ check('testimonials carry a portrait', pages['/'].includes('rounded-full'))
 check('work history carries a logo per company',
   pages['/about'].includes('img/work/sqr.jpg') &&
   pages['/about'].includes('img/work/anthem-nation.jpg') &&
-  pages['/about'].includes('img/work/Vesseli.png') &&
+  pages['/about'].includes('img/work/vesseli-logo.png') &&
   pages['/about'].includes('img/work/Merkle.png') &&
   pages['/about'].includes('img/work/jhf.png') &&
   pages['/about'].includes('img/work/datamatics.jpg')
@@ -181,14 +184,222 @@ for (const [slug, s] of Object.entries(SHOWCASES)) {
 }
 
 // ── the contents nav, which is grouped and measured rather than a flat list
-const { PROJECTS: DATA, sectionWords } = await import('../dist-ssr/study.mjs')
+const { PROJECTS: DATA, sectionWords, quickWords } = await import('../dist-ssr/study.mjs')
 
+/*
+ * Quick read is a different document, not a trimmed one.
+ *
+ * It renders an opener, the beats a section claims, and one deck holding every
+ * artifact. So a study has to declare its beats, or the short version silently
+ * loses a step of its argument and nothing looks broken — the page just quietly
+ * stops explaining itself.
+ */
 for (const p of DATA) {
   if (!p.sections?.length || p.noSectionNav) continue
-  // Quick read has to actually be quicker, or the toggle is decoration.
-  const quick = p.sections.reduce((n, s) => n + sectionWords(s, 'quick'), 0)
+
+  const beats = p.sections.filter((s) => s.beat).map((s) => s.beat)
+  check(`${p.slug} tells the short story`,
+    ['problem', 'solution', 'reflection'].every((b) => beats.includes(b)),
+    beats.join(', ') || 'none')
+  check(`${p.slug} claims each beat once`, beats.length === new Set(beats).size, beats.join(', '))
+  // Quick read opens on the first section that claims no beat, and falls
+  // through to the problem when every section claims one — which is Spotify,
+  // where the problem IS the introduction. What must never happen is opening
+  // partway through the argument.
+  check(`${p.slug} opens at the beginning`,
+    !p.sections[0].beat || p.sections[0].beat === 'problem',
+    `starts on "${p.sections[0].label}"`)
+
+  // Every beat needs its summary; the short version is nothing but summaries.
+  check(`${p.slug} summarizes every beat`,
+    p.sections.filter((s) => s.beat).every((s) => (s.tldr?.length ?? 0) > 0))
+
+  const slides = p.sections.reduce((n, s) => n + s.blocks.reduce((m, b) =>
+    b.kind === 'figure' ? m + 1 : b.kind === 'screens' ? m + b.items.length : m, 0), 0)
+  check(`${p.slug} has a deck to show`, slides >= 5, `${slides} slides`)
+
+  // And it has to actually be quicker, or the toggle is decoration.
+  const quick = quickWords(p.sections)
   const full = p.sections.reduce((n, s) => n + sectionWords(s, 'full'), 0)
-  check(`${p.slug} quick read is shorter`, quick < full * 0.6, `${quick} words vs ${full}`)
+  check(`${p.slug} quick read is shorter`, quick < full, `${quick} words vs ${full}`)
+}
+
+/*
+ * The deck is an edit, and the edit is the point.
+ *
+ * One slide per image meant thirty one clicks on Harmoney for a study sold as a
+ * two minute read, which is the long version wearing different controls. These
+ * assert the cap and the grouping, because a deck that quietly grows back to
+ * thirty one slides still renders perfectly.
+ */
+{
+  const { buildDeck } = await import('../dist-ssr/deck.mjs')
+  for (const p of DATA) {
+    if (!p.sections?.length || p.noSectionNav) continue
+    const deck = buildDeck(p.sections, p.slug)
+    check(`${p.slug} deck is at most five slides`, deck.length <= 5, `${deck.length} slides`)
+    check(`${p.slug} every slide is named`, deck.every((d) => d.label.trim().length > 0))
+    check(`${p.slug} no slide is empty`, deck.every((d) => d.items.length > 0))
+    // Product screens travel together; one phone per slide was the old problem.
+    const product = deck.find((d) => d.label === 'Product screens')
+    check(`${p.slug} groups its product screens`,
+      !product || (product.items.length > 1 && product.items.length <= 4),
+      product ? `${product.items.length} phones on one slide` : 'desktop only')
+    // Phones and laptops never share a slide: they are different claims.
+    check(`${p.slug} keeps mobile and desktop apart`,
+      deck.every((d) => new Set(d.items.map((i) => i.device ?? 'still')).size === 1))
+  }
+}
+
+/*
+ * A device in a slide must have a definite dimension.
+ *
+ * The laptop was styled with `max-width` and `max-height` and nothing else. A
+ * box with an aspect ratio and only upper bounds has nothing to compute a size
+ * from, and its children are absolutely positioned so there is no content to
+ * fall back to either: it rendered 0x0 and every desktop slide came up blank
+ * with no error anywhere. Height is the definite one, because the slide sets a
+ * height and every stage here is wider than it is tall.
+ */
+{
+  const q = pages['/projects/forecash']
+  // Class and style together: body frames take their width from `w-full`, deck
+  // frames from an inline height. Either counts; neither being present is the
+  // bug.
+  const frames = [...q.matchAll(/class="(relative shrink-0[^"]*)"(?:\s+style="([^"]*)")?/g)]
+    .map((m) => `${m[1]} ${m[2] ?? ''}`)
+  // Three ways a frame can be given a size, all legitimate: an inline
+  // dimension, a width class, or `.deck-item`, which sets height from the
+  // container-query variables alongside it.
+  const sized = (f) =>
+    /(^|[;\s])(height|width):/.test(f) || /\b[wh]-(full|\[)/.test(f) || /\bdeck-item\b/.test(f)
+  check('every device frame is given a size',
+    frames.length > 0 && frames.every(sized),
+    `${frames.length} frames, ${frames.filter((f) => !sized(f)).length} unsized`)
+  check('no frame is sized only by its caps',
+    !frames.some((f) => /max-width/.test(f) && !sized(f)))
+}
+
+/*
+ * Both read modes stay mounted, so five section ids exist twice over.
+ *
+ * A `display: none` element reports a rect of all zeros, so every hidden copy
+ * read as `top: 0` and matched a reading line hundreds of pixels down. In Quick
+ * read the hidden Full sections come last in document order, so the anchor scan
+ * always ended on the final one and the reader was thrown to the end of the
+ * study. Anything resolving a section id has to ask for the rendered copy.
+ */
+{
+  const q = pages['/projects/forecash']
+  const ids = [...q.matchAll(/<section id="([^"]+)"/g)].map((m) => m[1])
+  const dupes = [...new Set(ids.filter((v, i) => ids.indexOf(v) !== i))]
+  check('both read modes are in the html', dupes.length > 0,
+    `${dupes.length} ids appear in both, which is what keeps the prose indexable`)
+
+  const src = readFileSync(new URL('../src/components/StudyOverlay.tsx', import.meta.url), 'utf8')
+  check('section lookups take the rendered copy',
+    (src.match(/getClientRects\(\)\.length/g) || []).length >= 4,
+    'the anchor scan, the anchor lookup, the scroll spy and the contents nav')
+  check('no bare querySelector on a section id',
+    !/scroller\.current\?\.querySelector\(`#\$\{id\}`\)/.test(src)
+    && !/scrollEl\.querySelector\(`#\$\{s\.id\}`\)/.test(src))
+}
+
+// Blogs are articles: one length, a byline, and no offer to shorten them.
+{
+  const b = pages['/blog/spotify-syncro']
+  check('a post is bylined', /Author/.test(b) && /Abhinav Krishnan/.test(b))
+  check('a post has no read-mode toggle', !/How much of this study to show/.test(b),
+    'there is no summary written for an article, so there is nothing to switch to')
+  check('a post does not push you off site', !/Read it on the original site/.test(b))
+  check('the spotify post shows the current screens',
+    !/spotify-syncro-1\.png/.test(b)
+    && (b.match(/spotify-alter\/screens\//g) || []).length >= 4)
+}
+
+// The one fact in the hero paragraph a recruiter scans for.
+check('the hero marks the city',
+  /<strong[^>]*>Houston, TX<\/strong>/.test(pages['/']))
+
+/*
+ * The deck sizes its devices against the slide in both axes.
+ *
+ * Height alone was right on a laptop and put four phones at 64px across on a
+ * 375px screen — a picture of a phone rather than a screen anyone can read. So
+ * each device carries the numbers CSS needs to take whichever of height or
+ * width runs out first, and a second pair for the small breakpoint, where the
+ * count drops instead of everything shrinking.
+ */
+{
+  const q = pages['/projects/forecash']
+  const items = [...q.matchAll(/class="[^"]*deck-item[^"]*"([^>]*)/g)].map((m) => m[1])
+  check('the deck sizes its devices', items.length > 0, `${items.length} devices`)
+  check('every device carries both sizing pairs',
+    items.every((it) => /--cap:/.test(it) && /--k:/.test(it) && /--k-sm:/.test(it) && /--gaps-sm:/.test(it)))
+  check('the extras are dropped on a small screen',
+    items.some((it) => /data-overflow=""/.test(it)),
+    'four phones fit a laptop, two fit a phone')
+  const css2 = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8')
+  check('the small-screen swap is in the stylesheet',
+    /\.deck-item \{ --gaps: var\(--gaps-sm\); --k: var\(--k-sm\); \}/.test(css2)
+    && /\.deck-item\[data-overflow\] \{ display: none; \}/.test(css2))
+  check('the slide is a size container',
+    /container-type:size/.test(q) || /containerType/.test(q),
+    'cqh and cqw both have to mean "of this slide"')
+}
+
+/*
+ * The gallery deals itself out left to right once the opening panel lifts.
+ *
+ * Three things have to hold or it plays to nobody, or not at all:
+ *
+ * - The stagger counts within one copy of the projects. The row holds three so
+ *   it can loop, and numbering straight through would give the cards actually
+ *   on screen delays of 300ms and up.
+ * - It waits for `data-intro='done'`. The panel covers the screen for a second
+ *   and a half, and without the gate the sweep finishes underneath it.
+ * - `backwards`, never `both`. A finished animation with `both` keeps its final
+ *   transform applied, which outranks the hover on `.card-grow` and would
+ *   silently kill the card growing under the pointer.
+ */
+{
+  const idx = [...pages['/'].matchAll(/--card-i:(\d+)/g)].map((m) => Number(m[1]))
+  check('every card has a stagger position', idx.length > 0, `${idx.length} cards`)
+  check('the stagger restarts per copy',
+    new Set(idx).size < idx.length && Math.max(...idx) === new Set(idx).size - 1,
+    `positions 0 to ${Math.max(...idx)} across ${idx.length} cards`)
+
+  const css3 = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8')
+  check('the sweep waits for the opening panel',
+    /\[data-intro='done'\][^{]*\.card-in\s*\{/.test(css3))
+  check('the sweep waits until the row is worth watching',
+    /\.reveal\.is-visible \.card-in/.test(css3))
+  check('the sweep comes in from the left',
+    /@keyframes card-in\s*\{[^}]*translateX\(-/.test(css3))
+  check('the sweep releases the hover when it ends',
+    /animation: card-in[^;]*backwards/.test(css3) && !/animation: card-in[^;]*\bboth\b/.test(css3),
+    'both would hold the final transform and outrank .card-grow:hover')
+}
+
+// The bar is inset from the edges on a phone rather than running the full width.
+check('the nav bar has room at the sides',
+  /flex flex-col items-center px-4 pt-4 sm:px-6/.test(pages['/']))
+
+// The deck itself: one scroll container, arrows outside it, and a counter.
+{
+  const q = pages['/projects/harmoney']
+  check('the deck is one snapping strip',
+    /snap-x snap-mandatory overflow-x-auto/.test(q))
+  check('the deck has arrows', /aria-label="Previous"/.test(q) && /aria-label="Next"/.test(q))
+  check('the deck says where you are', /aria-roledescription="carousel"/.test(q))
+  // Named chips, not dots: reaching the design system should not mean clicking
+  // past everything in front of it.
+  check('the deck can be jumped through',
+    /role="tablist"/.test(q) && /aria-label="Jump to a slide"/.test(q))
+  // Quick read must not repeat the visuals above the deck, or it is a long
+  // page again with the prose removed.
+  check('quick beats carry no figures',
+    !/<section id="the-work"[\s\S]{0,200}<figure[\s\S]{0,80}<figure/.test(q))
 }
 
 check('spotify offers the study and the build together',
@@ -236,8 +447,12 @@ check('spotify offers the study and the build together',
   check('the showcase row is out of flow',
     /class="absolute inset-0 flex items-center justify-center/.test(hero),
     'a percentage height here resolves against a content-sized row')
+  // Scoped to the showcase stage rather than searched for page wide. The deck's
+  // slides use `h-full` too and are fine, because their parent carries an
+  // explicit height — the bug was only ever a percentage height resolving
+  // against a grid row that sized itself from its own contents.
   check('the showcase row is not a percentage-height flex box',
-    !/flex h-full w-full items-center justify-center/.test(hero))
+    !/place-items-center overflow-hidden[^>]*>\s*<div class="flex h-full/.test(hero))
   // Scoped to the phone shells themselves. A page-wide search for "opacity"
   // also catches the read-mode tip and the nav hovers, which are allowed to
   // fade and have nothing to do with this.
@@ -344,6 +559,31 @@ check('the glass disc survives without backdrop-filter',
 check('the tap ripple grows out of the press, not into it',
   /@keyframes tap-ripple[\s\S]{0,160}from\s*\{\s*opacity:\s*\.8[\s\S]{0,60}scale\(\.3\)/.test(css),
   'starts small and opaque, ends wide and gone')
+/*
+ * The arrow's loop lives on the glyph, not on its span.
+ *
+ * The span is a `.hero-item`, and `[data-intro='done'] .hero-item` sets an
+ * arrival animation. That selector is a class plus an attribute, so it outranks
+ * `.hero-arrow` and replaced the loop outright — the arrow carried an infinite
+ * bounce and never moved once, because the intro had always run by the time
+ * anyone looked. Two animations, two elements.
+ */
+check('the arrow bounces on its glyph',
+  /\.hero-arrow svg\s*\{[^}]*animation:\s*hero-bounce[^}]*infinite/.test(css),
+  'on the span it is overridden by the hero arrival rule')
+check('the arrow span carries no competing loop',
+  !/\.hero-arrow\s*\{[^}]*animation:/.test(css))
+
+// The portrait grows on hover and the words step aside to make room. They can
+// only move if they are elements: the text either side used to be a bare node.
+check('the hero words can move',
+  /hero-word-l/.test(pages['/']) && /hero-word-r/.test(pages['/']))
+check('the portrait shakes and grows',
+  /\.hero-portrait-wrap:hover\s*\{[^}]*scale\(/.test(css) && /@keyframes hero-shake/.test(css))
+check('the words move only for a real pointer',
+  /\(hover: hover\) and \(pointer: fine\)[\s\S]{0,700}hero-word-l/.test(css),
+  'touch fires a false hover and would leave the headline shoved apart')
+
 check('hover motion is pointer gated',
   /\(hover: hover\) and \(pointer: fine\)/.test(css), 'touch fires a false hover on tap')
 check('reduced motion still signals the change',

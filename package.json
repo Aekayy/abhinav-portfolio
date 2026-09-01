@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test:build": "esbuild src/site/Site.tsx --bundle --format=esm --platform=node --outdir=dist-ssr --alias:@=./src --external:react --external:react-dom --external:react/jsx-runtime --loader:.css=empty --log-level=error && esbuild src/data/screens.ts --bundle --format=esm --platform=node --outfile=dist-ssr/screens.mjs --alias:@=./src --log-level=error && esbuild src/site/reading.ts --bundle --format=esm --platform=node --outfile=dist-ssr/study.mjs --alias:@=./src --log-level=error",
+    "test:build": "esbuild src/site/Site.tsx --bundle --format=esm --platform=node --outdir=dist-ssr --alias:@=./src --external:react --external:react-dom --external:react/jsx-runtime --loader:.css=empty --log-level=error && esbuild src/data/screens.ts --bundle --format=esm --platform=node --outfile=dist-ssr/screens.mjs --alias:@=./src --log-level=error && esbuild src/site/reading.ts --bundle --format=esm --platform=node --outfile=dist-ssr/study.mjs --alias:@=./src --log-level=error && esbuild src/site/deck.ts --bundle --format=esm --platform=node --outfile=dist-ssr/deck.mjs --alias:@=./src --log-level=error",
     "test": "npm run test:build && node tools/render-test.mjs && node tools/responsive-test.mjs && node tools/spelling.mjs && node tools/contrast-test.mjs",
     "test:visual": "npm run build && node tools/theme-test.mjs && node tools/cascade-test.mjs",
     "build:preview": "node tools/build-preview.mjs"

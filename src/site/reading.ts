@@ -53,22 +53,39 @@ export function sectionWords(s: Section, mode: ReadMode): number {
   if (mode === 'full') {
     return heading + s.blocks.reduce((n, b) => n + blockWords(b), 0)
   }
-  // Quick read is the summary plus every block that opted in with
-  // `quickRead: true`. A section with no opt-ins falls back to the first
-  // visual, the same shape the UI shows. Keeping the two in step matters more
-  // than precision: a nav that promises a short section and delivers a long
-  // one is worse than no nav at all.
+  // In Quick read a section is its heading and its summary. The visuals are no
+  // longer under each section, they are in the deck, and that is counted once
+  // for the whole study by `quickWords` rather than five times over here.
   const tldr = (s.tldr ?? []).reduce((n, l) => n + l.trim().split(/\s+/).length, 0)
-  const opted = s.blocks.filter((b) => {
-    if (b.kind === 'figure' && b.quickRead) return true
-    if (b.kind === 'screens' && b.quickRead) return true
-    return false
-  })
-  const vis = opted.length > 0
-    ? opted
-    : s.blocks.find((b) => b.kind === 'figure' || b.kind === 'screens')
-  const visCount = Array.isArray(vis) ? vis.length : (vis ? 1 : 0)
-  return heading + tldr + (visCount > 0 ? visCount * 18 : 0)
+  return heading + tldr
+}
+
+/**
+ * What the whole study costs in Quick read.
+ *
+ * Not the sum of every section, because Quick read does not render every
+ * section: it renders the opener, the four beats, and one deck holding all the
+ * artifacts. Summing the sections was fine when Quick was Full with the prose
+ * trimmed; it is simply the wrong document now, and would quote a reader a
+ * number for pages that are not there.
+ *
+ * The deck is charged per slide rather than per section, at the same rate a
+ * figure costs anywhere else. A reader can leave a deck after two slides, so
+ * this is the honest ceiling rather than the expected spend.
+ */
+export function quickWords(sections: Section[]): number {
+  const opener = sections.find((s) => !s.beat)
+  const beats = (['problem', 'solution', 'decisions', 'reflection'] as const)
+    .map((b) => sections.find((s) => s.beat === b))
+  const shown = [opener, ...beats].filter((s): s is Section => Boolean(s))
+
+  const slides = sections.reduce((n, s) => n + s.blocks.reduce((m, b) => {
+    if (b.kind === 'figure') return m + 1
+    if (b.kind === 'screens') return m + b.items.length
+    return m
+  }, 0), 0)
+
+  return shown.reduce((n, s) => n + sectionWords(s, 'quick'), 0) + slides * 18
 }
 
 /**

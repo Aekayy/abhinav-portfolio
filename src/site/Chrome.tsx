@@ -37,7 +37,7 @@ export function Nav({ route }: { route: string }) {
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 flex flex-col items-center pt-4 sm:pt-6">
+    <header className="fixed inset-x-0 top-0 z-50 flex flex-col items-center px-4 pt-4 sm:px-6 sm:pt-6">
       <div className="relative w-full max-w-[448px]">
         <nav
           aria-label="Primary"

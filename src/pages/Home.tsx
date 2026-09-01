@@ -27,7 +27,10 @@ export function Home() {
             className="hero-item hero-headline"
             style={{ '--hero-i': 0 } as React.CSSProperties}
           >
-            Hi,{' '}
+            {/* The two halves are wrapped so they can make room when the
+                portrait grows. Without the spans there is nothing to move: the
+                text either side is a bare text node. */}
+            <span className="hero-word hero-word-l">Hi,</span>{' '}
             <span className="hero-portrait-wrap">
               <img
                 src="img/about/avatar.jpg"
@@ -39,7 +42,7 @@ export function Home() {
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
               />
             </span>{' '}
-            I'm Abhinav!
+            <span className="hero-word hero-word-r">I'm Abhinav!</span>
           </h1>
 
           {/* ── Sub-line ───────────────────────────────────────── */}
@@ -47,7 +50,18 @@ export function Home() {
             className="hero-item t-body mt-6 text-(--ink-muted)"
             style={{ '--hero-i': 1 } as React.CSSProperties}
           >
-            {PROFILE.bio}
+            {/* The city is the one fact in this paragraph a recruiter scans
+                for, so it is the one thing set in the ink colour. Split rather
+                than duplicated, so the sentence stays a single source of
+                truth in profile.ts. */}
+            {PROFILE.bio.split(PROFILE.location).flatMap((part, i) =>
+              i === 0
+                ? [part]
+                : [
+                    <strong key="loc" className="font-semibold text-(--ink)">{PROFILE.location}</strong>,
+                    part,
+                  ],
+            )}
           </p>
 
           {/* ── Bouncing down arrow ────────────────────────────── */}

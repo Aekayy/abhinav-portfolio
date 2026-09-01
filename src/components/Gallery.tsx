@@ -194,14 +194,31 @@ export function Gallery({ projects }: { projects: Project[] }) {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
-      className="flex snap-x snap-mandatory gap-6 overflow-x-auto [scroll-behavior:auto] [scroll-snap-type:none] pb-6 pt-2 px-4 sm:px-8
+      className="flex snap-x snap-mandatory gap-6 overflow-x-auto [scroll-behavior:auto] [scroll-snap-type:none] pb-10 pt-5 px-4 sm:px-8
                  select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {loopItems.map((p, index) => (
         <article
           key={`${p.slug}-${index}`}
           data-card
-          className="w-[min(320px,72vw)] min-w-0 shrink-0"
+          /* card-grow scales the whole card, artwork and words together. It
+             sits here rather than on the frame because the thing that should
+             grow is the card, and a title that stays put while the picture
+             above it swells reads as two elements that happen to be near each
+             other. `relative` is what lets the scaled card lift above its
+             neighbours rather than being overlapped by them. */
+          className="card-in card-grow relative w-[min(320px,72vw)] min-w-0 shrink-0"
+          /*
+           * The stagger position, counted within one set rather than across the
+           * whole track.
+           *
+           * The row holds three copies of the projects so it can loop, and the
+           * reader is parked in the middle copy. Numbering 0 to 14 would give
+           * the cards actually on screen delays of 300ms and up, so the sweep
+           * would be over before it reached them. Modulo means whichever copy
+           * you are looking at counts 0, 1, 2 from the left.
+           */
+          style={{ '--card-i': index % projects.length } as React.CSSProperties}
         >
           <button
             onClick={() => {
@@ -213,7 +230,7 @@ export function Gallery({ projects }: { projects: Project[] }) {
             aria-label={`Open the ${p.name} case study`}
           >
             <div
-              className="lift aspect-[4/5] w-full overflow-hidden rounded-(--radius-card) bg-(--surface) border border-(--line)"
+              className="aspect-[4/5] w-full overflow-hidden rounded-(--radius-card) bg-(--surface) border border-(--line)"
               aria-hidden="true"
             >
               {/* The real screens where a study has them, so the card and the
@@ -237,7 +254,7 @@ export function Gallery({ projects }: { projects: Project[] }) {
                   loading="lazy"
                   decoding="async"
                   draggable={false}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
+                  className="pointer-events-none h-full w-full object-cover"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
                 />
               ) : null}

@@ -40,10 +40,29 @@ export type Block =
    */
    | { kind: 'screens'; device: 'phone' | 'web'; title?: string; items: { src: string; caption?: string }[]; quickRead?: boolean }
 
+/**
+ * The beats Quick read is built from.
+ *
+ * Quick read is not a shorter version of the study, it is a different one. The
+ * long version walks every step of the process; the short version answers the
+ * four questions a reader gives you ninety seconds to answer — what was wrong,
+ * what was built, what it cost to decide, and what came of it — and then shows
+ * the work in one pass instead of scattering it down the page.
+ *
+ * So a section opts in to a beat rather than every section being summarized.
+ * Anything unmarked still exists in Full read; it just is not part of the
+ * ninety second telling. Beats are optional, and a study missing one renders
+ * without it rather than inventing filler: Vesseli's four moves are its
+ * solution and its decisions at once, so it carries one beat, not two.
+ */
+export type Beat = 'problem' | 'solution' | 'decisions' | 'reflection'
+
 export type Section = {
   id: string
   label: string
   heading: string
+  /** Which beat of Quick read this section carries, if any. */
+  beat?: Beat
   blocks: Block[]
   /**
    * The section in two or three lines, for Quick read.
@@ -79,6 +98,17 @@ export type Project = {
   /** Present when the study lives elsewhere. */
   external?: { href: string; label: string; note?: string }
   noSectionNav?: boolean
+  /**
+   * A written piece rather than a case study.
+   *
+   * An article has one length. Offering to shorten it implies there is a
+   * summary written for it, and there is not — Quick read is built from beats
+   * and a deck of artifacts that a blog post simply does not have. The label on
+   * the meta row changes too: a post has an author, not a role.
+   */
+  article?: boolean
+  /** Overrides the "Role" label on the meta row. */
+  roleLabel?: string
   accent: string
 }
 
@@ -146,6 +176,7 @@ export const PROJECTS: Project[] = [
         id: 'problem',
         label: 'The problem',
         heading: 'Fourteen steps to launch one campaign',
+        beat: 'problem',
         tldr: [
           'Launching one campaign meant crossing fourteen disconnected screens, from strategy intake to analytics.',
           '60% of users got lost inside advanced filtering, support tickets ran high, and new users faced a steep curve.',
@@ -253,6 +284,7 @@ export const PROJECTS: Project[] = [
         id: 'principles',
         label: 'Design principles',
         heading: 'Five rules that filtered every decision',
+        beat: 'decisions',
         tldr: [
           'Progressive disclosure, task-first navigation, a single source of truth, design for scale, and data with context.',
           'Agreed before the screens, so later arguments were settled against the rules rather than against taste.',
@@ -307,6 +339,7 @@ export const PROJECTS: Project[] = [
         id: 'shipped',
         label: 'What shipped',
         heading: 'Twelve screens, one workspace',
+        beat: 'solution',
         tldr: [
           'Twelve screens covering the whole lifecycle: dashboard, campaign library, wizard, audience and journey builders, review, live monitoring, analytics, experiments, approvals, comments and the asset library.',
           'Each one answers a principle. The wizard discloses one decision at a time; the library is built for scanning; approvals carry owners, deadlines and an audit trail.',
@@ -418,6 +451,7 @@ export const PROJECTS: Project[] = [
         id: 'reflection',
         label: 'Reflection',
         heading: 'Complexity, made trustworthy',
+        beat: 'reflection',
         tldr: [
           'Enterprise UX is not making complexity disappear. It is making complexity understandable and trustworthy.',
           'Progressive disclosure won because it served both sides at once: marketers who needed speed, and the enterprise that needed governance.',
@@ -507,6 +541,7 @@ export const PROJECTS: Project[] = [
         id: 'problem',
         label: 'The problem',
         heading: 'Users struggled to complete key actions',
+        beat: 'problem',
         tldr: [
           'Unclear navigation, no visual hierarchy, and unstructured profiles that gave people nothing to judge.',
           'The cost was hesitation: users could not finish key actions, and hiring decisions were made without confidence.',
@@ -657,6 +692,7 @@ export const PROJECTS: Project[] = [
         id: 'solution',
         label: 'Design decisions',
         heading: 'Four moves',
+        beat: 'solution',
         tldr: [
           'Role-based onboarding that names intent early, so the app can personalize from the first screen.',
           'Profiles rebuilt around experience, credentials and availability, because that is what a hiring decision actually rests on.',
@@ -705,6 +741,7 @@ export const PROJECTS: Project[] = [
         id: 'conclusion',
         label: 'Outcome',
         heading: 'From functional to trusted',
+        beat: 'reflection',
         tldr: [
           'A structured, engaging platform where the workflows are clear and the information is enough to decide on.',
           'Currently under development as the next version of the product.',
@@ -770,6 +807,7 @@ export const PROJECTS: Project[] = [
         id: 'problem',
         label: 'The problem',
         heading: 'People know what they earn. They struggle to save on purpose',
+        beat: 'problem',
         tldr: [
           'Budgeting tools track spending well and guide intent badly.',
           'People know what they earn and what they spend. Saving on purpose, toward something like debt repayment or travel, is where they stall.',
@@ -916,6 +954,7 @@ export const PROJECTS: Project[] = [
         id: 'design-decisions',
         label: 'Design decisions',
         heading: 'Three decisions the rest of the product rests on',
+        beat: 'decisions',
         tldr: [
           'Summaries first and details on demand, so a forecast never opens as a wall of numbers.',
           'Scenarios sit side by side rather than one after another, because comparing two futures from memory is the thing people get wrong.',
@@ -937,6 +976,7 @@ export const PROJECTS: Project[] = [
         id: 'solution',
         label: 'The solution',
         heading: 'Guidance instead of raw numbers',
+        beat: 'solution',
         tldr: [
           'A conversational assistant creates and adjusts plans in the user’s own words, while the dashboard holds goals, transactions, security and analytics.',
           'Two onboarding directions were built, a clean one and an illustrated one, so the choice could be made against real screens.',
@@ -1005,6 +1045,7 @@ export const PROJECTS: Project[] = [
         id: 'conclusion',
         label: 'Outcome',
         heading: 'From tracker to adaptive partner',
+        beat: 'reflection',
         tldr: [
           'Usability feedback moved it from a tracker that reports the past to a partner that adjusts the plan when circumstances change.',
         ],
@@ -1054,6 +1095,7 @@ export const PROJECTS: Project[] = [
         id: 'problem',
         label: 'The problem',
         heading: 'People already alter music. Somewhere else',
+        beat: 'problem',
         tldr: [
           'Sped up and slowed versions pull enormous numbers on video platforms, so the demand is settled.',
           'Every one of them is a re-upload, which pays the uploader rather than the artist.',
@@ -1078,6 +1120,7 @@ export const PROJECTS: Project[] = [
         id: 'constraint',
         label: 'The constraint',
         heading: 'A version is settings, not audio',
+        beat: 'decisions',
         tldr: [
           'A saved version is about forty bytes of settings, never a copy of the recording. Playback changes on the device; the master is untouched.',
           'That single decision is what makes it licensable: no new copy, no re-upload to police, and the stream still counts for the artist.',
@@ -1105,6 +1148,7 @@ export const PROJECTS: Project[] = [
         id: 'engine',
         label: 'How it was built',
         heading: 'Pitch and speed had to move independently',
+        beat: 'solution',
         tldr: [
           'A concept claiming you can slow a track without dropping its key has to prove it, so I built the audio engine instead of faking a demo video.',
           'WSOLA time-stretching with a separate resampling stage, verified offline to within fourteen cents of pitch and 0.4% of duration across eight combinations.',
@@ -1147,6 +1191,7 @@ export const PROJECTS: Project[] = [
         id: 'outcome',
         label: 'Outcome',
         heading: 'A working thing, not a mockup',
+        beat: 'reflection',
         tldr: [
           'A live site with eight cleared sample tracks and the option to load your own file.',
           'Plus mobile and desktop mockups of the feature inside Spotify’s own design language.',

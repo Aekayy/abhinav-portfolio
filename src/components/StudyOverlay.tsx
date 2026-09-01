@@ -1,14 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { Block, Project } from '@/data/projects'
+import type { Beat, Block, Project, Section } from '@/data/projects'
 import type { Post } from '@/data/profile'
+import { PROFILE } from '@/data/profile'
 import { go } from '@/site/router'
 import { SHOWCASES } from '@/data/screens'
 import { Showcase } from '@/components/Showcase'
+import { SlideShow } from '@/components/SlideShow'
+import { buildDeck } from '@/site/deck'
 import { DeviceFrame, PHONE_SCREEN, webScreenFor } from '@/components/DeviceFrame'
-import { sectionWords, readMinutes } from '@/site/reading'
-import {
-  readMode, storeMode, needsModeHint, markModeHintSeen, type ReadMode,
-} from '@/site/readmode'
+import { sectionWords, quickWords, readMinutes } from '@/site/reading'
+import type { ReadMode } from '@/site/readmode'
 
 /**
  * useLayoutEffect, except on the server where it does not exist and React
@@ -62,11 +63,14 @@ export function PostOverlay({ post }: { post: Post }) {
     summary: `${post.date} · ${post.category}`,
     year: '',
     industry: '',
-    role: 'Author',
+    // The byline, not a job title. The old value read "Role: Author", which
+    // says nothing a reader did not already assume.
+    role: PROFILE.name,
+    roleLabel: 'Author',
+    article: true,
     kind: 'project',
     accent: post.accent,
     hero: post.hero?.src,
-    external: { href: post.href, label: 'Read it on the original site' },
     sections: post.body.map((b, i) => ({
       id: `s${i}`,
       label: 'Article',
@@ -76,6 +80,7 @@ export function PostOverlay({ post }: { post: Post }) {
         { kind: 'text' as const, body: b.paragraphs },
         ...(b.quote ? [{ kind: 'quote' as const, ...b.quote }] : []),
         ...(b.image ? [{ kind: 'figure' as const, ...b.image }] : []),
+        ...(b.screens ? [{ kind: 'screens' as const, ...b.screens }] : []),
       ],
     })),
     noSectionNav: true,
@@ -105,7 +110,10 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
   }
 
   const scrollToSection = (id: string) => {
-    const el = scroller.current?.querySelector(`#${id}`)
+    // Again the rendered copy: clicking a contents entry that resolved to the
+    // hidden duplicate would scroll to a zero-height element at the top.
+    const el = [...(scroller.current?.querySelectorAll(`#${id}`) ?? [])]
+      .find((e) => e.getClientRects().length > 0)
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
       setActiveSection(id)
@@ -154,7 +162,10 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
       const line = scrollEl.getBoundingClientRect().top + scrollEl.clientHeight * 0.35
       let current = project.sections[0].id
       for (const s of project.sections) {
-        const secEl = scrollEl.querySelector(`#${s.id}`)
+        // The rendered copy. Both read modes stay mounted, so an id can match
+        // twice and the hidden one reports a rect of zeros.
+        const secEl = [...scrollEl.querySelectorAll(`#${s.id}`)]
+          .find((el) => el.getClientRects().length > 0)
         if (secEl && secEl.getBoundingClientRect().top <= line) current = s.id
       }
       setActiveSection(current)
@@ -170,11 +181,16 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
     }
   }, [project.slug])
 
-  // Starts on the server default and settles to the stored choice after mount,
-  // so SSR renders one predictable version rather than reading storage that
-  // does not exist there.
+  /*
+   * Every study opens in Full read, every time.
+   *
+   * The choice used to be remembered across studies, which meant one impatient
+   * tap on Harmoney quietly shortened every study opened after it. The full
+   * write up is the work; Quick read is a courtesy for someone in a hurry, and
+   * it should be asked for rather than inherited. Nothing here outlives the
+   * panel, which also means SSR and the client agree without reading storage.
+   */
   const [mode, setMode] = useState<ReadMode>('full')
-  useEffect(() => { setMode(readMode()) }, [])
 
   /**
    * Switching read mode must not move the reader.
@@ -215,12 +231,26 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
       const line = sc.getBoundingClientRect().top + sc.clientHeight * READING_LINE
       let seen: HTMLElement | null = null
       for (const s of sc.querySelectorAll<HTMLElement>('section[id]')) {
+        /*
+         * Skip the copies that are not rendered, and this is the whole bug.
+         *
+         * Both read modes stay mounted so the prose is always in the HTML,
+         * which means five section ids exist twice over. A `display: none`
+         * element reports a rect of all zeros, so every hidden copy read as
+         * `top: 0` and matched a reading line of several hundred pixels. In
+         * Quick read the hidden Full sections come last in document order, so
+         * the scan below always ended on the final one and the reader was
+         * thrown to the end of the study.
+         *
+         * getClientRects() is empty for anything not being rendered, which is
+         * exactly the question being asked.
+         */
+        if (s.getClientRects().length === 0) continue
         if (s.getBoundingClientRect().top <= line) seen = s
       }
       if (seen) anchor.current = { id: seen.id, top: seen.getBoundingClientRect().top }
     }
     setMode(m)
-    storeMode(m)
   }
 
   // Before paint, so the correction is never a visible jump.
@@ -256,8 +286,44 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
     if (!a) return
     anchor.current = null
 
-    const find = () => sc.querySelector<HTMLElement>(`section[id="${cssEscape(a.id)}"]`)
-    if (!find()) return
+    /*
+     * Quick read does not render every section, so the section being read can
+     * simply not exist on the other side — you switch out of Wireframes, which
+     * the short version never had.
+     *
+     * Falling back to the top was wrong: it is the one place guaranteed not to
+     * be where the reader was, and switching mode is not a request to start
+     * over. So walk backwards through the study to the nearest earlier section
+     * that IS in the target mode and hold that. Leaving Wireframes lands on the
+     * solution rather than the title, which is the same part of the argument.
+     */
+    let id = a.id
+    // The visible copy, not the first in document order. Both modes are
+    // mounted, so `querySelector` alone would happily return the hidden one and
+    // measure a rect of zeros.
+    const find = () =>
+      [...sc.querySelectorAll<HTMLElement>(`section[id="${cssEscape(id)}"]`)]
+        .find((el) => el.getClientRects().length > 0) ?? null
+    if (!find()) {
+      const order = sections.map((x) => x.id)
+      for (let n = order.indexOf(a.id) - 1; n >= 0; n--) {
+        id = order[n]
+        if (find()) break
+      }
+      // Nothing earlier survives either, so the reader is above the first
+      // shared section and the top is genuinely where they were.
+      if (!find()) {
+        const prev = sc.style.scrollBehavior
+        sc.style.scrollBehavior = 'auto'
+        sc.scrollTop = 0
+        sc.style.scrollBehavior = prev
+        return
+      }
+      // A substituted section cannot hold the original's offset, because it
+      // started somewhere further up the page. Put its heading at the reading
+      // line instead, which is where a section the reader is inside sits.
+      a.top = sc.getBoundingClientRect().top + sc.clientHeight * READING_LINE * 0.35
+    }
 
     // Explicitly a jump. `scroll-behavior` is not inherited, so the smooth
     // scrolling set on :root does not reach this element today — but adding a
@@ -282,34 +348,60 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
     requestAnimationFrame(jump)
   }, [mode])
 
-  const hasSections = Boolean(project.sections && project.sections.length > 1)
+  const hasSections = Boolean(project.sections && project.sections.length > 1) && !project.article
   const showNav = hasSections && !project.noSectionNav
   const navFg = getContrastColor(project.accent)
   const isLightNav = navFg === '#181818'
 
   /** Every section, in order, measured in whichever mode is showing. */
   const sections = project.sections ?? []
-  const totalWords = sections.reduce((n, s) => n + sectionWords(s, mode), 0)
 
   /**
-   * The toggle explains itself, once.
+   * Quick read: an opening, four beats, and the work in one deck.
    *
-   * A two-button control with no label is a coin flip: nothing on screen says
-   * that one of them is a summary. But a tip that fires on every study becomes
-   * furniture people learn to dismiss without reading, so this is stored
-   * against the same key the mode is, and never shown twice.
+   * The opening is the study's first section whatever it is called, because
+   * every one of them starts by saying what the thing is. The four beats are
+   * whichever sections claimed them. Anything else is Full read's business.
+   */
+  const opener = sections.find((x) => !x.beat)
+  const beatOf = (b: Beat) => sections.find((x) => x.beat === b)
+  const quickTop = [opener, beatOf('problem'), beatOf('solution')]
+    .filter((x): x is Section => Boolean(x))
+  const quickEnd = [beatOf('decisions'), beatOf('reflection')]
+    .filter((x): x is Section => Boolean(x))
+
+  /** What the contents nav lists: the beats in Quick, everything in Full. */
+  const navItems = mode === 'quick' ? [...quickTop, ...quickEnd] : sections
+
+  /**
+   * The deck: five slides, grouped and ranked. See `site/deck.ts` for the edit
+   * it makes and why one slide per image was the wrong unit.
+   */
+  const slides = buildDeck(sections, project.slug)
+  const totalWords = mode === 'quick'
+    ? quickWords(sections)
+    : sections.reduce((n, s) => n + sectionWords(s, 'full'), 0)
+
+  /**
+   * The toggle introduces itself each time a study is opened.
+   *
+   * A two button control with no label is a coin flip: nothing on screen says
+   * that one of them is a summary. It used to be shown once per browser and
+   * then never again, which is the right instinct for a persistent setting and
+   * wrong for this one — the mode resets to Full on every open, so the offer to
+   * shorten it is new information every time.
+   *
+   * Once per opening, not once per render: the panel remounts per study, and
+   * the timer is keyed to the slug so switching studies re-arms it.
    */
   const [hint, setHint] = useState(false)
   useEffect(() => {
-    if (!hasSections || !needsModeHint()) return
+    if (!hasSections) return
     const t = window.setTimeout(() => setHint(true), 900)
     return () => clearTimeout(t)
-  }, [hasSections])
+  }, [hasSections, project.slug])
 
-  const dismissHint = () => {
-    setHint(false)
-    markModeHintSeen()
-  }
+  const dismissHint = () => setHint(false)
 
   return (
     <div
@@ -383,7 +475,7 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
           {/* Horizontal Role, Client, Year, Industry, Duration metadata */}
           <dl className="my-8 grid grid-cols-2 gap-4 border-y border-(--line) py-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {[
-              ['Role', project.role],
+              [project.roleLabel ?? 'Role', project.role],
               ['Client', project.client ?? ''],
               ['Year', project.year],
               ['Industry', project.industry],
@@ -436,9 +528,13 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
 
                     The read-mode estimate above still moves, so the toggle keeps
                     its feedback without every row needing its own chart.
+
+                    In Quick read it lists the beats and the deck, because those
+                    are the only things on the page. Listing all eighteen would
+                    put us straight back to rows that do nothing when clicked.
                   */}
                   <ul className="grid gap-0.5">
-                    {sections.map((s) => {
+                    {navItems.map((s) => {
                       const isActive = activeSection === s.id
                       return (
                         <li key={s.id} className="min-w-0">
@@ -523,62 +619,47 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                 </div>
               )}
 
-              <div className="grid gap-14">
+              {/*
+                Two documents, not one document at two lengths.
+
+                Quick read is an opening, the problem, the solution, the work in
+                a single deck, then the decisions and what came of it. Full read
+                is every section in order. They share the panel and the section
+                ids, so switching between them can hold the reader in place, but
+                they are not the same page shortened — which is what made the
+                old Quick read still eighteen sections long.
+
+                Both stay mounted and the mode only hides one, so the prose that
+                makes this a writing sample is always in the HTML a crawler
+                reads, and switching is instant rather than a remount. The
+                hidden figures cost nothing: a lazy image inside `hidden` is
+                never requested.
+              */}
+              <div hidden={mode !== 'quick'} className="grid gap-14">
+                {quickTop.map((s) => (
+                  <QuickBeat key={s.id} section={s} />
+                ))}
+
+                {slides.length > 0 && (
+                  <section id="the-work" className="reveal-in min-w-0 scroll-mt-6">
+                    <p className="t-caption mb-3 text-(--ink-muted)">The work</p>
+                    <h3 className="t-heading-sm mb-6 max-w-[32ch] text-(--ink)">
+                      How it looks, and what it took
+                    </h3>
+                    <SlideShow slides={slides} accent={project.accent} />
+                  </section>
+                )}
+
+                {quickEnd.map((s) => (
+                  <QuickBeat key={s.id} section={s} />
+                ))}
+              </div>
+
+              <div hidden={mode !== 'full'} className="grid gap-14">
                 {project.sections?.map((s) => (
                   <section id={s.id} key={s.id} className="reveal-in min-w-0 scroll-mt-6">
                     <p className="t-caption mb-3 text-(--ink-muted)">{s.label}</p>
                     <h3 className="t-heading-sm max-w-[32ch] text-(--ink)">{s.heading}</h3>
-
-                    {/* Both versions are always in the DOM, and the mode only
-                        hides one.
-
-                        Rendering conditionally would have been simpler and
-                        wrong: the server has no stored preference, so it would
-                        emit the Quick version, and the prose that makes this a
-                        writing sample would vanish from the HTML a search
-                        engine reads. `hidden` keeps every word indexable, and
-                        switching becomes instant rather than a remount.
-
-                        The hidden figures cost nothing to fetch — they are
-                        lazy, and a lazy image inside `hidden` is never
-                        requested. */}
-                     <div hidden={mode !== 'quick'}>
-                      <div className="mt-6 grid gap-7">
-                        {s.tldr && (
-                          <ul className="grid gap-3">
-                            {s.tldr.map((line) => (
-                              <li key={line.slice(0, 24)} className="t-body-sm flex gap-3 text-(--ink-muted)">
-                                <span aria-hidden="true" className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-(--ink-muted)" />
-                                <span>{line}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                        {(() => {
-                          // Quick read shows every block that opts in with
-                          // `quickRead: true`. A section with no opt-ins still
-                          // gets the first visual, the same as before, so the
-                          // fallback never empties a section.
-                          const opted = s.blocks.filter((b) => {
-                            if (b.kind === 'figure' && b.quickRead) return true
-                            if (b.kind === 'screens' && b.quickRead) return true
-                            return false
-                          })
-                          const vis = opted.length > 0
-                            ? opted
-                            : s.blocks.find((b) => b.kind === 'figure' || b.kind === 'screens')
-                          if (!vis) return null
-                          const list = Array.isArray(vis) ? vis : [vis]
-                          return list.map((b, i) => {
-                            if (b.kind === 'screens') {
-                              return <ScreensBlock key={i} block={{ ...b, title: b.title ? b.title : undefined, items: b.items.slice(0, 3) }} />
-                            }
-                            return <FigureBlock key={i} block={b as Extract<Block, { kind: 'figure' }>} />
-                          })
-                        })()}
-                      </div>
-                     </div>
-
                     <div hidden={mode !== 'full'}>
                      <div className="mt-6 grid gap-7">
                        {s.blocks.map((b, i) => {
@@ -603,11 +684,6 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
                     </div>
                   </section>
                 ))}
-
-                {/* Scroll room past the end. Sized in the layout effect above,
-                    because how much is needed depends on the last section's
-                    height in the mode that is currently showing. */}
-                <div ref={spacer} aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -626,6 +702,35 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
         <span className="t-body-sm">Close</span>
       </button>
     </div>
+  )
+}
+
+/**
+ * One beat of Quick read: a heading and two or three lines.
+ *
+ * No figures. Every visual in the study is in the deck a few beats down, and
+ * repeating one here would put the reader back to scrolling past pictures to
+ * reach the next sentence — which is the thing Quick read exists to avoid.
+ *
+ * It keeps the section's own id so a reader switching modes stays where they
+ * were, and so the contents nav can point at it.
+ */
+function QuickBeat({ section }: { section: Section }) {
+  return (
+    <section id={section.id} className="reveal-in min-w-0 scroll-mt-6">
+      <p className="t-caption mb-3 text-(--ink-muted)">{section.label}</p>
+      <h3 className="t-heading-sm max-w-[32ch] text-(--ink)">{section.heading}</h3>
+      {section.tldr && (
+        <ul className="mt-6 grid gap-3">
+          {section.tldr.map((line) => (
+            <li key={line.slice(0, 24)} className="t-body-sm flex gap-3 text-(--ink-muted)">
+              <span aria-hidden="true" className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-(--ink-muted)" />
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }
 

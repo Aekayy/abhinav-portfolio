@@ -20,7 +20,7 @@ export const PROFILE = {
   intro:
     'I am a Product Designer who thrives in the space between an idea and a product.',
   bio:
-    'I turn ideas into products, and complexity into clarity. I am a Product Designer based in Houston, TX, connecting product thinking, design, technology, and AI to move ideas from early concepts to real, buildable experiences.',
+    'I turn ideas into products, and complexity into clarity. I am a Product Designer/UX Designer based in Houston, TX, connecting product thinking, design, technology, and AI to move ideas from early concepts to real, buildable experiences.',
   aboutQuote:
     'I enjoy taking ambiguous problems, early concepts, and complex workflows and turning them into clear, practical experiences. My work goes beyond designing interfaces. I focus on understanding the problem, exploring possibilities, shaping the right solution, and working through what it takes to make that solution real.',
   aboutBody:
@@ -119,7 +119,11 @@ export const EXPERIENCE: readonly ExperienceJob[] = [
   {
     role: 'UX/UI Designer',
     org: 'Vesseli',
-    logo: 'img/work/Vesseli.png',
+    // A square tile cut from the full lockup. The original is 3375x3002 with
+    // the mark floating in the middle of a navy field, so a 36px circle cropped
+    // to empty background; and at that size the wordmark under the anchor is a
+    // smudge, so the tile is the anchor alone.
+    logo: 'img/work/vesseli-logo.png',
     logoFit: 'cover',
     period: 'Oct 2025 - Dec 2025',
     points: [
@@ -130,7 +134,10 @@ export const EXPERIENCE: readonly ExperienceJob[] = [
   {
     role: 'Product Designer',
     org: 'Merkle',
+    // Already a square brand tile, so it fills the circle the way the others
+    // do. Contained, it sat as a small mark on a plain border instead.
     logo: 'img/work/Merkle.png',
+    logoFit: 'cover',
     period: 'Jul 2024 - Aug 2025',
     points: [
       'Led end to end UX for an enterprise marketing platform, improving campaign workflows through research, prototyping and usability testing with 150+ users, driving a 22% engagement increase.',
@@ -195,6 +202,14 @@ export type Post = {
     paragraphs: string[]
     quote?: { body: string; source?: string }
     image?: PostImage
+    /**
+     * Product screens, shown in their hardware rather than as a flat picture.
+     *
+     * A post can hold real screens as well as illustrations, and the Spotify
+     * piece is about an interface: a screenshot of one is worth more in a phone
+     * than in a rectangle.
+     */
+    screens?: { device: 'phone' | 'web'; items: { src: string; caption?: string }[] }
   }[]
 }
 
@@ -346,7 +361,15 @@ export const POSTS: Post[] = [
         quote: {
           body: 'What if there was a way to customize songs on the go? It would be nice to play around with tunes.',
         },
-        image: { src: 'img/blog/spotify-syncro-1.png', ratio: '1920/1440' },
+        screens: {
+          device: 'phone',
+          items: [
+            { src: 'img/work/spotify-alter/screens/01-now-playing-original.webp', caption: 'The track as released' },
+            { src: 'img/work/spotify-alter/screens/02-vibe-sheet-presets.webp', caption: 'Start from a feel' },
+            { src: 'img/work/spotify-alter/screens/03-vibe-sheet-advanced.webp', caption: 'Or shape it by hand' },
+            { src: 'img/work/spotify-alter/screens/08-now-playing-yours.webp', caption: 'The same track, yours' },
+          ],
+        },
       },
       {
         heading: 'Determined to turn vision into reality',

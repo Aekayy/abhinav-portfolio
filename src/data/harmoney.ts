@@ -89,6 +89,7 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'ninety-seconds',
     label: 'The core scenario',
     heading: 'Nothing goes wrong. The booking just evaporates',
+    beat: 'problem',
     tldr: [
       'The same ninety seconds told twice, through Danielle, a mobile stylist at a rooftop party.',
       'Without: she spells her handle, three similar accounts appear, and a $400 booking evaporates over four days. Nothing went wrong.',
@@ -176,6 +177,7 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'does',
     label: 'The concept',
     heading: 'Discovery, identity and payment in one gesture',
+    beat: 'solution',
     tldr: [
       'Three moves: tap the card, a profile opens, payment and booking sit one tap deep.',
       'Revenue comes from payments that complete rather than from subscription, so every screen between the tap and settled money carries the business.',
@@ -520,6 +522,7 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'decisions',
     label: 'Key decisions',
     heading: 'Four choices, and what each one traded',
+    beat: 'decisions',
     tldr: [
       'Fees before the confirm: a creator who understands the fee on their first payment comes back for the second. Costs a moment of reading.',
       'The empty state designed first, because every seller starts at zero and sees it most in week one.',
@@ -648,6 +651,7 @@ export const HARMONEY_SECTIONS: Section[] = [
     id: 'reflection',
     label: 'Reflection',
     heading: 'What I took from it',
+    beat: 'reflection',
     tldr: [
       'The brief opened up: it started as a set of screens and became defining what the product was for and which moments carried the business.',
       'Holding color back paid off. Every hierarchy question got answered with structure instead.',
