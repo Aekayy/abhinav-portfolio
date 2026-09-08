@@ -3,6 +3,7 @@ import type { Project } from '@/data/projects'
 import { go } from '@/site/router'
 import { SHOWCASES } from '@/data/screens'
 import { Showcase } from '@/components/Showcase'
+import { asset } from '@/lib/asset'
 
 /**
  * The reference's horizontal scroll row.
@@ -201,13 +202,12 @@ export function Gallery({ projects }: { projects: Project[] }) {
         <article
           key={`${p.slug}-${index}`}
           data-card
-          /* card-grow scales the whole card, artwork and words together. It
-             sits here rather than on the frame because the thing that should
-             grow is the card, and a title that stays put while the picture
-             above it swells reads as two elements that happen to be near each
-             other. `relative` is what lets the scaled card lift above its
-             neighbours rather than being overlapped by them. */
-          className="card-in card-grow relative w-[min(320px,72vw)] min-w-0 shrink-0"
+          /* `qcard` owns the open-on-hover behaviour: the card widens and the
+             row makes room for it, rather than scaling over whatever is beside
+             it. Width lives in CSS because the height of the artwork is derived
+             from the closed width and must not follow the open one — that is
+             what keeps the card spreading sideways only. */
+          className="card-in qcard relative min-w-0 shrink-0"
           /*
            * The stagger position, counted within one set rather than across the
            * whole track.
@@ -230,9 +230,16 @@ export function Gallery({ projects }: { projects: Project[] }) {
             aria-label={`Open the ${p.name} case study`}
           >
             <div
-              className="aspect-[4/5] w-full overflow-hidden rounded-(--radius-card) bg-(--surface) border border-(--line)"
+              className="qcard-shot relative w-full overflow-hidden rounded-(--radius-card) bg-(--surface) border border-(--line)"
               aria-hidden="true"
             >
+              {/* Which kind of work this was, said on the artwork rather than
+                  buried in the study. Client work under a brief is a main
+                  quest; the ones picked up because the problem was interesting
+                  are side quests. */}
+              <span className={`quest-tag quest-${p.kind === 'side-quest' ? 'side' : 'main'}`}>
+                {p.kind === 'side-quest' ? 'Side Quest' : 'Main Quest'}
+              </span>
               {/* The real screens where a study has them, so the card and the
                   study hero are the same artifact rather than a photo of it
                   and the thing itself.
@@ -249,7 +256,7 @@ export function Gallery({ projects }: { projects: Project[] }) {
                 />
               ) : p.thumb ? (
                 <img
-                  src={p.thumb}
+                  src={asset(p.thumb)}
                   alt=""
                   loading="lazy"
                   decoding="async"
@@ -263,7 +270,12 @@ export function Gallery({ projects }: { projects: Project[] }) {
               <span className="t-body-sm text-(--ink) font-normal truncate">{p.name}</span>
               <span aria-hidden="true" className="text-(--ink-muted) text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
             </div>
-            <p className="t-body-sm mt-1 line-clamp-2 text-(--ink-muted)">{p.summary}</p>
+            {/* Clamped closed, whole when the card opens. The space for the
+                open state is reserved either way, so widening one card never
+                shifts the row it sits in. */}
+            <div className="qcard-cap mt-1">
+              <p className="t-body-sm text-(--ink-muted)">{p.summary}</p>
+            </div>
           </button>
         </article>
       ))}

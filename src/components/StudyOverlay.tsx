@@ -10,6 +10,7 @@ import { buildDeck } from '@/site/deck'
 import { DeviceFrame, PHONE_SCREEN, webScreenFor } from '@/components/DeviceFrame'
 import { sectionWords, quickWords, readMinutes } from '@/site/reading'
 import type { ReadMode } from '@/site/readmode'
+import { asset } from '@/lib/asset'
 
 /**
  * useLayoutEffect, except on the server where it does not exist and React
@@ -422,7 +423,26 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
           {/* The real screens, playing, where a study has them. Everything else
               keeps the single hero still — a study with no sequence should not
               get a worse version of one. */}
-          {SHOWCASES[project.slug] ? (
+          {/* A recording of the thing working outranks a picture of it, and
+              both outrank the animated stand-in. Muted, because a header that
+              starts talking is a header people close — and it carries no audio
+              track at all, so nothing is waiting behind a mute button. */}
+          {project.video ? (
+            <div className="w-full overflow-hidden bg-black sm:rounded-t-(--radius-card)">
+              <video
+                src={asset(project.video.src)}
+                poster={asset(project.video.poster)}
+                muted
+                autoPlay
+                loop
+                playsInline
+                controls
+                preload="metadata"
+                aria-label={`${project.name} prototype walkthrough`}
+                className="block aspect-[16/9] h-full w-full object-cover"
+              />
+            </div>
+          ) : SHOWCASES[project.slug] ? (
             <div className="w-full overflow-hidden sm:rounded-t-(--radius-card)">
               <Showcase
                 slug={project.slug}
@@ -435,7 +455,7 @@ export function StudyOverlay({ project, backTo = '/' }: { project: Project; back
             <div className="aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-(--surface) sm:rounded-t-(--radius-card)" aria-hidden="true">
               {(project.hero || project.thumb) && (
                 <img
-                  src={project.hero || project.thumb}
+                  src={asset(project.hero || project.thumb)}
                   alt=""
                   decoding="async"
                   fetchPriority="high"
@@ -751,7 +771,7 @@ function FigureBlock({ block }: { block: Extract<Block, { kind: 'figure' }> }) {
           }}
         >
           <img
-            src={block.src}
+            src={asset(block.src)}
             alt={block.caption ?? ''}
             loading="lazy"
             decoding="async"
@@ -776,7 +796,7 @@ function FigureBlock({ block }: { block: Extract<Block, { kind: 'figure' }> }) {
         }}
       >
         <img
-          src={block.src}
+          src={asset(block.src)}
           alt={block.caption ?? ''}
           loading="lazy"
           decoding="async"
@@ -803,7 +823,7 @@ function FigureBlock({ block }: { block: Extract<Block, { kind: 'figure' }> }) {
       {block.caption && <figcaption className="t-caption mt-3 text-(--ink-muted)">{block.caption}</figcaption>}
       {block.fullscreen && fullscreen && (
         <FullscreenViewer
-          src={block.src}
+          src={asset(block.src)}
           alt={block.caption ?? ''}
           onClose={() => setFullscreen(false)}
         />
@@ -841,7 +861,7 @@ function FullscreenViewer({ src, alt, onClose }: { src: string; alt: string; onC
         </svg>
       </button>
       <img
-        src={src}
+        src={asset(src)}
         alt={alt}
         className="block h-full w-full object-contain select-none"
         draggable={false}
@@ -883,7 +903,7 @@ function ScreensBlock({ block }: { block: Extract<Block, { kind: 'screens' }> })
               screen={block.device === 'phone' ? PHONE_SCREEN : webScreenFor(s.src)}
             >
               <img
-                src={s.src}
+                src={asset(s.src)}
                 alt={s.caption ?? ''}
                 loading="lazy"
                 decoding="async"

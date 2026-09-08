@@ -46,7 +46,7 @@ export function Nav({ route }: { route: string }) {
           } border border-(--line) bg-[#262626]/75`}
         >
           <a
-            href="#/"
+            href="/"
             onClick={(e) => { e.preventDefault(); go('/') }}
             className="t-body-sm font-medium text-white tracking-wide transition-opacity hover:opacity-70"
           >

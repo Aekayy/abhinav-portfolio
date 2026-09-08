@@ -1,3 +1,4 @@
+import { asset } from '@/lib/asset'
 /**
  * An image slot that is honest when it is empty.
  *
@@ -20,7 +21,7 @@ export function Frame({
       >
         {src && (
           <img
-            src={src}
+            src={asset(src)}
             alt={alt}
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover"
@@ -51,7 +52,7 @@ export function Avatar({ src, name, size = 40 }: { src?: string; name: string; s
       <span className="t-caption">{initials}</span>
       {src && (
         <img
-          src={src}
+          src={asset(src)}
           alt=""
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover"

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { SHOWCASES, framePaths, type Showcase as Show, type Tap } from '@/data/screens'
 import { DeviceFrame, PHONE_SCREEN, webScreenFor } from '@/components/DeviceFrame'
+import { asset } from '@/lib/asset'
 
 /**
  * The product, being used.
@@ -176,7 +177,7 @@ function Walkthrough({
         {[...new Set(srcs)].map((src, k) => (
           <img
             key={src}
-            src={src}
+            src={asset(src)}
             alt=""
             aria-hidden="true"
             loading={k === 0 ? 'eager' : 'lazy'}
@@ -233,7 +234,7 @@ function PhoneStill({ src, className = '' }: { src: string; className?: string }
   return (
     <DeviceFrame device="phone" className={className} style={{ height: `${TALL.side}%` }}>
       <img
-        src={src}
+        src={asset(src)}
         alt=""
         aria-hidden="true"
         loading="lazy"

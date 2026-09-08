@@ -88,11 +88,27 @@ export type Project = {
   role: string
   client?: string
   duration?: string
+  /**
+   * Main quest or side quest.
+   *
+   * Client work under a brief is a main quest; the ones taken up because the
+   * problem was interesting are side quests. The card prints it as a tag, so
+   * a reader can tell at a glance which is which instead of inferring it from
+   * the write-up three screens later.
+   */
   kind: 'project' | 'side-quest'
   /** Card thumbnail; the accent panel shows until it loads. */
   thumb?: string
   /** High-resolution hero image for the case study header banner. */
   hero?: string
+  /**
+   * A recording of the thing working, shown in place of the study's hero.
+   *
+   * Silent and looping by choice: a case study header that starts talking at
+   * you is a header people close. The controls are there for anyone who wants
+   * to sit with it.
+   */
+  video?: { src: string; poster?: string }
   /** Present when the full study lives here. */
   sections?: Section[]
   /** Present when the study lives elsewhere. */
@@ -772,7 +788,7 @@ export const PROJECTS: Project[] = [
     role: 'Product Designer',
     client: 'Self-initiated concept',
     duration: '4 months',
-    kind: 'project',
+    kind: 'side-quest',
     thumb: 'img/work/forecash-card.png',
     hero: 'img/work/forecash/hero.png',
     accent: '#8a5a2b',
@@ -1080,8 +1096,9 @@ export const PROJECTS: Project[] = [
     industry: 'Concept · Consumer audio',
     role: 'Product Designer, and build',
     client: 'Self-directed',
-    kind: 'project',
+    kind: 'side-quest',
     // Animated Spotify Syncro card GIF
+    video: { src: 'video/spotify-alter.mp4', poster: 'video/spotify-alter-poster.jpg' },
     thumb: 'img/blog/spotify-syncro-card.gif',
     hero: 'img/blog/spotify-syncro-hero.png',
     accent: '#1db954',

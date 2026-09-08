@@ -1,6 +1,7 @@
 import { PROFILE, EXPERIENCE, SERVICES, STATS, RESUME_PAGES } from '@/data/profile'
 import { Frame } from '@/components/Frame'
 import { PageHead, Section, Eyebrow } from '@/components/Bits'
+import { asset } from '@/lib/asset'
 
 export function Resume() {
   return (
@@ -37,7 +38,7 @@ export function Resume() {
                 <div className="flex items-center gap-3">
                   {job.logo && (
                     <img
-                      src={job.logo}
+                      src={asset(job.logo)}
                       alt={job.org}
                       className={`h-9 w-9 border border-(--line) ${
                         job.logoFit === 'cover' ? 'rounded-full object-cover' : 'rounded-2xl object-contain'

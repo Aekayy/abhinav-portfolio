@@ -13,9 +13,15 @@ import { createElement } from 'react'
 // dist-ssr/Site.js rather than dist-ssr/site/Site.js.
 import Site from '../dist-ssr/Site.js'
 
-/** Render a route by setting the hash the router reads. */
+/**
+ * Render a route by setting the pathname the router reads.
+ *
+ * This used to set a hash, because the router used to read one. history is
+ * deliberately left undefined: migrateLegacyHash guards on it, so leaving it
+ * out also proves the guard works rather than only that the happy path does.
+ */
 function at(route) {
-  globalThis.location = { hash: route === '/' ? '' : `#${route}` }
+  globalThis.location = { pathname: route === '/' ? '/' : route, hash: '' }
   globalThis.window = {
     location: globalThis.location,
     addEventListener() {}, removeEventListener() {}, scrollTo() {},

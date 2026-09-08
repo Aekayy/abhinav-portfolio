@@ -1,6 +1,7 @@
 import { PROFILE } from '@/data/profile'
 import { CASE_STUDIES } from '@/data/projects'
 import { Gallery } from '@/components/Gallery'
+import { asset } from '@/lib/asset'
 
 /**
  * The reference's whole layout: floating pill (in Chrome), a centered text
@@ -33,7 +34,7 @@ export function Home() {
             <span className="hero-word hero-word-l">Hi,</span>{' '}
             <span className="hero-portrait-wrap">
               <img
-                src="img/about/avatar.jpg"
+                src={asset('img/about/avatar.jpg')}
                 alt=""
                 width={64}
                 height={64}

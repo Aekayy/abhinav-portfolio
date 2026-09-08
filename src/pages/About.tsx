@@ -1,6 +1,7 @@
 import { PROFILE, STATS, EXPERIENCE, TESTIMONIALS, ABOUT_IMAGES } from '@/data/profile'
 import { Frame, Avatar } from '@/components/Frame'
 import { PageHead, Section, Eyebrow } from '@/components/Bits'
+import { asset } from '@/lib/asset'
 
 export function About() {
   return (
@@ -72,7 +73,7 @@ export function About() {
                 <div className="flex items-center gap-3">
                   {job.logo && (
                     <img
-                      src={job.logo}
+                      src={asset(job.logo)}
                       alt={job.org}
                       className={`h-9 w-9 border border-(--line) ${
                         job.logoFit === 'cover' ? 'rounded-full object-cover' : 'rounded-2xl object-contain'
@@ -103,7 +104,7 @@ export function About() {
             <figure key={t.name} className="card min-w-0 p-7">
               <blockquote className="t-body text-(--ink)">“{t.quote}”</blockquote>
               <figcaption className="mt-5 flex items-center gap-3">
-                <Avatar src={t.avatar} name={t.name} size={40} />
+                <Avatar src={asset(t.avatar)} name={t.name} size={40} />
                 <span className="t-body-sm min-w-0 text-(--ink-muted)">
                   <span className="block text-(--ink)">{t.name}</span>
                   {t.title}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { PROFILE } from '@/data/profile'
+import { asset } from '@/lib/asset'
 
 /**
  * The opening: the moment the lights come up in the gallery.
@@ -131,7 +132,7 @@ export function Intro({ route }: { route: string }) {
 
       <div className="intro-stack">
         <img
-          src="img/about/avatar.jpg"
+          src={asset('img/about/avatar.jpg')}
           alt=""
           width={56}
           height={56}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { DeviceFrame, PHONE_SCREEN, webScreenFor } from '@/components/DeviceFrame'
 import { shellRatio } from '@/site/devices'
+import { asset } from '@/lib/asset'
 
 /** One image on a slide. Several sit together when they belong together. */
 export type SlideItem = {
@@ -197,7 +198,7 @@ function SlideMedia({
 
   const img = (
     <img
-      src={item.src}
+      src={asset(item.src)}
       alt={alt}
       // Only the first slide is eager. A deck must not cost every image to
       // show one.

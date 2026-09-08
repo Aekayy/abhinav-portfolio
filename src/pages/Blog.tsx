@@ -1,5 +1,6 @@
 import { POSTS } from '@/data/profile'
 import { PageHead, Section, Link } from '@/components/Bits'
+import { asset } from '@/lib/asset'
 
 export function Blog() {
   return (
@@ -18,7 +19,7 @@ export function Blog() {
                   className="card lift min-w-0 overflow-hidden p-0 transition-colors hover:border-(--line-strong)">
               {p.card && (
                 <div className="aspect-[4/3] w-full overflow-hidden" aria-hidden="true">
-                  <img src={p.card} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  <img src={asset(p.card)} alt="" loading="lazy" className="h-full w-full object-cover" />
                 </div>
               )}
               <div className="p-7">

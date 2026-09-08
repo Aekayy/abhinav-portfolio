@@ -618,7 +618,69 @@ body {
     transform: scale(1.045) translateY(-4px);
     z-index: 10;
   }
+
+  /* A card opens sideways, and the row makes room for it.
+     Scaling was the cheaper move — one transform, no layout — but it grows the
+     card *over* its neighbours and shrinks the type back down as it goes, so
+     the caption it exists to reveal reads no better than it did closed.
+     Widening costs a layout pass per frame on a handful of cards, which buys
+     the neighbours actually sliding aside. */
+  .qcard:hover { width: var(--qcard-w-open); z-index: 10; }
+  .qcard:hover .qcard-cap p { -webkit-line-clamp: 8; }
 }
+
+/* ── a case study card ───────────────────────────────────────────────
+   Two widths and one height. The artwork's height is derived from the *closed*
+   width and never from the open one, which is what keeps the card spreading
+   sideways only — tie it to the live width and the card grows in both
+   directions and shoves the whole row down the page.
+
+   The caption's open height is reserved in both states. It costs a little
+   blank space under a closed card, and in exchange hovering never changes the
+   height of the row, so the section below never jumps. */
+.qcard {
+  --qcard-w: min(320px, 72vw);
+  --qcard-w-open: min(480px, 86vw);
+  --qcard-shot-h: calc(min(320px, 72vw) * 1.25);
+  width: var(--qcard-w);
+  transition: width 520ms cubic-bezier(.22, .61, .36, 1);
+}
+.qcard-shot { height: var(--qcard-shot-h); }
+.qcard-cap { height: 5.6em; overflow: hidden; }
+.qcard-cap p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* The tag on the artwork. Legible over any thumbnail because it carries its
+   own dark plate rather than trusting whatever is behind it. */
+.quest-tag {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 2;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(10, 10, 10, .62);
+  border: 1px solid rgba(255, 255, 255, .16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.quest-tag.quest-main { color: #eafff1; border-color: rgba(126, 231, 160, .38) }
+.quest-tag.quest-side { color: #fff2e0; border-color: rgba(240, 190, 120, .38) }
+
+/* Reduced motion is handled by the global rule further down, which caps every
+   transition at 160ms. The card still opens and the caption still reveals —
+   withholding the caption would be withholding content, not motion. */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

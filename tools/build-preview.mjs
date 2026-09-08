@@ -35,9 +35,16 @@ html = html.replace(
 writeFileSync(`${root}/portfolio-preview.html`, html)
 console.log(`portfolio-preview.html rebuilt (${(html.length / 1024).toFixed(0)} KB, images linked not inlined)`)
 
-// Ensure image paths resolve when opening the preview file directly.
-const srcImg = `${root}/public/img`
-const dstImg = `${root}/img`
-if (existsSync(srcImg)) {
-  cpSync(srcImg, dstImg, { recursive: true })
+/*
+ * Put everything from public/ beside the preview so its relative paths resolve.
+ *
+ * This used to copy public/img and nothing else, which was fine until the
+ * Spotify study gained a video: public/video was never copied, so the one
+ * asset the study leads with was the one asset missing. Mirroring the whole of
+ * public/ means the next folder added to it is not a second silent failure.
+ */
+for (const entry of readdirSync(`${root}/public`)) {
+  const from = `${root}/public/${entry}`
+  if (!existsSync(from)) continue
+  cpSync(from, `${root}/${entry}`, { recursive: true })
 }
