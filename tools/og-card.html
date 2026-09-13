@@ -5,112 +5,90 @@
   <meta charset="UTF-8" />
   <title>og card — 1200×630</title>
   <!--
-    The social preview card, as a page rather than as a picture.
+    The social preview card. This file is the source of public/og.png, and the
+    drawing below is the exact code that produced the one currently live — keep
+    them in step, or regenerating will quietly replace a card that works with a
+    slightly different one.
 
-    It is written in the site's own tokens — the light theme's paper canvas,
-    Obsidian ink, the muted grey, the 24px card radius, SF Pro Display at
-    -0.04em, weight 400 everywhere — so the card a stranger sees in a feed is
-    the same room as the site it opens.
+    It is written in the site's own tokens: the light theme's paper canvas
+    (#faf4f4), Obsidian ink, the muted grey, the 24px card radius, -0.04em on
+    the display voice, weight 400 everywhere. The one spot of colour is the AK
+    mark, which is the rule the whole palette is built on — colour belongs to
+    the work, not to the frame around it.
 
-    The one spot of colour is the AK mark, which is the rule the whole palette
-    is built on: colour belongs to the work, not to the frame around it.
+    Canvas rather than laid-out HTML for one reason: it is the only version that
+    can also run from a page on another origin and hand the bytes straight to an
+    upload form, which is how the live card got there.
 
-    To produce public/og.png:
-      node tools/og.mjs
-    or, with no tooling at all, open this file and screenshot the card — the
-    body is exactly 1200×630 at a 1:1 zoom.
+      node tools/og.mjs        → public/og.png
+      or open this file and screenshot it; the canvas is exactly 1200×630.
   -->
   <style>
-    @page { size: 1200px 630px; margin: 0 }
     html, body { margin: 0; padding: 0; background: #fff }
-
-    .card {
-      /* the exact 1.91:1 slot X and LinkedIn lay out for a large card */
-      width: 1200px;
-      height: 630px;
-      box-sizing: border-box;
-      padding: 84px 92px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-
-      background: #faf4f4;               /* --page, light */
-      color: #181818;                    /* --ink */
-      font-family: 'SF Pro Text', 'SF Pro', -apple-system, BlinkMacSystemFont,
-                   system-ui, 'Segoe UI', sans-serif;
-      letter-spacing: -0.009em;
-      -webkit-font-smoothing: antialiased;
-      overflow: hidden;
-    }
-
-    .mark {
-      width: 108px; height: 108px;
-      border-radius: 24px;               /* --radius-card */
-      display: block;
-      object-fit: cover;
-    }
-
-    /* Hierarchy comes from ink against muted, never from weight. Sizes are the
-       site's display voice scaled for a card read at thumbnail size — a name
-       set at the page's 32px would be illegible at 250px wide in a feed. */
-    .name {
-      font-family: 'SF Pro Display', 'SF Pro', -apple-system, BlinkMacSystemFont,
-                   system-ui, 'Segoe UI', sans-serif;
-      font-size: 78px;
-      line-height: 1.1;
-      letter-spacing: -0.04em;
-      font-weight: 400;
-      margin: 0;
-    }
-
-    .role {
-      font-size: 30px;
-      line-height: 1.35;
-      color: #575759;                    /* --ink-muted, 6.7:1 on --page */
-      margin: 18px 0 0;
-      font-weight: 400;
-    }
-
-    .foot {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 32px;
-      padding-top: 28px;
-      border-top: 1px solid #ddd4d4;     /* --line */
-      font-size: 22px;
-      line-height: 1.4;
-      color: #575759;
-      font-weight: 400;
-    }
-
-    .site { color: #181818 }
-
-    /* A quiet availability pill. No accent, no shadow — the same restraint the
-       chrome uses everywhere else. */
-    .badge {
-      border: 1px solid #ddd4d4;
-      border-radius: 16px;               /* --radius-pill */
-      padding: 9px 18px;
-      white-space: nowrap;
-    }
+    canvas { display: block }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <img class="mark" src="../public/img/ak-logo.png" alt="" />
+  <script>
+    const W = 1200, H = 630, PAD = 92
+    const PAGE = '#faf4f4', INK = '#181818', MUTED = '#575759', LINE = '#ddd4d4'
+    const SANS = '"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif'
 
-    <div>
-      <h1 class="name">Abhinav Krishnan</h1>
-      <p class="role">Product Designer&nbsp; |&nbsp; UI/UX Designer</p>
-    </div>
+    const c = document.createElement('canvas')
+    c.width = W; c.height = H
+    document.body.appendChild(c)
+    const x = c.getContext('2d')
 
-    <div class="foot">
-      <span class="site">abhikrish.us</span>
-      <span class="badge">Open to full-time roles in the US</span>
-    </div>
-  </div>
+    x.fillStyle = PAGE
+    x.fillRect(0, 0, W, H)
+
+    const img = new Image()
+    img.src = '../public/img/ak-logo.png'
+    img.onload = draw
+    img.onerror = draw   // the card still reads without the mark
+
+    function draw() {
+      if (img.naturalWidth) {
+        x.save()
+        x.beginPath(); x.roundRect(PAD, 84, 108, 108, 24); x.clip()
+        x.drawImage(img, PAD, 84, 108, 108)
+        x.restore()
+      }
+
+      // Hierarchy comes from ink against muted, never from weight. The sizes are
+      // the site's display voice scaled for a card read at thumbnail width — the
+      // page's own 32px would be unreadable at 250px across in a feed.
+      x.fillStyle = INK
+      x.textBaseline = 'alphabetic'
+      x.letterSpacing = '-3px'
+      x.font = '400 78px ' + SANS
+      x.fillText('Abhinav Krishnan', PAD, 340)
+
+      x.letterSpacing = '0px'
+      x.fillStyle = MUTED
+      x.font = '400 30px ' + SANS
+      x.fillText('Product Designer  |  UI/UX Designer', PAD, 392)
+
+      x.strokeStyle = LINE; x.lineWidth = 1
+      x.beginPath(); x.moveTo(PAD, 478.5); x.lineTo(W - PAD, 478.5); x.stroke()
+
+      x.fillStyle = INK; x.font = '400 22px ' + SANS
+      x.fillText('abhikrish.us', PAD, 526)
+
+      // a quiet availability pill — no accent, no shadow, the same restraint the
+      // site's chrome uses everywhere else
+      const label = 'Open to full-time roles in the US'
+      const tw = x.measureText(label).width
+      const bw = tw + 40, bh = 50, bx = W - PAD - bw, by = 492
+      x.strokeStyle = LINE
+      x.beginPath(); x.roundRect(bx + .5, by + .5, bw - 1, bh - 1, 16); x.stroke()
+      x.fillStyle = MUTED
+      x.fillText(label, bx + 20, by + 33)
+
+      document.title = 'og card ready — 1200×630'
+    }
+  </script>
 </body>
 
 </html>
