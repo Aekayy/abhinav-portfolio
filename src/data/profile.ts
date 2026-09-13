@@ -55,11 +55,16 @@ export const RESUME_PAGES = [
   { src: 'img/resume/Resume2.jpg', alt: 'Resume, page two' },
 ] as const
 
-/** Outbound profiles. Instagram is pending a URL from Abhinav. */
+/**
+ * Outbound profiles.
+ *
+ * One list, read by both the contact page and the nav overlay, so the two can
+ * never disagree about where to find him.
+ */
 export const SOCIALS: { label: string; href: string }[] = [
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/abhinavux4/' },
+  { label: 'X', href: 'https://x.com/uhbeeenow' },
   { label: 'Medium', href: 'https://medium.com/@abhinavkrish.ux' },
-  { label: 'Behance', href: 'https://www.behance.net/abhinavkrish' },
 ]
 
 export const SERVICES = [

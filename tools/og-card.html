@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>og card — 1200×630</title>
+  <!--
+    The social preview card, as a page rather than as a picture.
+
+    It is written in the site's own tokens — the light theme's paper canvas,
+    Obsidian ink, the muted grey, the 24px card radius, SF Pro Display at
+    -0.04em, weight 400 everywhere — so the card a stranger sees in a feed is
+    the same room as the site it opens.
+
+    The one spot of colour is the AK mark, which is the rule the whole palette
+    is built on: colour belongs to the work, not to the frame around it.
+
+    To produce public/og.png:
+      node tools/og.mjs
+    or, with no tooling at all, open this file and screenshot the card — the
+    body is exactly 1200×630 at a 1:1 zoom.
+  -->
+  <style>
+    @page { size: 1200px 630px; margin: 0 }
+    html, body { margin: 0; padding: 0; background: #fff }
+
+    .card {
+      /* the exact 1.91:1 slot X and LinkedIn lay out for a large card */
+      width: 1200px;
+      height: 630px;
+      box-sizing: border-box;
+      padding: 84px 92px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      background: #faf4f4;               /* --page, light */
+      color: #181818;                    /* --ink */
+      font-family: 'SF Pro Text', 'SF Pro', -apple-system, BlinkMacSystemFont,
+                   system-ui, 'Segoe UI', sans-serif;
+      letter-spacing: -0.009em;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    .mark {
+      width: 108px; height: 108px;
+      border-radius: 24px;               /* --radius-card */
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Hierarchy comes from ink against muted, never from weight. Sizes are the
+       site's display voice scaled for a card read at thumbnail size — a name
+       set at the page's 32px would be illegible at 250px wide in a feed. */
+    .name {
+      font-family: 'SF Pro Display', 'SF Pro', -apple-system, BlinkMacSystemFont,
+                   system-ui, 'Segoe UI', sans-serif;
+      font-size: 78px;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .role {
+      font-size: 30px;
+      line-height: 1.35;
+      color: #575759;                    /* --ink-muted, 6.7:1 on --page */
+      margin: 18px 0 0;
+      font-weight: 400;
+    }
+
+    .foot {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 32px;
+      padding-top: 28px;
+      border-top: 1px solid #ddd4d4;     /* --line */
+      font-size: 22px;
+      line-height: 1.4;
+      color: #575759;
+      font-weight: 400;
+    }
+
+    .site { color: #181818 }
+
+    /* A quiet availability pill. No accent, no shadow — the same restraint the
+       chrome uses everywhere else. */
+    .badge {
+      border: 1px solid #ddd4d4;
+      border-radius: 16px;               /* --radius-pill */
+      padding: 9px 18px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <img class="mark" src="../public/img/ak-logo.png" alt="" />
+
+    <div>
+      <h1 class="name">Abhinav Krishnan</h1>
+      <p class="role">Product Designer&nbsp; |&nbsp; UI/UX Designer</p>
+    </div>
+
+    <div class="foot">
+      <span class="site">abhikrish.us</span>
+      <span class="badge">Open to full-time roles in the US</span>
+    </div>
+  </div>
+</body>
+
+</html>
