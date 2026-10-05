@@ -83,7 +83,8 @@ export type Project = {
   name: string
   title: string
   summary: string
-  year: string
+  /** Optional: a study can leave the meta row without a year. */
+  year?: string
   industry: string
   role: string
   client?: string
@@ -129,6 +130,7 @@ export type Project = {
 }
 
 import { HARMONEY_SECTIONS } from './harmoney'
+import { GLUCOGUARD_SECTIONS } from './glucoguard'
 
 export const PROJECTS: Project[] = [
   // ── Merkle ─────────────────────────────────────────────────────────────
@@ -773,6 +775,28 @@ export const PROJECTS: Project[] = [
         ],
       },
     ],
+  },
+
+  // ── GlucoGuard ─────────────────────────────────────────────────────────
+  // Began as dashboards at Jewish Healthcare Foundation (see the experience
+  // list in profile.ts); 2.0 is the rethink, built as a working prototype.
+  {
+    slug: 'glucoguard',
+    name: 'GlucoGuard',
+    title: 'Every alert, followed through.',
+    summary:
+      'A patient iPhone app and a care-team console that follow one 3 a.m. low across six people, from the patient and her daughter to the night nurse, the physician, the supplier and the payer. Designed and built as a working prototype.',
+    industry: 'Healthtech · Remote patient monitoring',
+    role: 'Product Designer, and build',
+    client: 'Jewish Healthcare Foundation',
+    kind: 'project',
+    thumb: 'img/work/glucoguard/screens/a7-escalating.webp',
+    accent: '#5a2b5e',
+    external: {
+      href: 'https://glucoguard-jhf.vercel.app/',
+      label: 'View Live Build',
+    },
+    sections: GLUCOGUARD_SECTIONS,
   },
 
   // ── ForeCash ───────────────────────────────────────────────────────────

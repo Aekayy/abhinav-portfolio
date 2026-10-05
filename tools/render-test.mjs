@@ -502,7 +502,7 @@ check('spotify offers the study and the build together',
   check('forecash desktop taps every frame',
     S2.forecash.also?.taps.length === S2.forecash.also?.frames.length)
   check('only projects drawn twice claim two devices',
-    Object.entries(S2).filter(([, s]) => s.also).map(([k]) => k).join() === 'forecash')
+    Object.entries(S2).filter(([, s]) => s.also).map(([k]) => k).sort().join() === 'forecash,glucoguard')
 }
 
 /*

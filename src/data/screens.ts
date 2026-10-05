@@ -233,8 +233,54 @@ const vesseli: Showcase = {
   ],
 }
 
+/**
+ * GlucoGuard: the 3 a.m. escalation, then the calm day it protects.
+ *
+ * Captured from the working prototype at iPhone 15 (393x852), with the
+ * prototype's own island hidden because the frame draws one. Positions were
+ * read off the live DOM: the notification at 30.6%, the hold button at 82.9%,
+ * Done at 93%, and the tab bar at 95.4% with items at 14 / 38 / 62 / 86.
+ *
+ * The one press that isn't honest is the loop: nothing taps a phone into a
+ * Critical Alert. The last frame is Trends, and the next alert simply arrives.
+ *
+ * On the laptop: queue, take over, patients, the chart, and the order Dr. Chen
+ * signs the next morning, then the sidebar back to the queue.
+ */
+const glucoguard: Showcase = {
+  device: 'phone',
+  alt: 'GlucoGuard on a phone and a laptop: a 3 a.m. Critical Alert, the escalation with hold to confirm, calls stopped, the calm Today screen and trends; and the care team’s alert queue, taking over the case, the patient list, her chart and a sensor order.',
+  frames: [
+    'a6-lock-critical',
+    'a7-escalating',
+    'a9-safe',
+    't1-today',
+    'r1-trends',
+  ],
+  stills: ['a7-escalating', 't1-today'],
+  taps: [
+    [50, 30.6], // the Critical Alert notification
+    [50, 82.9], // Hold: I’ve had sugar
+    [50, 93],   // Done
+    [38, 95.4], // Trends tab
+    [14, 95.4], // Today tab; the next alert arrives on its own
+  ],
+  also: {
+    device: 'web',
+    frames: ['w-q1-queue', 'w-q2-takeover', 'w-p1-patients', 'w-p2-chart', 'w-d1-order-new'],
+    taps: [
+      [91.7, 94.9], // Take over
+      [7.9, 27.7],  // Patients
+      [25.6, 35.4], // Denise Okafor
+      [82.9, 16.2], // Order supplies
+      [7.9, 23.2],  // Alert queue, closing the loop
+    ],
+  },
+}
+
 export const SHOWCASES: Record<string, Showcase> = {
   forecash,
+  glucoguard,
   harmoney,
   merkle,
   'spotify-alter': spotify,
